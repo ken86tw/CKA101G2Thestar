@@ -27,7 +27,7 @@ public class RoomTypeVO {
 
     // 房型狀態(1 = 啟用之類),型別用 Byte 對應 DB 的 TINYINT。
     @Column(name = "ROOM_TYPE_STATUS")
-    private Byte roomTypeStatus;
+    private Boolean roomTypeStatus;
 
     // 每晚單價。createOrder 算錢就是查這欄。
     @Column(name = "ROOM_TYPE_PRICE")
@@ -69,11 +69,11 @@ public class RoomTypeVO {
         this.roomTypeContent = roomTypeContent;
     }
 
-    public Byte getRoomTypeStatus() {
+    public Boolean getRoomTypeStatus() {
         return roomTypeStatus;
     }
 
-    public void setRoomTypeStatus(Byte roomTypeStatus) {
+    public void setRoomTypeStatus(Boolean roomTypeStatus) {
         this.roomTypeStatus = roomTypeStatus;
     }
 

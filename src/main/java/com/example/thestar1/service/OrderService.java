@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class OrderService {
@@ -33,6 +35,15 @@ public class OrderService {
 
         LocalDate checkInDate = dto.getCheckInDate();
         LocalDate checkOutDate = dto.getCheckOutDate();
+
+
+        if (checkInDate == null || checkOutDate == null || !checkOutDate.isAfter(checkInDate)) {
+            throw new IllegalArgumentException("入住/退房日期不正確");
+        }
+        if (dto.getRooms() == null || dto.getRooms().isEmpty()) {
+            throw new IllegalArgumentException("沒有選擇任何房型");
+        }
+
         long nights = checkOutDate.toEpochDay() - checkInDate.toEpochDay();
 
         int totalAmount = 0;
@@ -58,13 +69,47 @@ public class OrderService {
         }
 
         List<DailyBooking> dailyBookings = new ArrayList<>();
+        for (CreateRoomOrderDTO.RoomItem item : dto.getRooms()) {
+            for (long i = 0; i < nights; i++) {
+                LocalDate date = checkInDate.plusDays(i);
+                dailyBookings.add(new DailyBooking(item.getRoomTypeId(), date, item.getQty()));
+            }
+        }
 
+        dailyBookings.sort(Comparator.comparing((DailyBooking d) -> d.roomTypeId).thenComparing((DailyBooking d) -> d.date));
+
+        for (DailyBooking d : dailyBookings) {
+            roomInventoryRepository.initInventory(d.date, d.roomTypeId);
+            int row = roomInventoryRepository.bookRooms(d.date, d.roomTypeId, d.qty);
+            if (row == 0) {
+                throw new IllegalStateException("房型" +  d.roomTypeId  + "於"  + d.date + "庫存不足，無法完成訂房");
+            }
+        }
 
         OrderVO ordervo = new OrderVO();
+        ordervo.setMemberId(memberId);
+        ordervo.setCouponId(dto.getCouponId());
+        ordervo.setOrderStatus((byte)0);
+        ordervo.setCheckInDate(checkInDate);
+        ordervo.setCheckOutDate(checkOutDate);
+        ordervo.setTotalAmount(totalAmount);
+        ordervo.setDiscountAmount(0);
+        ordervo.setPaidAmount(0);
+        ordervo.setMerchantTradeNo(generateMerchantTradeNo());
+
+        for(OrderListVO listVO : items){
+            ordervo.addOrderList(listVO);
+        }
 
         return orderRepository.save(ordervo);
 
 
+    }
+
+    private String generateMerchantTradeNo(){
+        long ms = System.currentTimeMillis();
+        int random = ThreadLocalRandom.current().nextInt(1000,10000);
+        return "TS" + ms + random;
     }
 
     private static class DailyBooking {
