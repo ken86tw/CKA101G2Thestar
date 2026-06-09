@@ -5,6 +5,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public interface OrderRepository extends JpaRepository<OrderVO,Integer> {
 
 
@@ -16,4 +19,10 @@ public interface OrderRepository extends JpaRepository<OrderVO,Integer> {
                      @Param("merchantTradeNo")String merchantTradeNo,
                      @Param("ecpayTradeNo")String ecpayTradeNo);
 
+    List<OrderVO> findByOrderStatusAndCreatedTimeBefore(Byte orderStatus, LocalDateTime time);
+
+
+    @Modifying
+    @Query(value = "UPDATE ROOM_ORDER SET ORDER_STATUS = 3 WHERE ORDER_ID = :orderId AND ORDER_STATUS = 0",nativeQuery = true)
+    int canceledOrderPayment(@Param("orderId")Integer orderId);
 }

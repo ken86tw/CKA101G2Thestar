@@ -17,8 +17,8 @@ public interface RoomInventoryRepository extends JpaRepository<RoomInventoryVO, 
 
     @Modifying
     @Query(value = "INSERT INTO ROOM_INVENTORY(INVENTORY_DATE,ROOM_TYPE_ID, TOTAL_AMOUNT,BOOKED_AMOUNT) " +
-                   "SELECT :date,:roomTypeId,rt.ROOM_TYPE_AMOUNT,0 FROM ROOM_TYPE rt WHERE  rt.ROOM_TYPE_ID = :roomTypeId " +
-                   "ON DUPLICATE KEY UPDATE BOOKED_AMOUNT = BOOKED_AMOUNT", nativeQuery = true)
+            "SELECT :date,:roomTypeId,rt.ROOM_TYPE_AMOUNT,0 FROM ROOM_TYPE rt WHERE  rt.ROOM_TYPE_ID = :roomTypeId " +
+            "ON DUPLICATE KEY UPDATE BOOKED_AMOUNT = BOOKED_AMOUNT", nativeQuery = true)
     void initInventory(@Param("date") LocalDate date,
                        @Param("roomTypeId") Integer roomTypeId);
 
@@ -28,7 +28,7 @@ public interface RoomInventoryRepository extends JpaRepository<RoomInventoryVO, 
 
     @Modifying
     @Query(value = "UPDATE ROOM_INVENTORY SET BOOKED_AMOUNT = BOOKED_AMOUNT + :qty WHERE INVENTORY_DATE = :date " +
-                   "AND ROOM_TYPE_ID = :roomTypeId AND BOOKED_AMOUNT + :qty <= TOTAL_AMOUNT", nativeQuery = true)
+            "AND ROOM_TYPE_ID = :roomTypeId AND BOOKED_AMOUNT + :qty <= TOTAL_AMOUNT", nativeQuery = true)
         // 把已訂數加上要訂的數量, (鎖定哪一天 , 鎖定哪個房型) 這兩行合起來＝主鍵 int = 1 扣成功；0＝塞不下,訂不到
     int bookRooms(@Param("date") LocalDate date,
                   @Param("roomTypeId") Integer roomTypeId,
@@ -37,4 +37,11 @@ public interface RoomInventoryRepository extends JpaRepository<RoomInventoryVO, 
     //                         動態建立後訂房，將要新增的房數新增至列表中並且
     //                         在日期與房型一樣的前提下預定的房數加上已存在的被訂房數必須小於等於總房數
     //                         才能完成預訂否則直接回傳0成功回傳1
+
+    @Modifying
+    @Query(value = "UPDATE ROOM_INVENTORY SET BOOKED_AMOUNT = BOOKED_AMOUNT - :qty " +
+            "WHERE INVENTORY_DATE = :date AND ROOM_TYPE_ID = :roomTypeId", nativeQuery = true)
+    int releaseRoom(@Param("date") LocalDate date,
+                    @Param("roomTypeId") Integer roomTypeId,
+                    @Param("qty") int qty);
 }

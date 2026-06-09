@@ -8,10 +8,12 @@ import com.example.thestar1.repository.OrderRepository;
 import com.example.thestar1.repository.RoomInventoryRepository;
 import com.example.thestar1.repository.RoomTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -75,7 +77,7 @@ public class OrderService {
 
         //建立一個這個訂單所有房型的每日住房清單 因為庫存資料庫是用房型跟天數作為雙主鍵
         //需要使用雙層迴圈將天數拆解成一天一天以加入庫存
-        //接下來將日期,房型與數量加入內部類別建出的物件用來訂房
+        //接下來將日期,房型與數量加入內部類別建出的物件後塞進list集合裡用來訂房
         List<DailyBooking> dailyBookings = new ArrayList<>();
         for (CreateRoomOrderDTO.RoomItem item : dto.getRooms()) {
             for (long i = 0; i < nights; i++) {
@@ -85,7 +87,7 @@ public class OrderService {
         }
         //排序房型與日期讓不同筆訂單都能照同一順序去鎖資料庫避免互等死鎖
         dailyBookings.sort(Comparator.comparing((DailyBooking d) -> d.roomTypeId)
-                     .thenComparing((DailyBooking d) -> d.date));
+                .thenComparing((DailyBooking d) -> d.date));
 
         //使用dailyBookings將存好的每日訂房資料一筆一筆扣進庫存 回傳0交易失敗回滾
         for (DailyBooking d : dailyBookings) {
@@ -116,12 +118,14 @@ public class OrderService {
 
 
     }
+
     //建立此訂單金流編號
     private String generateMerchantTradeNo() {
         long ms = System.currentTimeMillis();
         int random = ThreadLocalRandom.current().nextInt(1000, 10000);
         return "TS" + ms + random;
     }
+
     //建立一個用於扣庫存的內部類別
     private static class DailyBooking {
         final Integer roomTypeId;
@@ -134,13 +138,43 @@ public class OrderService {
             this.qty = qty;
         }
     }
+
     @Transactional
     public void confirmOrder(String merChantTradeNo, Integer paidAmount,
-                             Byte paymentMethod, String ecpayTradeNo){
-    int row = orderRepository.completeOrderPayment(paidAmount,
-            paymentMethod, merChantTradeNo, ecpayTradeNo);
-        if(row == 0){
+                             Byte paymentMethod, String ecpayTradeNo) {
+        int row = orderRepository.completeOrderPayment(paidAmount,
+                paymentMethod, merChantTradeNo, ecpayTradeNo);
+        if (row == 0) {
             throw new IllegalStateException("訂單不存在或是已處理" + merChantTradeNo);
+        }
+    }
+
+    @Scheduled(fixedDelay = 60000)
+    @Transactional
+    public void cancelExpiredOrder() {
+        LocalDateTime time = LocalDateTime.now().minusMinutes(5);
+
+        List<OrderVO> expiredOrdeList = orderRepository.findByOrderStatusAndCreatedTimeBefore((byte) 0, time);
+
+        for (OrderVO expiredOrder : expiredOrdeList) {
+            int updated = orderRepository.canceledOrderPayment(expiredOrder.getOrderId());
+            if (updated == 0) {
+                continue;
+            }
+            LocalDate checkInDate = expiredOrder.getCheckInDate();
+            LocalDate checkOutDate = expiredOrder.getCheckOutDate();
+            long nights = checkOutDate.toEpochDay() - checkInDate.toEpochDay();
+
+            for (OrderListVO orderList : expiredOrder.getOrderList()) {
+                Integer roomTypeId = orderList.getRoomTypeId();
+                int qty = orderList.getQuantity();
+
+                for (int i = 0; i < nights; i++) {
+                    LocalDate date = checkInDate.plusDays(i);
+                    roomInventoryRepository.releaseRoom(date, roomTypeId, qty);
+
+                }
+            }
         }
     }
 }
