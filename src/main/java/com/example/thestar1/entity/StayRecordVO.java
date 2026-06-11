@@ -25,7 +25,10 @@ public class StayRecordVO {
 	
 	@Column(name = "ROOM_ID")
 	private Integer roomId;
-	
+
+	@Column(name = "STAY_CUSTOMER")
+	private String stayCustomer;
+
 	@Column(name = "CHECK_IN_EMPLOYEE_ID")
 	private Integer checkInEmployeeId;
 	
@@ -102,8 +105,16 @@ public class StayRecordVO {
 	public void setOrderListvo(OrderListVO orderListvo) {
 		this.orderListvo = orderListvo;
 	}
-	
-	
-	
+
+	public String getStayCustomer() {
+		return stayCustomer;
+	}
+
+	public void setStayCustomer(String stayCustomer) {
+		this.stayCustomer = stayCustomer;
+	}
+
+
+
 
 }
