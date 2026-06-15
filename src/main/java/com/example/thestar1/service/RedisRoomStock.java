@@ -6,7 +6,9 @@ import com.example.thestar1.repository.RoomTypeRepository;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 public class RedisRoomStock {
@@ -28,14 +30,17 @@ public class RedisRoomStock {
     public void initRedisRoom(Integer roomTypeId, LocalDate date) {
         String key = roomKey(roomTypeId, date);
         Integer available = roomInventoryRepository.checkInventory(roomTypeId, date);
-        int room;
 
+        int room;
         if (available == null) {
             room = roomTypeRepository.findById(roomTypeId).orElseThrow().getRoomTypeAmount();
         } else {
             room = available;
         }
-        redisTemplate.opsForValue().setIfAbsent(key, String.valueOf(room));
+
+        //當日結束後將redis清除明日重新建立
+        Duration ttl = Duration.between(LocalDateTime.now(), date.plusDays(1).atStartOfDay());
+        redisTemplate.opsForValue().setIfAbsent(key, String.valueOf(room), ttl);
     }
 
     public boolean bookRedisRoom(Integer roomTypeId, LocalDate date, int qty) {
