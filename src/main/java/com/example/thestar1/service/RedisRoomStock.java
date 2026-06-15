@@ -22,7 +22,7 @@ public class RedisRoomStock {
         this.roomInventoryRepository = roomInventoryRepository;
         this.roomTypeRepository = roomTypeRepository;
     }
-
+    //建立redis的key ex: room:2:2026-07-12 以房型加日期作為主鍵
     private String roomKey(Integer roomTypeId, LocalDate date) {
         return "room:" + roomTypeId + ":" + date;
     }
@@ -31,6 +31,7 @@ public class RedisRoomStock {
         String key = roomKey(roomTypeId, date);
         Integer available = roomInventoryRepository.checkInventory(roomTypeId, date);
 
+        //若查詢時為空值代表尚未被訂房即為滿房
         int room;
         if (available == null) {
             room = roomTypeRepository.findById(roomTypeId).orElseThrow().getRoomTypeAmount();
@@ -43,10 +44,12 @@ public class RedisRoomStock {
         redisTemplate.opsForValue().setIfAbsent(key, String.valueOf(room), ttl);
     }
 
+
     public boolean bookRedisRoom(Integer roomTypeId, LocalDate date, int qty) {
         String key = roomKey(roomTypeId, date);
         long result = redisTemplate.opsForValue().decrement(key, qty);
 
+        //若扣除庫存後小於零代表超賣 手動回滾
         if (result < 0) {
             redisTemplate.opsForValue().increment(key, qty);
             return false;
@@ -54,7 +57,7 @@ public class RedisRoomStock {
         return true;
     }
 
-    // 歸還庫存  已消失就不硬建，留給下次 initRedisRoom 從DB重建
+    // 歸還庫存  已消失就不再重複建立，留給下次 initRedisRoom 從資料庫重建
     public void releaseRoom(Integer roomTypeId, LocalDate date, int qty) {
         String key = roomKey(roomTypeId, date);
         if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
