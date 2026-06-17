@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TheStar 訂房測試頁</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, "PingFang TC", sans-serif; margin: 0; background: #f4f5f7; color: #222; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 20px; }
+    .card { background: #fff; border: 1px solid #e3e5e8; border-radius: 10px; padding: 16px; margin-bottom: 18px; }
+    .card h2 { font-size: 15px; margin: 0 0 12px; color: #444; }
+    label { display: inline-block; min-width: 76px; font-size: 13px; color: #666; }
+    input, select { padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    button { padding: 7px 14px; border: 0; border-radius: 6px; background: #2f6fed; color: #fff; font-size: 14px; cursor: pointer; }
+    button.ghost { background: #eef1f6; color: #333; }
+    button.danger { background: #e0533d; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .row { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border-bottom: 1px solid #eee; padding: 8px 6px; text-align: left; }
+    th { color: #888; font-weight: 600; }
+    .badge { padding: 2px 8px; border-radius: 12px; font-size: 12px; }
+    .s0 { background: #fff3cd; color: #8a6d00; }
+    .s1 { background: #d6ecff; color: #15497e; }
+    .s2 { background: #d9f2e0; color: #1d6b39; }
+    .s3 { background: #f1d9d9; color: #8a2a2a; }
+    .log { background: #1e1e1e; color: #cfcfcf; font-family: monospace; font-size: 12px; padding: 12px; border-radius: 8px; white-space: pre-wrap; max-height: 200px; overflow: auto; }
+    .muted { color: #999; font-size: 12px; }
+    .room-line { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+<div id="app" class="wrap">
+  <h1>🏨 TheStar 訂房後端測試頁</h1>
+
+  <!-- 假登入 -->
+  <div class="card">
+    <h2>1. 假登入</h2>
+    <div class="row">
+      <label>memberId</label>
+      <input type="number" v-model.number="memberId" style="width:100px">
+      <button @click="login">登入</button>
+      <span class="muted" v-if="loggedIn">已登入 memberId={{ loggedIn }}</span>
+    </div>
+  </div>
+
+  <!-- 下單 -->
+  <div class="card">
+    <h2>2. 建立訂單</h2>
+    <div class="row"><label>入住日</label><input type="date" v-model="form.checkInDate"></div>
+    <div class="row"><label>退房日</label><input type="date" v-model="form.checkOutDate"></div>
+    <div class="row"><label>couponId</label><input type="number" v-model.number="form.couponId" placeholder="可空" style="width:100px"></div>
+    <div style="margin:8px 0">
+      <div class="muted" style="margin-bottom:4px">房型</div>
+      <div class="room-line" v-for="(r, i) in form.rooms" :key="i">
+        <input type="number" v-model.number="r.roomTypeId" placeholder="roomTypeId" style="width:120px">
+        <input type="number" v-model.number="r.qty" placeholder="數量" style="width:80px">
+        <button class="ghost" @click="form.rooms.splice(i,1)" v-if="form.rooms.length>1">移除</button>
+      </div>
+      <button class="ghost" @click="form.rooms.push({roomTypeId:null,qty:1})">+ 加房型</button>
+    </div>
+    <div class="row"><button @click="createOrder" :disabled="!loggedIn">送出下單</button></div>
+  </div>
+
+  <!-- 我的訂單 -->
+  <div class="card">
+    <h2>3. 我的訂單</h2>
+    <div class="row">
+      <label>狀態</label>
+      <select v-model.number="queryStatus">
+        <option :value="0">0 待付款</option>
+        <option :value="1">1 已付款</option>
+        <option :value="2">2 已完成</option>
+        <option :value="3">3 已取消</option>
+      </select>
+      <button @click="loadOrders" :disabled="!loggedIn">查詢</button>
+    </div>
+    <table v-if="orders.length">
+      <thead>
+        <tr><th>訂單</th><th>狀態</th><th>入住</th><th>退房</th><th>應付</th><th>操作</th></tr>
+      </thead>
+      <tbody>
+        <tr v-for="o in orders" :key="o.orderId">
+          <td>#{{ o.orderId }}</td>
+          <td><span class="badge" :class="'s'+o.orderStatus">{{ statusText(o.orderStatus) }}</span></td>
+          <td>{{ o.checkInDate }}</td>
+          <td>{{ o.checkOutDate }}</td>
+          <td>{{ o.totalAmount - o.discountAmount }}</td>
+          <td>
+            <button v-if="o.orderStatus===0" @click="pay(o.orderId)">去結帳</button>
+            <button v-if="o.orderStatus===0" class="danger" @click="cancel(o.orderId)">取消</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="muted" v-else>（無資料，先查詢）</div>
+  </div>
+
+  <!-- log -->
+  <div class="card">
+    <h2>回應紀錄</h2>
+    <div class="log">{{ logText }}</div>
+  </div>
+</div>
+
+<script>
+const { createApp } = Vue;
+createApp({
+  data() {
+    const today = new Date();
+    const d = n => new Date(today.getTime() + n * 86400000).toISOString().slice(0, 10);
+    return {
+      memberId: 1,
+      loggedIn: null,
+      form: { checkInDate: d(1), checkOutDate: d(2), couponId: null, rooms: [{ roomTypeId: null, qty: 1 }] },
+      queryStatus: 0,
+      orders: [],
+      logLines: []
+    };
+  },
+  computed: {
+    logText() { return this.logLines.join('\n') || '（尚無）'; }
+  },
+  methods: {
+    statusText(s) { return ['待付款', '已付款', '已完成', '已取消'][s] ?? s; },
+    log(label, data) {
+      const ts = new Date().toLocaleTimeString();
+      this.logLines.unshift(`[${ts}] ${label}: ${typeof data === 'string' ? data : JSON.stringify(data)}`);
+    },
+    async api(url, opts = {}) {
+      const res = await fetch(url, { credentials: 'same-origin', ...opts });
+      const text = await res.text();
+      let body; try { body = JSON.parse(text); } catch { body = text; }
+      if (!res.ok) { this.log(`✘ ${res.status} ${url}`, body); throw new Error(text); }
+      return body;
+    },
+    async login() {
+      const r = await this.api(`/dev/login/${this.memberId}`);
+      this.loggedIn = this.memberId;
+      this.log('登入', r);
+    },
+    async createOrder() {
+      try {
+        const r = await this.api('/thestar/order/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.form)
+        });
+        this.log('✔ 下單成功', `訂單 #${r.orderId}，應付 ${r.totalAmount - r.discountAmount}`);
+        this.queryStatus = 0;
+        this.loadOrders();
+      } catch (e) {}
+    },
+    async loadOrders() {
+      try {
+        const r = await this.api(`/thestar/order/member/order?orderStatus=${this.queryStatus}&page=0&size=20`);
+        this.orders = r.content || [];
+        this.log('查詢訂單', `狀態 ${this.queryStatus}，共 ${this.orders.length} 筆`);
+      } catch (e) {}
+    },
+    async cancel(orderId) {
+      const reason = prompt('取消原因？', '測試取消');
+      if (reason === null) return;
+      try {
+        const r = await this.api(`/thestar/order/cancel/${orderId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: reason
+        });
+        this.log('✔ 取消', r);
+        this.loadOrders();
+      } catch (e) {}
+    },
+    pay(orderId) {
+      // checkout 端點回傳會自動 submit 的 HTML form，直接導頁讓它跳綠界
+      this.log('→ 前往綠界結帳', `訂單 #${orderId}`);
+      window.location.href = `/thestar/ecpay/checkout/${orderId}`;
+    }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

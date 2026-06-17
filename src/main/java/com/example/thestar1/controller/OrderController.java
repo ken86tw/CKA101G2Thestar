@@ -8,7 +8,6 @@ import com.example.thestar1.entity.OrderVO;
 import com.example.thestar1.service.OrderQueryService;
 import com.example.thestar1.service.OrderService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.boot.web.server.servlet.Session;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +20,8 @@ import java.util.List;
 @RequestMapping("/thestar/order")
 public class OrderController {
 
-    private OrderService orderService;
-    private OrderQueryService orderQueryService;
+    private final OrderService orderService;
+    private final OrderQueryService orderQueryService;
 
     public OrderController(OrderService orderService, OrderQueryService orderQueryService) {
         this.orderService = orderService;
@@ -58,7 +57,7 @@ public class OrderController {
         return ResponseEntity.ok("訂單" + orderId + "取消訂單成功");
     }
 
-    @GetMapping("/member/orders")
+    @GetMapping("/member/order")
     public ResponseEntity<Page<OrderVO>> memberFindOrder(@RequestParam Byte orderStatus,
                                                          @RequestParam(defaultValue = "0") int page,
                                                          @RequestParam(defaultValue = "10") int size,
@@ -75,7 +74,7 @@ public class OrderController {
         return ResponseEntity.ok(orderQueryService.findMemberOrder(memberId, orderStatus, page, size));
     }
 
-    @GetMapping("/member/orders/{orderId}")
+    @GetMapping("/member/order/detail/{orderId}")
     public ResponseEntity<List<OrderDetailDTO>> memberFindOrderList(@PathVariable Integer orderId,
                                                                     HttpSession session) {
         MemberVO member = (MemberVO) session.getAttribute("loginMember");
@@ -84,7 +83,7 @@ public class OrderController {
         }
         Integer memberId = member.getMemberId();
 
-        return ResponseEntity.ok(orderQueryService.findMemberOrderDetail(memberId,orderId));
+        return ResponseEntity.ok(orderQueryService.findMemberOrderDetail(memberId, orderId));
     }
 
 }

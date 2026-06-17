@@ -27,11 +27,11 @@ public class GetMemberDetailTest {
         Integer memberB = memberA + 1;   // 隨便一個不同的會員
         Integer orderId =1;
 // 正向：主人查得到
-        assertFalse(orderQueryService.getMemberOrderDetail(memberA, orderId).isEmpty());
+        assertFalse(orderQueryService.findMemberOrderDetail(memberA, orderId).isEmpty());
 
 // 反向：別人被擋
         assertThrows(IllegalArgumentException.class,
-                () -> orderQueryService.getMemberOrderDetail(memberB, orderId));
+                () -> orderQueryService.findMemberOrderDetail(memberB, orderId));
     }
 
 }

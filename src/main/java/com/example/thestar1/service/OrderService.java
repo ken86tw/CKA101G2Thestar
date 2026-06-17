@@ -160,6 +160,16 @@ public class OrderService {
         }
     }
 
+    //每次進結帳頁重發一個新的金流編號並存檔，避免重複結帳時被綠界檔
+    @Transactional
+    public String renewMerchantTradeNo(Integer orderId) {
+        OrderVO order = orderRepository.findById(orderId).orElseThrow();
+        String newNo = generateMerchantTradeNo();
+        order.setMerchantTradeNo(newNo);
+        orderRepository.save(order);
+        return newNo;
+    }
+
     //建立此訂單金流編號
     private String generateMerchantTradeNo() {
         long ms = System.currentTimeMillis();
