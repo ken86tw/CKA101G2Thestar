@@ -1,4 +1,5 @@
-package com.example.thestar1.service;
+package com.example.thestar1;
+import com.example.thestar1.payment.service.EcpayService;
 
 import org.junit.jupiter.api.Test;
 

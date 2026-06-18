@@ -1,7 +1,7 @@
 package com.example.thestar1;
 
-import com.example.thestar1.entity.StayRecordVO;
-import com.example.thestar1.service.StayRecordService;
+import com.example.thestar1.stayrecord.entity.StayRecordVO;
+import com.example.thestar1.stayrecord.service.StayRecordService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
