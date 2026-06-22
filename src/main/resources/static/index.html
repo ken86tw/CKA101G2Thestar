@@ -3,183 +3,496 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TheStar 訂房測試頁</title>
+  <title>THE STAR — Hotel &amp; Residences</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, "PingFang TC", sans-serif; margin: 0; background: #f4f5f7; color: #222; }
-    .wrap { max-width: 860px; margin: 0 auto; padding: 24px; }
-    h1 { font-size: 20px; }
-    .card { background: #fff; border: 1px solid #e3e5e8; border-radius: 10px; padding: 16px; margin-bottom: 18px; }
-    .card h2 { font-size: 15px; margin: 0 0 12px; color: #444; }
-    label { display: inline-block; min-width: 76px; font-size: 13px; color: #666; }
-    input, select { padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-    button { padding: 7px 14px; border: 0; border-radius: 6px; background: #2f6fed; color: #fff; font-size: 14px; cursor: pointer; }
-    button.ghost { background: #eef1f6; color: #333; }
-    button.danger { background: #e0533d; }
-    button:disabled { opacity: .5; cursor: not-allowed; }
-    .row { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { border-bottom: 1px solid #eee; padding: 8px 6px; text-align: left; }
-    th { color: #888; font-weight: 600; }
-    .badge { padding: 2px 8px; border-radius: 12px; font-size: 12px; }
-    .s0 { background: #fff3cd; color: #8a6d00; }
-    .s1 { background: #d6ecff; color: #15497e; }
-    .s2 { background: #d9f2e0; color: #1d6b39; }
-    .s3 { background: #f1d9d9; color: #8a2a2a; }
-    .log { background: #1e1e1e; color: #cfcfcf; font-family: monospace; font-size: 12px; padding: 12px; border-radius: 8px; white-space: pre-wrap; max-height: 200px; overflow: auto; }
-    .muted { color: #999; font-size: 12px; }
-    .room-line { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    :root{
+      --serif:'Cormorant Garamond','Noto Serif TC',serif;
+      --sans:'Jost','Noto Serif TC',system-ui,sans-serif;
+      --cream:#f6f2ea; --paper:#fbf9f4; --ink:#23211c; --soft:#5b564c;
+      --muted:#9b9486; --gold:#9c7c4f; --gold-d:#80623a; --line:#e4ddd0;
+      --hero:url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80');
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0}
+    body{font-family:var(--sans);background:var(--cream);color:var(--ink);font-weight:300;font-size:15px;line-height:1.7}
+    h1,h2,h3{font-family:var(--serif);font-weight:500;margin:0;letter-spacing:.5px}
+    .ser{font-family:var(--serif)}
+    .up{text-transform:uppercase;letter-spacing:3px;font-size:11px;font-weight:400}
+    a{color:inherit;text-decoration:none}
+
+    /* ===== buttons ===== */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;
+      background:var(--gold);color:#fff;font-family:var(--sans);font-size:11.5px;letter-spacing:2.5px;
+      text-transform:uppercase;padding:14px 30px;transition:.3s}
+    .btn:hover{background:var(--gold-d)}
+    .btn:disabled{opacity:.4;cursor:not-allowed}
+    .btn.ghost{background:transparent;border:1px solid var(--ink);color:var(--ink)}
+    .btn.ghost:hover{background:var(--ink);color:#fff}
+    .btn.line{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:9px 18px}
+    .btn.line:hover{background:var(--gold);color:#fff}
+    .btn.sm{padding:9px 18px;font-size:10.5px;letter-spacing:2px}
+    .btn.danger{background:transparent;border:1px solid #a85b50;color:#a85b50}
+    .btn.danger:hover{background:#a85b50;color:#fff}
+    .btn.block{width:100%}
+
+    input,select{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);
+      font-family:var(--sans);font-weight:300;font-size:15px;padding:10px 2px;outline:none;border-radius:0;transition:.25s}
+    input:focus,select:focus{border-bottom-color:var(--gold)}
+    label{display:block;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+    /* ===== gate ===== */
+    .gate{min-height:100vh;display:grid;grid-template-columns:1.15fr .85fr}
+    .gate .visual{background:var(--hero) center/cover;position:relative}
+    .gate .visual::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,18,14,.25),rgba(20,18,14,.55))}
+    .gate .visual .cap{position:absolute;left:48px;bottom:44px;color:#fff;z-index:1}
+    .gate .visual .cap .up{opacity:.8}
+    .gate .visual .cap h1{font-size:46px;color:#fff;margin-top:8px}
+    .gate .form{display:flex;flex-direction:column;justify-content:center;padding:60px 9vw;background:var(--paper)}
+    .gate .mark{text-align:center;margin-bottom:40px}
+    .gate .mark .star{font-size:22px;color:var(--gold)}
+    .gate .mark h2{font-size:30px;margin-top:6px;letter-spacing:6px}
+    .gate .mark p{color:var(--muted);font-size:12px;letter-spacing:3px;text-transform:uppercase;margin:6px 0 0}
+    .seg{display:flex;gap:30px;justify-content:center;border-bottom:1px solid var(--line);margin-bottom:34px}
+    .seg button{background:0;border:0;cursor:pointer;font-family:var(--sans);font-size:12px;letter-spacing:2px;
+      text-transform:uppercase;color:var(--muted);padding:0 0 14px;position:relative}
+    .seg button.on{color:var(--ink)}
+    .seg button.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--gold)}
+    .gate .field{margin-bottom:26px}
+    .gate .hint{text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px;margin-top:26px}
+
+    /* ===== header ===== */
+    header{position:sticky;top:0;z-index:30;background:rgba(251,249,244,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+    .hbar{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:20px;padding:18px 30px}
+    .logo{display:flex;flex-direction:column;line-height:1}
+    .logo .star{font-size:15px;color:var(--gold);letter-spacing:6px}
+    .logo b{font-family:var(--serif);font-size:22px;letter-spacing:5px;font-weight:500}
+    .logo small{font-size:9px;letter-spacing:4px;color:var(--muted);text-transform:uppercase;margin-top:3px}
+    nav.menu{display:flex;gap:30px;margin-left:30px;flex:1}
+    nav.menu button{background:0;border:0;cursor:pointer;font-family:var(--sans);font-size:12px;letter-spacing:2px;
+      text-transform:uppercase;color:var(--soft);padding:6px 0;position:relative;transition:.25s}
+    nav.menu button:hover{color:var(--ink)}
+    nav.menu button.on{color:var(--ink)}
+    nav.menu button.on::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:1px;background:var(--gold)}
+    .hright{display:flex;align-items:center;gap:16px}
+    .ident{font-size:10.5px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;text-align:right}
+    .ident b{color:var(--gold);font-weight:400}
+
+    /* ===== hero banner ===== */
+    .hero{height:42vh;min-height:300px;background:var(--hero) center/cover;position:relative;display:grid;place-items:center;text-align:center}
+    .hero::after{content:"";position:absolute;inset:0;background:rgba(20,18,14,.4)}
+    .hero .inner{position:relative;z-index:1;color:#fff}
+    .hero .up{opacity:.85}
+    .hero h1{color:#fff;font-size:48px;margin-top:10px}
+    .hero .rule{width:48px;height:1px;background:var(--gold);margin:18px auto 0}
+
+    .wrap{max-width:1180px;margin:0 auto;padding:64px 30px 90px}
+    .sechead{text-align:center;margin-bottom:46px}
+    .sechead .up{color:var(--gold)}
+    .sechead h2{font-size:36px;margin-top:8px}
+    .sechead p{color:var(--muted);margin:10px 0 0}
+
+    .panel{background:var(--paper);border:1px solid var(--line);padding:40px}
+    .grid{display:grid;gap:30px}
+    .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}
+    .roomrow{display:flex;gap:20px;align-items:flex-end;margin-bottom:18px}
+    .reslink{background:0;border:0;color:var(--gold);cursor:pointer;font-size:11px;letter-spacing:2px;text-transform:uppercase}
+
+    /* ===== 四格狀態（精品版） ===== */
+    .stab{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);background:var(--paper);margin-bottom:0}
+    .stab .box{position:relative;padding:26px 16px;text-align:center;cursor:pointer;border-right:1px solid var(--line);transition:.3s}
+    .stab .box:last-child{border-right:0}
+    .stab .box:hover{background:#f3eee4}
+    .stab .box.on{background:#f2ebdd}
+    .stab .box .num{font-family:var(--serif);font-size:34px;color:var(--ink);line-height:1}
+    .stab .box.on .num{color:var(--gold)}
+    .stab .box .lb{font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-top:8px}
+    .stab .box.on .lb{color:var(--ink)}
+    .stab .box.on::after{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:var(--gold)}
+
+    table{width:100%;border-collapse:collapse;font-size:14px;font-weight:300}
+    th{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:400;text-align:left;padding:16px 14px;border-bottom:1px solid var(--line)}
+    td{padding:18px 14px;border-bottom:1px solid var(--line)}
+    tr.det td{background:#f3eee4}
+    .oid{font-family:var(--serif);font-size:18px}
+    .badge{font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border:1px solid}
+    .b0{color:#9a7b32;border-color:#d8c79a;background:#f7f0dd}
+    .b1{color:#3f6b8a;border-color:#bcd0dd;background:#e9f1f6}
+    .b2{color:#4a7350;border-color:#bcd2bf;background:#eaf2ea}
+    .b3{color:#9c5249;border-color:#dcc2bd;background:#f6ebe8}
+    .money{font-family:var(--serif);font-size:18px}
+    .strike{color:var(--muted);text-decoration:line-through;font-size:12px;margin-left:8px;font-family:var(--sans)}
+    .empty{text-align:center;color:var(--muted);padding:70px 0}
+    .empty .big{font-family:var(--serif);font-size:26px;color:var(--soft)}
+    .pager{display:flex;justify-content:center;align-items:center;gap:24px;margin-top:34px;font-size:12px;letter-spacing:1px;color:var(--muted)}
+
+    .roomgrid{display:flex;flex-wrap:wrap;gap:14px;margin-top:20px}
+    .rchip{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--paper);padding:12px 18px;cursor:pointer;transition:.25s}
+    .rchip:hover{border-color:var(--gold)}
+    .rchip .dot{width:7px;height:7px;border-radius:50%}
+    .rchip .free{background:#5b8a5f}.rchip .busy{background:#a85b50}
+    .rchip .no{font-family:var(--serif);font-size:18px}
+    .rchip small{color:var(--muted);font-size:11px;letter-spacing:1px;text-transform:uppercase}
+
+    .actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+    /* toast */
+    .toasts{position:fixed;right:26px;bottom:26px;display:flex;flex-direction:column;gap:12px;z-index:60}
+    .toast{min-width:260px;max-width:360px;background:var(--paper);border:1px solid var(--line);border-left:2px solid var(--gold);
+      padding:16px 18px;box-shadow:0 14px 40px rgba(40,33,22,.14);animation:sl .3s ease}
+    .toast.ok{border-left-color:#5b8a5f}.toast.err{border-left-color:#a85b50}.toast.warn{border-left-color:#c9a23f}
+    .toast b{display:block;font-family:var(--serif);font-size:17px;margin-bottom:2px}
+    .toast small{color:var(--muted);font-size:12px;letter-spacing:.5px}
+    @keyframes sl{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+
+    details{margin-top:30px}
+    summary{cursor:pointer;color:var(--muted);font-size:11px;letter-spacing:2px;text-transform:uppercase}
+    .log{margin-top:12px;background:#23211c;color:#cfc6b4;font-family:ui-monospace,monospace;font-size:12px;
+      padding:16px;max-height:200px;overflow:auto;white-space:pre-wrap;line-height:1.7}
+    .fade-enter-active,.fade-leave-active{transition:opacity .25s}.fade-enter-from,.fade-leave-to{opacity:0}
+    @media(max-width:900px){.gate{grid-template-columns:1fr}.gate .visual{display:none}
+      nav.menu{display:none}.g2,.g3{grid-template-columns:1fr}.stab{grid-template-columns:repeat(2,1fr)}
+      .stab .box:nth-child(2){border-right:0}.hero h1{font-size:34px}}
   </style>
 </head>
 <body>
-<div id="app" class="wrap">
-  <h1>🏨 TheStar 訂房後端測試頁</h1>
+<div id="app">
 
-  <!-- 假登入 -->
-  <div class="card">
-    <h2>1. 假登入</h2>
-    <div class="row">
-      <label>memberId</label>
-      <input type="number" v-model.number="memberId" style="width:100px">
-      <button @click="login">登入</button>
-      <span class="muted" v-if="loggedIn">已登入 memberId={{ loggedIn }}</span>
-    </div>
-  </div>
-
-  <!-- 下單 -->
-  <div class="card">
-    <h2>2. 建立訂單</h2>
-    <div class="row"><label>入住日</label><input type="date" v-model="form.checkInDate"></div>
-    <div class="row"><label>退房日</label><input type="date" v-model="form.checkOutDate"></div>
-    <div class="row"><label>couponId</label><input type="number" v-model.number="form.couponId" placeholder="可空" style="width:100px"></div>
-    <div style="margin:8px 0">
-      <div class="muted" style="margin-bottom:4px">房型</div>
-      <div class="room-line" v-for="(r, i) in form.rooms" :key="i">
-        <input type="number" v-model.number="r.roomTypeId" placeholder="roomTypeId" style="width:120px">
-        <input type="number" v-model.number="r.qty" placeholder="數量" style="width:80px">
-        <button class="ghost" @click="form.rooms.splice(i,1)" v-if="form.rooms.length>1">移除</button>
+  <!-- ============ 登入（精品入口，與其他頁分開） ============ -->
+  <div v-if="!member.on && !employee.on" class="gate">
+    <div class="visual"><div class="cap"><div class="up">The Star · Since 2026</div><h1>Arrive as a guest,<br>leave as family.</h1></div></div>
+    <div class="form">
+      <div class="mark"><div class="star">✦</div><h2>THE STAR</h2><p>Hotel &amp; Residences</p></div>
+      <div class="seg">
+        <button :class="{on:gateTab==='member'}" @click="gateTab='member'">貴賓登入</button>
+        <button :class="{on:gateTab==='staff'}" @click="gateTab='staff'">員工登入</button>
       </div>
-      <button class="ghost" @click="form.rooms.push({roomTypeId:null,qty:1})">+ 加房型</button>
+      <div v-if="gateTab==='member'">
+        <div class="field"><label>Member ID</label><input type="number" v-model.number="member.id" @keyup.enter="loginMember"></div>
+        <button class="btn block" @click="loginMember">進入專屬服務</button>
+        <p class="hint">尚未付款訂房、查詢預訂與結帳</p>
+      </div>
+      <div v-else>
+        <div class="field"><label>Employee ID</label><input type="number" v-model.number="employee.id" @keyup.enter="loginEmployee"></div>
+        <button class="btn block" @click="loginEmployee">進入後台</button>
+        <p class="hint">後台訂單 · 房務入住 / 退房</p>
+      </div>
     </div>
-    <div class="row"><button @click="createOrder" :disabled="!loggedIn">送出下單</button></div>
   </div>
 
-  <!-- 我的訂單 -->
-  <div class="card">
-    <h2>3. 我的訂單</h2>
-    <div class="row">
-      <label>狀態</label>
-      <select v-model.number="queryStatus">
-        <option :value="0">0 待付款</option>
-        <option :value="1">1 已付款</option>
-        <option :value="2">2 已完成</option>
-        <option :value="3">3 已取消</option>
-      </select>
-      <button @click="loadOrders" :disabled="!loggedIn">查詢</button>
-    </div>
-    <table v-if="orders.length">
-      <thead>
-        <tr><th>訂單</th><th>狀態</th><th>入住</th><th>退房</th><th>應付</th><th>操作</th></tr>
-      </thead>
-      <tbody>
-        <tr v-for="o in orders" :key="o.orderId">
-          <td>#{{ o.orderId }}</td>
-          <td><span class="badge" :class="'s'+o.orderStatus">{{ statusText(o.orderStatus) }}</span></td>
-          <td>{{ o.checkInDate }}</td>
-          <td>{{ o.checkOutDate }}</td>
-          <td>{{ o.totalAmount - o.discountAmount }}</td>
-          <td>
-            <button v-if="o.orderStatus===0" @click="pay(o.orderId)">去結帳</button>
-            <button v-if="o.orderStatus===0" class="danger" @click="cancel(o.orderId)">取消</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="muted" v-else>（無資料，先查詢）</div>
-  </div>
+  <!-- ============ 主站 ============ -->
+  <template v-else>
+    <header>
+      <div class="hbar">
+        <div class="logo"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp; Residences</small></div>
+        <nav class="menu">
+          <button :class="{on:nav==='book'}" @click="nav='book'">預訂客房</button>
+          <button :class="{on:nav==='orders'}" @click="nav='orders';loadOrders()">我的預訂</button>
+          <button :class="{on:nav==='admin'}" @click="nav='admin';loadAdmin()">後台訂單</button>
+          <button :class="{on:nav==='stay'}" @click="nav='stay'">房務管理</button>
+        </nav>
+        <div class="hright">
+          <div class="ident">
+            <div v-if="member.on">貴賓 <b>#{{ member.on }}</b></div>
+            <div v-if="employee.on">員工 <b>#{{ employee.on }}</b></div>
+          </div>
+          <button class="btn line" @click="logout">登出</button>
+        </div>
+      </div>
+    </header>
 
-  <!-- log -->
-  <div class="card">
-    <h2>回應紀錄</h2>
-    <div class="log">{{ logText }}</div>
+    <!-- ===== 預訂客房 ===== -->
+    <section v-if="nav==='book'">
+      <div class="hero"><div class="inner"><div class="up">Reservations</div><h1>預訂您的停留</h1><div class="rule"></div></div></div>
+      <div class="wrap">
+        <div class="sechead"><div class="up">Booking</div><h2>建立訂房</h2><p>選擇日期與房型，為您保留專屬客房</p></div>
+        <div class="panel" style="max-width:760px;margin:0 auto">
+          <div class="grid g3">
+            <div class="field"><label>入住日 Arrival</label><input type="date" v-model="form.checkInDate"></div>
+            <div class="field"><label>退房日 Departure</label><input type="date" v-model="form.checkOutDate"></div>
+            <div class="field"><label>禮遇券 Coupon</label><input type="number" v-model.number="form.couponId" placeholder="選填"></div>
+          </div>
+          <div style="margin:34px 0 14px"><span class="up" style="color:var(--gold)">Room Types · 房型</span></div>
+          <div class="roomrow" v-for="(r,i) in form.rooms" :key="i">
+            <div class="field" style="flex:1"><label>房型</label>
+              <select v-model.number="r.roomTypeId">
+                <option :value="null" disabled>請選擇房型</option>
+                <option v-for="t in ROOM_TYPES" :key="t.id" :value="t.id">{{ t.name }}　$ {{ t.price.toLocaleString() }} / 晚</option>
+              </select>
+            </div>
+            <div class="field" style="width:120px"><label>數量</label><input type="number" min="1" v-model.number="r.qty"></div>
+            <button class="reslink" style="padding-bottom:12px" @click="form.rooms.splice(i,1)" v-if="form.rooms.length>1">移除</button>
+          </div>
+          <button class="reslink" @click="form.rooms.push({roomTypeId:null,qty:1})">＋ 新增房型</button>
+          <div style="margin-top:36px;text-align:center"><button class="btn" @click="createOrder">確認預訂</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 我的預訂 ===== -->
+    <section v-if="nav==='orders'">
+      <div class="wrap">
+        <div class="sechead"><div class="up">My Stay</div><h2>我的預訂</h2><p>檢視並管理您的訂房</p></div>
+        <div class="stab">
+          <div v-for="s in STATUS" :key="s.v" class="box" :class="{on:orders.status===s.v}" @click="orders.status=s.v;orders.page=0;loadOrders()">
+            <div class="num">{{ orders.counts[s.v]||0 }}</div><div class="lb">{{ s.label }}</div>
+          </div>
+        </div>
+        <div class="panel" style="border-top:0;padding:14px 30px 30px">
+          <table v-if="orders.list.length">
+            <thead><tr><th>預訂編號</th><th>狀態</th><th>入住</th><th>退房</th><th>應付</th><th style="text-align:right">服務</th></tr></thead>
+            <tbody>
+              <template v-for="o in orders.list" :key="o.orderId">
+                <tr>
+                  <td><span class="oid">No. {{ o.orderId }}</span></td>
+                  <td><span class="badge" :class="'b'+o.orderStatus">{{ STATUS[o.orderStatus].label }}</span></td>
+                  <td>{{ o.checkInDate }}</td><td>{{ o.checkOutDate }}</td>
+                  <td><span class="money">${{ (o.totalAmount-o.discountAmount).toLocaleString() }}</span>
+                    <span v-if="o.discountAmount>0" class="strike">${{ o.totalAmount.toLocaleString() }}</span></td>
+                  <td><div class="actions">
+                    <button class="btn line sm" @click="toggleDetail(orders,o.orderId,'member')">{{ orders.open[o.orderId]?'收合':'明細' }}</button>
+                    <button v-if="o.orderStatus===0" class="btn sm" @click="pay(o.orderId)">前往結帳</button>
+                    <button v-if="o.orderStatus===0" class="btn ghost sm" @click="devConfirm(o.orderId)" title="不經綠界直接標記已付款">模擬付款</button>
+                    <button v-if="o.orderStatus===1" class="btn danger sm" @click="cancel(o.orderId)">取消訂單（退款）</button>
+                  </div></td>
+                </tr>
+                <tr v-if="orders.open[o.orderId]" class="det"><td colspan="6">
+                  <table><thead><tr><th>房型</th><th>每晚</th><th>數量</th><th>小計</th></tr></thead>
+                    <tbody><tr v-for="(d,k) in orders.detail[o.orderId]" :key="k">
+                      <td>{{ d.roomTypeName }}</td><td>${{ d.roomPrice.toLocaleString() }}</td>
+                      <td>×{{ d.QTY }}</td><td class="money">${{ d.subtotal.toLocaleString() }}</td></tr></tbody></table>
+                </td></tr>
+              </template>
+            </tbody>
+          </table>
+          <div v-else class="empty"><div class="big">尚無此類預訂</div><p>切換上方分類，或前往「預訂客房」</p></div>
+          <div class="pager" v-if="orders.totalPages>1">
+            <button class="reslink" :disabled="orders.page<=0" @click="orders.page--;loadOrders()">‹ 上一頁</button>
+            <span>{{ orders.page+1 }} / {{ orders.totalPages }}</span>
+            <button class="reslink" :disabled="orders.page>=orders.totalPages-1" @click="orders.page++;loadOrders()">下一頁 ›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 後台訂單 ===== -->
+    <section v-if="nav==='admin'">
+      <div class="wrap">
+        <div class="sechead"><div class="up">Back Office</div><h2>全站訂單</h2><p>需員工身分</p></div>
+        <div class="stab">
+          <div v-for="s in STATUS" :key="s.v" class="box" :class="{on:admin.status===s.v}" @click="admin.status=s.v;admin.page=0;loadAdmin()">
+            <div class="num">{{ admin.counts[s.v]||0 }}</div><div class="lb">{{ s.label }}</div>
+          </div>
+        </div>
+        <div class="panel" style="border-top:0;padding:14px 30px 30px">
+          <table v-if="admin.list.length">
+            <thead><tr><th>編號</th><th>會員</th><th>狀態</th><th>入住</th><th>退房</th><th>金額</th><th style="text-align:right">明細</th></tr></thead>
+            <tbody>
+              <template v-for="o in admin.list" :key="o.orderId">
+                <tr>
+                  <td><span class="oid">No. {{ o.orderId }}</span></td><td>#{{ o.memberId }}</td>
+                  <td><span class="badge" :class="'b'+o.orderStatus">{{ STATUS[o.orderStatus].label }}</span></td>
+                  <td>{{ o.checkInDate }}</td><td>{{ o.checkOutDate }}</td>
+                  <td class="money">${{ (o.totalAmount-o.discountAmount).toLocaleString() }}</td>
+                  <td style="text-align:right"><button class="btn line sm" @click="toggleDetail(admin,o.orderId,'admin')">{{ admin.open[o.orderId]?'收合':'明細' }}</button></td>
+                </tr>
+                <tr v-if="admin.open[o.orderId]" class="det"><td colspan="7">
+                  <table><thead><tr><th>房型</th><th>每晚</th><th>數量</th><th>小計</th></tr></thead>
+                    <tbody><tr v-for="(d,k) in admin.detail[o.orderId]" :key="k">
+                      <td>{{ d.roomTypeName }}</td><td>${{ d.roomPrice.toLocaleString() }}</td>
+                      <td>×{{ d.QTY }}</td><td class="money">${{ d.subtotal.toLocaleString() }}</td></tr></tbody></table>
+                </td></tr>
+              </template>
+            </tbody>
+          </table>
+          <div v-else class="empty"><div class="big">{{ employee.on?'此分類無訂單':'請以員工身分登入' }}</div></div>
+          <div class="pager" v-if="admin.totalPages>1">
+            <button class="reslink" :disabled="admin.page<=0" @click="admin.page--;loadAdmin()">‹ 上一頁</button>
+            <span>{{ admin.page+1 }} / {{ admin.totalPages }}</span>
+            <button class="reslink" :disabled="admin.page>=admin.totalPages-1" @click="admin.page++;loadAdmin()">下一頁 ›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 房務管理 ===== -->
+    <section v-if="nav==='stay'">
+      <div class="wrap">
+        <div class="sechead"><div class="up">Housekeeping</div><h2>房務管理</h2><p>查房型空房 · 辦理入住 / 退房 · 住宿紀錄</p></div>
+
+        <div class="panel" style="margin-bottom:30px">
+          <div class="roomrow" style="margin-bottom:0">
+            <div class="field" style="width:220px"><label>房型</label>
+              <select v-model.number="stay.roomTypeId">
+                <option :value="null" disabled>請選擇房型</option>
+                <option v-for="t in ROOM_TYPES" :key="t.id" :value="t.id">{{ t.name }}</option>
+              </select>
+            </div>
+            <button class="btn sm" style="margin-bottom:2px" @click="loadRooms">查詢空房</button>
+          </div>
+          <div class="roomgrid" v-if="stay.rooms.length">
+            <div class="rchip" v-for="r in stay.rooms" :key="r.roomId" @click="stay.checkin.roomId=r.roomId">
+              <span class="dot" :class="r.roomStatus===0?'free':'busy'"></span>
+              <span class="no">{{ r.roomId }}</span><small>{{ r.roomStatus===0?'空閒':'入住中' }}</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g2">
+          <div class="panel">
+            <h3 style="font-size:24px;margin-bottom:24px">辦理入住</h3>
+            <div class="field" style="margin-bottom:22px"><label>Order List ID</label><input type="number" v-model.number="stay.checkin.orderListId"></div>
+            <div class="field" style="margin-bottom:22px"><label>房號（點上方空房自動帶入）</label><input type="number" v-model.number="stay.checkin.roomId"></div>
+            <div class="field" style="margin-bottom:30px"><label>入住貴賓</label><input v-model="stay.checkin.stayCustomer" placeholder="姓名"></div>
+            <button class="btn block" @click="checkIn" :disabled="!employee.on">確認入住</button>
+          </div>
+          <div class="panel">
+            <h3 style="font-size:24px;margin-bottom:24px">辦理退房</h3>
+            <div class="field" style="margin-bottom:30px"><label>退房房號</label><input type="number" v-model.number="stay.checkoutRoomId"></div>
+            <button class="btn danger block" @click="checkOut" :disabled="!employee.on">確認退房</button>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:30px">
+          <h3 style="font-size:24px;margin-bottom:24px">住宿紀錄查詢</h3>
+          <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">
+            <div class="field"><label>房號</label><input type="number" v-model.number="stay.find.roomId"></div>
+            <div class="field"><label>旅客姓名</label><input v-model="stay.find.stayCustomer"></div>
+            <div class="field"><label>入住日（起）</label><input type="date" v-model="stay.find.checkInTime"></div>
+            <div class="field"><label>退房日（迄）</label><input type="date" v-model="stay.find.checkOutTime"></div>
+          </div>
+          <button class="btn ghost sm" @click="findStay" :disabled="!employee.on">查詢</button>
+          <table v-if="stay.records.length" style="margin-top:24px">
+            <thead><tr><th>紀錄</th><th>房號</th><th>旅客</th><th>入住時間</th><th>退房時間</th></tr></thead>
+            <tbody><tr v-for="r in stay.records" :key="r.stayId">
+              <td class="oid">{{ r.stayId }}</td><td>{{ r.roomId }}</td><td>{{ r.stayCustomer }}</td>
+              <td>{{ fmt(r.checkInTime) }}</td><td>{{ r.checkOutTime?fmt(r.checkOutTime):'在住中' }}</td></tr></tbody>
+          </table>
+        </div>
+
+        <details><summary>API 回應紀錄</summary><div class="log">{{ logText }}</div></details>
+      </div>
+    </section>
+  </template>
+
+  <div class="toasts">
+    <transition-group name="fade">
+      <div v-for="t in toasts" :key="t.id" class="toast" :class="t.type"><b>{{ t.title }}</b><small>{{ t.msg }}</small></div>
+    </transition-group>
   </div>
 </div>
 
 <script>
 const { createApp } = Vue;
+const STATUS = [
+  { v:0, label:'待付款' },{ v:1, label:'已付款' },{ v:2, label:'已完成' },{ v:3, label:'已取消' },
+];
+// 房型固定三種（與 ROOM_TYPE 表一致），前端顯示中文、值仍送數字 ID
+const ROOM_TYPES = [
+  { id:1, name:'雙人房',   price:4000  },
+  { id:2, name:'四人房',   price:7500  },
+  { id:3, name:'總統套房', price:12600 },
+];
 createApp({
-  data() {
-    const today = new Date();
-    const d = n => new Date(today.getTime() + n * 86400000).toISOString().slice(0, 10);
+  data(){
+    const today=new Date(); const d=n=>new Date(today.getTime()+n*864e5).toISOString().slice(0,10);
     return {
-      memberId: 1,
-      loggedIn: null,
-      form: { checkInDate: d(1), checkOutDate: d(2), couponId: null, rooms: [{ roomTypeId: null, qty: 1 }] },
-      queryStatus: 0,
-      orders: [],
-      logLines: []
+      STATUS, ROOM_TYPES, nav:'book', gateTab:'member',
+      member:{id:1,on:null}, employee:{id:1,on:null},
+      form:{checkInDate:d(1),checkOutDate:d(2),couponId:null,rooms:[{roomTypeId:null,qty:1}]},
+      orders:{status:0,page:0,size:10,list:[],totalPages:0,counts:{},open:{},detail:{}},
+      admin:{status:0,page:0,size:10,list:[],totalPages:0,counts:{},open:{},detail:{}},
+      stay:{roomTypeId:null,rooms:[],checkin:{orderListId:null,roomId:null,stayCustomer:''},
+            checkoutRoomId:null,find:{roomId:null,stayCustomer:'',checkInTime:'',checkOutTime:''},records:[]},
+      toasts:[], logLines:[], _tid:0,
     };
   },
-  computed: {
-    logText() { return this.logLines.join('\n') || '（尚無）'; }
-  },
-  methods: {
-    statusText(s) { return ['待付款', '已付款', '已完成', '已取消'][s] ?? s; },
-    log(label, data) {
-      const ts = new Date().toLocaleTimeString();
-      this.logLines.unshift(`[${ts}] ${label}: ${typeof data === 'string' ? data : JSON.stringify(data)}`);
-    },
-    async api(url, opts = {}) {
-      const res = await fetch(url, { credentials: 'same-origin', ...opts });
-      const text = await res.text();
-      let body; try { body = JSON.parse(text); } catch { body = text; }
-      if (!res.ok) { this.log(`✘ ${res.status} ${url}`, body); throw new Error(text); }
+  computed:{ logText(){ return this.logLines.join('\n')||'（尚無紀錄）'; } },
+  methods:{
+    fmt(s){ return s? String(s).replace('T',' ').slice(0,16):''; },
+    errMsg(e){ const b=e&&e.body; if(b&&typeof b==='object')return b.error||b.message||JSON.stringify(b);
+      return (typeof b==='string'&&b)?b:'請稍後再試'; },
+    toast(type,title,msg=''){ const id=++this._tid; this.toasts.push({id,type,title,msg});
+      setTimeout(()=>{ this.toasts=this.toasts.filter(t=>t.id!==id); },3400); },
+    log(label,data){ const ts=new Date().toLocaleTimeString();
+      this.logLines.unshift(`[${ts}] ${label}: ${typeof data==='string'?data:JSON.stringify(data)}`);
+      if(this.logLines.length>60) this.logLines.pop(); },
+    async api(url,opts={}){
+      const res=await fetch(url,{credentials:'same-origin',...opts});
+      const text=await res.text(); let body; try{body=JSON.parse(text);}catch{body=text;}
+      if(!res.ok){ this.log(`✘ ${res.status} ${url}`,body); throw {status:res.status,body}; }
       return body;
     },
-    async login() {
-      const r = await this.api(`/dev/login/${this.memberId}`);
-      this.loggedIn = this.memberId;
-      this.log('登入', r);
-    },
-    async createOrder() {
-      try {
-        const r = await this.api('/thestar/order/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(this.form)
-        });
-        this.log('✔ 下單成功', `訂單 #${r.orderId}，應付 ${r.totalAmount - r.discountAmount}`);
-        this.queryStatus = 0;
-        this.loadOrders();
-      } catch (e) {}
-    },
-    async loadOrders() {
-      try {
-        const r = await this.api(`/thestar/order/member/order?orderStatus=${this.queryStatus}&page=0&size=20`);
-        this.orders = r.content || [];
-        this.log('查詢訂單', `狀態 ${this.queryStatus}，共 ${this.orders.length} 筆`);
-      } catch (e) {}
-    },
-    async cancel(orderId) {
-      const reason = prompt('取消原因？', '測試取消');
-      if (reason === null) return;
-      try {
-        const r = await this.api(`/thestar/order/cancel/${orderId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: reason
-        });
-        this.log('✔ 取消', r);
-        this.loadOrders();
-      } catch (e) {}
-    },
-    pay(orderId) {
-      // checkout 端點回傳會自動 submit 的 HTML form，直接導頁讓它跳綠界
-      this.log('→ 前往綠界結帳', `訂單 #${orderId}`);
-      window.location.href = `/thestar/ecpay/checkout/${orderId}`;
-    }
-  }
+    async loginMember(){ try{ await this.api(`/dev/login/${this.member.id}`); this.member.on=this.member.id;
+      this.toast('ok','歡迎光臨',`貴賓 #${this.member.id}`); this.nav='orders'; this.loadOrders();
+    }catch{ this.toast('err','登入失敗'); } },
+    async loginEmployee(){ try{ await this.api(`/dev/employeelogin/${this.employee.id}`); this.employee.on=this.employee.id;
+      this.toast('ok','員工已登入',`#${this.employee.id}`); this.nav='admin'; this.loadAdmin();
+    }catch{ this.toast('err','登入失敗'); } },
+    logout(){ this.member.on=null; this.employee.on=null; this.nav='book';
+      this.orders.list=[]; this.admin.list=[]; this.toast('warn','已登出'); },
+    async createOrder(){ try{
+      const r=await this.api('/thestar/order/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.form)});
+      this.toast('ok','預訂成功',`No.${r.orderId} · 應付 $${(r.totalAmount-r.discountAmount).toLocaleString()}`);
+      this.log('✔ 下單',r); this.nav='orders'; this.orders.status=0; this.orders.page=0; this.loadOrders();
+    }catch(e){ this.toast('err','預訂失敗',this.errMsg(e)); } },
+    async loadOrders(){ if(!this.member.on)return;
+      try{
+        const r=await this.api(`/thestar/order/member/order?orderStatus=${this.orders.status}&page=${this.orders.page}&size=${this.orders.size}`);
+        this.orders.list=r.content||[]; this.orders.totalPages=r.totalPages||0; this.orders.open={};
+        this.refreshCounts(this.orders,'/thestar/order/member/order');
+      }catch{ this.orders.list=[]; } },
+    async loadAdmin(){ if(!this.employee.on){ this.toast('warn','請先員工登入','登出後改用員工身分'); return; }
+      try{
+        const r=await this.api(`/thestar/admin/order?orderStatus=${this.admin.status}&page=${this.admin.page}&size=${this.admin.size}`);
+        this.admin.list=r.content||[]; this.admin.totalPages=r.totalPages||0; this.admin.open={};
+        this.refreshCounts(this.admin,'/thestar/admin/order');
+      }catch{ this.admin.list=[]; } },
+    async refreshCounts(box,base){
+      for(const s of STATUS){ try{
+        const r=await this.api(`${base}?orderStatus=${s.v}&page=0&size=1`);
+        box.counts[s.v]=r.totalElements||0;
+      }catch{ box.counts[s.v]=0; } } },
+    async toggleDetail(box,orderId,kind){
+      if(box.open[orderId]){ box.open[orderId]=false; return; }
+      try{
+        const url=kind==='admin'?`/thestar/admin/order/detail/${orderId}`:`/thestar/order/member/order/detail/${orderId}`;
+        box.detail[orderId]=await this.api(url); box.open[orderId]=true;
+      }catch{ this.toast('err','明細查詢失敗'); } },
+    pay(orderId){ this.toast('warn','前往綠界結帳',`No.${orderId}`); window.location.href=`/thestar/ecpay/checkout/${orderId}`; },
+    async devConfirm(orderId){ if(!confirm(`模擬付款（不經綠界，直接標記 No.${orderId} 已付款）？`))return;
+      try{ await this.api(`/dev/confirm/${orderId}`); this.toast('ok','模擬付款成功',`No.${orderId} → 已付款`); this.loadOrders();
+      }catch(e){ this.toast('err','模擬付款失敗',this.errMsg(e)); } },
+    async cancel(orderId){ const reason=prompt('取消原因？','測試取消'); if(reason===null)return;
+      try{ await this.api(`/thestar/order/cancel/${orderId}`,{method:'POST',headers:{'Content-Type':'text/plain'},body:reason});
+        this.toast('ok','已取消',`No.${orderId}`); this.loadOrders();
+      }catch(e){ this.toast('err','取消失敗',this.errMsg(e)); } },
+    async loadRooms(){ if(!this.stay.roomTypeId){ this.toast('warn','請先輸入房型 ID'); return; }
+      try{ this.stay.rooms=await this.api(`/thestar/admin/stayrecord/rooms/${this.stay.roomTypeId}`);
+        this.toast(this.stay.rooms.length?'ok':'warn','查詢完成',
+          this.stay.rooms.length?`此房型 ${this.stay.rooms.length} 間空房`:'此房型查無空房（都入住/停用或房型不存在）');
+      }catch(e){ this.stay.rooms=[]; this.toast('err','查詢失敗',this.errMsg(e)); } },
+    async checkIn(){
+      if(!this.stay.checkin.orderListId||!this.stay.checkin.roomId){ this.toast('warn','請填 Order List ID 與房號'); return; }
+      try{ await this.api('/thestar/admin/stayrecord/checkin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.stay.checkin)});
+        this.toast('ok','入住成功',`房號 ${this.stay.checkin.roomId} · ${this.stay.checkin.stayCustomer||''}`);
+      }catch(e){ this.toast('err','入住失敗',this.errMsg(e)); } },
+    async checkOut(){ if(!this.stay.checkoutRoomId){ this.toast('warn','請輸入退房房號'); return; }
+      if(!confirm(`房號 ${this.stay.checkoutRoomId} 確認退房？`))return;
+      try{ const r=await this.api(`/thestar/admin/stayrecord/checkout/${this.stay.checkoutRoomId}`,{method:'POST'});
+        this.toast('ok','退房成功',r);
+      }catch(e){ this.toast('err','退房失敗',this.errMsg(e)); } },
+    async findStay(){ try{
+      const q=new URLSearchParams(); const f=this.stay.find;
+      if(f.roomId)q.set('roomId',f.roomId); if(f.stayCustomer)q.set('stayCustomer',f.stayCustomer);
+      if(f.checkInTime)q.set('checkInTime',f.checkInTime); if(f.checkOutTime)q.set('checkOutTime',f.checkOutTime);
+      this.stay.records=await this.api(`/thestar/admin/stayrecord/find?${q}`);
+      this.toast('ok','查詢完成',`共 ${this.stay.records.length} 筆`);
+    }catch(e){ this.toast('err','查詢失敗',this.errMsg(e)); } },
+  },
 }).mount('#app');
 </script>
 </body>

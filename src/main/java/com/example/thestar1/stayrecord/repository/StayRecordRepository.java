@@ -28,7 +28,7 @@ public interface StayRecordRepository extends JpaRepository<StayRecordVO, Intege
 
 
     //複合查詢住宿紀錄
-    @Query("SELECT s FROM StayRecordVO s WHERE (:roomId IS NULL OR  s.roomId = :roomId ) AND (:stayCustomer IS NULL OR s.stayCustomer LIKE CONCAT('%',:stayCustomer,'%') ) " +
+    @Query("FROM StayRecordVO s WHERE (:roomId IS NULL OR  s.roomId = :roomId ) AND (:stayCustomer IS NULL OR s.stayCustomer LIKE CONCAT('%',:stayCustomer,'%') ) " +
             "AND (:checkInTime is null OR s.checkInTime >= :checkInTime) AND (s.checkOutTime is null OR :checkOutTime is null OR s.checkOutTime < :checkOutTime) ORDER BY s.checkInTime DESC")
     List<StayRecordVO> FrontSearchStayRecordVO(@Param("roomId") Integer roomId,             //確保未退房也查得到
                                                @Param("stayCustomer")String stayCustomer,
