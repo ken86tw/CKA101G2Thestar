@@ -4,6 +4,8 @@ import com.thestar.content.entity.ArticleVO;
 import com.thestar.content.entity.ReviewVO;
 import com.thestar.content.repository.ArticleRepository;
 import com.thestar.content.repository.ReviewRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,11 @@ public class ContentAdminService {
     @Transactional(readOnly = true)
     public List<ArticleVO> findAllArticles() {
         return articleRepository.findAll(Sort.by(Sort.Direction.DESC, "createAt"));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ArticleVO> findPublishedArticles(Pageable pageable) {
+        return articleRepository.findByStatusOrderByCreateAtDesc((byte) 1, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -88,5 +95,25 @@ public class ContentAdminService {
             throw new NoSuchElementException("查無評論");
         }
         reviewRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewVO> findReviewsForArticle(Integer articleId) {
+        return reviewRepository.findByArticleIdOrderByCreatedAtDesc(articleId);
+    }
+
+    public ReviewVO createReview(Integer articleId, Integer memberId, String content) {
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("留言內容為必填");
+        }
+        if (!articleRepository.existsById(articleId)) {
+            throw new NoSuchElementException("查無文章");
+        }
+        ReviewVO review = new ReviewVO();
+        review.setArticleId(articleId);
+        review.setMemberId(memberId);
+        review.setContent(content);
+        review.setLikeCount(0);
+        return reviewRepository.save(review);
     }
 }
