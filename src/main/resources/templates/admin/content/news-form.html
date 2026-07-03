@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/content/parts :: head(${mode == 'add'} ? '新增最新消息 - The Star Hotel' : '編輯最新消息 - The Star Hotel')}"></head>
+<body class="admin-body">
+<div class="admin-frame">
+    <div th:replace="~{admin/content/parts :: topbar}"></div>
+    <aside th:replace="~{admin/content/parts :: sidebar('news')}"></aside>
+    <main class="admin-main">
+        <div class="admin-heading">
+            <div>
+                <h1 th:text="${mode == 'add'} ? '新增最新消息' : '編輯最新消息'"></h1>
+                <p>公告內容會顯示於前台最新消息區。</p>
+            </div>
+        </div>
+        <form class="admin-card admin-form" th:object="${news}"
+              th:action="${mode == 'add'} ? @{/thestar/admin/content/news/add} : @{'/thestar/admin/content/news/edit/' + ${news.newsId}}"
+              method="post">
+            <div class="field">
+                <label for="title">標題</label>
+                <input id="title" th:field="*{title}" required>
+            </div>
+            <div class="field">
+                <label for="content">內容</label>
+                <textarea id="content" class="admin-textarea" th:field="*{content}" required></textarea>
+            </div>
+            <div class="field">
+                <label for="status">狀態</label>
+                <select id="status" th:field="*{status}">
+                    <option value="1">發布</option>
+                    <option value="0">下架</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="admin-button" type="submit">儲存</button>
+                <a class="admin-button line" th:href="@{/thestar/admin/content/news}">取消</a>
+            </div>
+        </form>
+    </main>
+</div>
+</body>
+</html>
