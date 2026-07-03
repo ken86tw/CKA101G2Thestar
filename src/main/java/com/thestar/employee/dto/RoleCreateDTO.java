@@ -1,4 +1,4 @@
-package com.example.thestar1.employee.dto;
+package com.thestar.employee.dto;
 
 public class RoleCreateDTO {
 

@@ -1,13 +1,12 @@
-package com.example.thestar1.order.service;
+package com.thestar.order.service;
 
 
-import com.example.thestar1.order.dto.OrderDetailDTO;
-import com.example.thestar1.order.entity.OrderListVO;
-import com.example.thestar1.order.entity.OrderVO;
-import com.example.thestar1.room.entity.RoomTypeVO;
-import com.example.thestar1.order.repository.OrderRepository;
-import com.example.thestar1.room.repository.RoomRepository;
-import com.example.thestar1.room.repository.RoomTypeRepository;
+import com.thestar.order.dto.OrderDetailDTO;
+import com.thestar.order.entity.OrderListVO;
+import com.thestar.order.entity.OrderVO;
+import com.thestar.room.entity.RoomTypeVO;
+import com.thestar.order.repository.OrderRepository;
+import com.thestar.room.repository.RoomTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class OrderQueryService {

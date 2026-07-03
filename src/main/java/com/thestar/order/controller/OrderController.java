@@ -1,12 +1,12 @@
-package com.example.thestar1.order.controller;
+package com.thestar.order.controller;
 
 
-import com.example.thestar1.order.dto.CreateRoomOrderDTO;
-import com.example.thestar1.order.dto.OrderDetailDTO;
-import com.example.thestar1.member.entity.MemberVO;
-import com.example.thestar1.order.entity.OrderVO;
-import com.example.thestar1.order.service.OrderQueryService;
-import com.example.thestar1.order.service.OrderService;
+import com.thestar.order.dto.CreateRoomOrderDTO;
+import com.thestar.order.dto.OrderDetailDTO;
+import com.thestar.member.entity.MemberVO;
+import com.thestar.order.entity.OrderVO;
+import com.thestar.order.service.OrderQueryService;
+import com.thestar.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

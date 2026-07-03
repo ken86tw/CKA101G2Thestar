@@ -1,9 +1,9 @@
-package com.example.thestar1;
+package com.thestar;
 
 
-import com.example.thestar1.room.repository.RoomInventoryRepository;
-import com.example.thestar1.order.service.OrderService;
-import com.example.thestar1.room.service.RedisRoomStock;
+import com.thestar.room.repository.RoomInventoryRepository;
+import com.thestar.order.service.OrderService;
+import com.thestar.room.service.RedisRoomStock;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

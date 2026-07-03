@@ -1,4 +1,4 @@
-package com.example.thestar1.content.entity;
+package com.thestar.content.entity;
 
 import jakarta.persistence.*;
 

@@ -1,11 +1,11 @@
-package com.example.thestar1.stayrecord.controller;
+package com.thestar.stayrecord.controller;
 
 
-import com.example.thestar1.stayrecord.dto.CheckInDTO;
-import com.example.thestar1.room.entity.RoomVO;
-import com.example.thestar1.stayrecord.dto.FindCheckInRoomDTO;
-import com.example.thestar1.stayrecord.entity.StayRecordVO;
-import com.example.thestar1.stayrecord.service.StayRecordService;
+import com.thestar.stayrecord.dto.CheckInDTO;
+import com.thestar.room.entity.RoomVO;
+import com.thestar.stayrecord.dto.FindCheckInRoomDTO;
+import com.thestar.stayrecord.entity.StayRecordVO;
+import com.thestar.stayrecord.service.StayRecordService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

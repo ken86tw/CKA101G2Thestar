@@ -1,4 +1,4 @@
-package com.example.thestar1.member.entity;
+package com.thestar.member.entity;
 
 // ⚠️ 暫時 stub：只為讓 Controller 從 session 取 loginMember 能編譯。
 // 會員模組是隊友的，這裡刻意不是 @Entity（避免 ddl-validate 比對 schema）。

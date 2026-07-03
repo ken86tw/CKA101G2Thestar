@@ -1,4 +1,4 @@
-package com.example.thestar1.common.advice;
+package com.thestar.common.advice;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,8 @@
-package com.example.thestar1.room.service;
+package com.thestar.room.service;
 
 
-import com.example.thestar1.room.repository.RoomInventoryRepository;
-import com.example.thestar1.room.repository.RoomTypeRepository;
+import com.thestar.room.repository.RoomInventoryRepository;
+import com.thestar.room.repository.RoomTypeRepository;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 

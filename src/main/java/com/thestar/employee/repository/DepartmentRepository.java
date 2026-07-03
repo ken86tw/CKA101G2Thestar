@@ -1,6 +1,6 @@
-package com.example.thestar1.employee.repository;
+package com.thestar.employee.repository;
 
-import com.example.thestar1.employee.entity.DepartmentVO;
+import com.thestar.employee.entity.DepartmentVO;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DepartmentRepository extends JpaRepository<DepartmentVO, Integer> {

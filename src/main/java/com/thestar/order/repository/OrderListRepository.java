@@ -1,6 +1,6 @@
-package com.example.thestar1.order.repository;
+package com.thestar.order.repository;
 
-import com.example.thestar1.order.entity.OrderListVO;
+import com.thestar.order.entity.OrderListVO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

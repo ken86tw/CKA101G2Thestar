@@ -1,4 +1,4 @@
-package com.example.thestar1.employee.controller;
+package com.thestar.employee.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

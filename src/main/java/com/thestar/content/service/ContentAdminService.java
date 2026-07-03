@@ -1,11 +1,11 @@
-package com.example.thestar1.content.service;
+package com.thestar.content.service;
 
-import com.example.thestar1.content.entity.ArticleVO;
-import com.example.thestar1.content.entity.NewsVO;
-import com.example.thestar1.content.entity.ReviewVO;
-import com.example.thestar1.content.repository.ArticleRepository;
-import com.example.thestar1.content.repository.NewsRepository;
-import com.example.thestar1.content.repository.ReviewRepository;
+import com.thestar.content.entity.ArticleVO;
+import com.thestar.content.entity.NewsVO;
+import com.thestar.content.entity.ReviewVO;
+import com.thestar.content.repository.ArticleRepository;
+import com.thestar.content.repository.NewsRepository;
+import com.thestar.content.repository.ReviewRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

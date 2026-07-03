@@ -1,9 +1,9 @@
-package com.example.thestar1;
+package com.thestar;
 
-import com.example.thestar1.order.dto.CreateRoomOrderDTO;
-import com.example.thestar1.order.entity.OrderVO;
-import com.example.thestar1.order.repository.OrderRepository;
-import com.example.thestar1.order.service.OrderService;
+import com.thestar.order.dto.CreateRoomOrderDTO;
+import com.thestar.order.entity.OrderVO;
+import com.thestar.order.repository.OrderRepository;
+import com.thestar.order.service.OrderService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

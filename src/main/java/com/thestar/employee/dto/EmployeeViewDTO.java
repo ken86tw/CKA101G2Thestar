@@ -1,7 +1,7 @@
-package com.example.thestar1.employee.dto;
+package com.thestar.employee.dto;
 
-import com.example.thestar1.employee.entity.EmployeeVO;
-import com.example.thestar1.employee.entity.RoleVO;
+import com.thestar.employee.entity.EmployeeVO;
+import com.thestar.employee.entity.RoleVO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -1,12 +1,13 @@
-package com.example.thestar1.employee.controller;
+package com.thestar.employee.controller;
 
-import com.example.thestar1.employee.security.EmployeeUserDetails;
-import com.example.thestar1.employee.security.PermissionCodes;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.thestar.employee.security.EmployeeUserDetails;
+import com.thestar.employee.security.PermissionCodes;
 
 @Controller
 @RequestMapping("/thestar/admin")

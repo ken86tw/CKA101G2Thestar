@@ -1,7 +1,7 @@
-package com.example.thestar1.employee.security;
+package com.thestar.employee.security;
 
-import com.example.thestar1.employee.entity.EmployeeVO;
-import com.example.thestar1.employee.repository.EmployeeRepository;
+import com.thestar.employee.entity.EmployeeVO;
+import com.thestar.employee.repository.EmployeeRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

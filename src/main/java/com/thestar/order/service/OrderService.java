@@ -1,15 +1,15 @@
-package com.example.thestar1.order.service;
-import com.example.thestar1.room.service.RedisRoomStock;
+package com.thestar.order.service;
+import com.thestar.room.service.RedisRoomStock;
 
-import com.example.thestar1.order.dto.CreateRoomOrderDTO;
-import com.example.thestar1.order.entity.OrderListVO;
-import com.example.thestar1.order.entity.OrderVO;
-import com.example.thestar1.refund.entity.RefundListVO;
-import com.example.thestar1.room.entity.RoomTypeVO;
-import com.example.thestar1.order.repository.OrderRepository;
-import com.example.thestar1.refund.repository.RefundListRepository;
-import com.example.thestar1.room.repository.RoomInventoryRepository;
-import com.example.thestar1.room.repository.RoomTypeRepository;
+import com.thestar.order.dto.CreateRoomOrderDTO;
+import com.thestar.order.entity.OrderListVO;
+import com.thestar.order.entity.OrderVO;
+import com.thestar.refund.entity.RefundListVO;
+import com.thestar.room.entity.RoomTypeVO;
+import com.thestar.order.repository.OrderRepository;
+import com.thestar.refund.repository.RefundListRepository;
+import com.thestar.room.repository.RoomInventoryRepository;
+import com.thestar.room.repository.RoomTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

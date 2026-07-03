@@ -1,4 +1,4 @@
-package com.example.thestar1.order.dto;
+package com.thestar.order.dto;
 
 public class OrderDetailDTO {
 

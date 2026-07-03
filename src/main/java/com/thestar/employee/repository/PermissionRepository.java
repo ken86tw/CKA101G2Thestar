@@ -1,6 +1,6 @@
-package com.example.thestar1.employee.repository;
+package com.thestar.employee.repository;
 
-import com.example.thestar1.employee.entity.PermissionVO;
+import com.thestar.employee.entity.PermissionVO;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PermissionRepository extends JpaRepository<PermissionVO, Integer> {

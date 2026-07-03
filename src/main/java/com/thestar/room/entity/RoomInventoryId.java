@@ -1,4 +1,4 @@
-package com.example.thestar1.room.entity;
+package com.thestar.room.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;

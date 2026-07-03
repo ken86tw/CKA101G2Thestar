@@ -1,6 +1,6 @@
-package com.example.thestar1.employee.dto;
+package com.thestar.employee.dto;
 
-import com.example.thestar1.employee.entity.PermissionVO;
+import com.thestar.employee.entity.PermissionVO;
 
 public class PermissionDTO {
 

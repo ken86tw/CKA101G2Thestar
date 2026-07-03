@@ -1,6 +1,6 @@
-package com.example.thestar1.employee.security;
+package com.thestar.employee.security;
 
-import com.example.thestar1.employee.service.EmployeeService;
+import com.thestar.employee.service.EmployeeService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

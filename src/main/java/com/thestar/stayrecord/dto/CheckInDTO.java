@@ -1,4 +1,4 @@
-package com.example.thestar1.stayrecord.dto;
+package com.thestar.stayrecord.dto;
 
 public class CheckInDTO {
 

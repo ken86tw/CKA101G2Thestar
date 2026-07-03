@@ -1,10 +1,10 @@
-package com.example.thestar1.employee.controller;
+package com.thestar.employee.controller;
 
-import com.example.thestar1.employee.dto.AssignPermissionsDTO;
-import com.example.thestar1.employee.dto.RoleCreateDTO;
-import com.example.thestar1.employee.dto.RoleDTO;
-import com.example.thestar1.employee.entity.RoleVO;
-import com.example.thestar1.employee.service.RoleService;
+import com.thestar.employee.dto.AssignPermissionsDTO;
+import com.thestar.employee.dto.RoleCreateDTO;
+import com.thestar.employee.dto.RoleDTO;
+import com.thestar.employee.entity.RoleVO;
+import com.thestar.employee.service.RoleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

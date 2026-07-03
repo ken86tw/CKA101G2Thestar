@@ -1,8 +1,8 @@
-package com.example.thestar1.employee.security;
+package com.thestar.employee.security;
 
-import com.example.thestar1.employee.entity.EmployeeVO;
-import com.example.thestar1.employee.entity.PermissionVO;
-import com.example.thestar1.employee.entity.RoleVO;
+import com.thestar.employee.entity.EmployeeVO;
+import com.thestar.employee.entity.PermissionVO;
+import com.thestar.employee.entity.RoleVO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

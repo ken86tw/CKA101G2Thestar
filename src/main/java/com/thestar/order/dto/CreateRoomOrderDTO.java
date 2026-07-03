@@ -1,4 +1,4 @@
-package com.example.thestar1.order.dto;
+package com.thestar.order.dto;
 
 import java.time.LocalDate;
 import java.util.List;

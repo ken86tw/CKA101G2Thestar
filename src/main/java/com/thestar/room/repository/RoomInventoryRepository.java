@@ -1,7 +1,7 @@
-package com.example.thestar1.room.repository;
+package com.thestar.room.repository;
 
-import com.example.thestar1.room.entity.RoomInventoryId;
-import com.example.thestar1.room.entity.RoomInventoryVO;
+import com.thestar.room.entity.RoomInventoryId;
+import com.thestar.room.entity.RoomInventoryVO;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

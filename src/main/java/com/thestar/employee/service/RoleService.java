@@ -1,10 +1,10 @@
-package com.example.thestar1.employee.service;
+package com.thestar.employee.service;
 
-import com.example.thestar1.employee.dto.RoleCreateDTO;
-import com.example.thestar1.employee.entity.PermissionVO;
-import com.example.thestar1.employee.entity.RoleVO;
-import com.example.thestar1.employee.repository.PermissionRepository;
-import com.example.thestar1.employee.repository.RoleRepository;
+import com.thestar.employee.dto.RoleCreateDTO;
+import com.thestar.employee.entity.PermissionVO;
+import com.thestar.employee.entity.RoleVO;
+import com.thestar.employee.repository.PermissionRepository;
+import com.thestar.employee.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

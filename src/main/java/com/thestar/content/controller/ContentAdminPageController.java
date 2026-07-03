@@ -1,9 +1,9 @@
-package com.example.thestar1.content.controller;
+package com.thestar.content.controller;
 
-import com.example.thestar1.content.entity.ArticleVO;
-import com.example.thestar1.content.entity.NewsVO;
-import com.example.thestar1.content.service.ContentAdminService;
-import com.example.thestar1.employee.security.EmployeeUserDetails;
+import com.thestar.content.entity.ArticleVO;
+import com.thestar.content.entity.NewsVO;
+import com.thestar.content.service.ContentAdminService;
+import com.thestar.employee.security.EmployeeUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

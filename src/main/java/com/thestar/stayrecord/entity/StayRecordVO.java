@@ -1,5 +1,5 @@
-package com.example.thestar1.stayrecord.entity;
-import com.example.thestar1.order.entity.OrderListVO;
+package com.thestar.stayrecord.entity;
+import com.thestar.order.entity.OrderListVO;
 
 import java.time.LocalDateTime;
 

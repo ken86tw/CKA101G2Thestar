@@ -1,11 +1,11 @@
-package com.example.thestar1.employee.service;
+package com.thestar.employee.service;
 
-import com.example.thestar1.employee.dto.EmployeeCreateDTO;
-import com.example.thestar1.employee.dto.EmployeeUpdateDTO;
-import com.example.thestar1.employee.entity.EmployeeVO;
-import com.example.thestar1.employee.entity.RoleVO;
-import com.example.thestar1.employee.repository.EmployeeRepository;
-import com.example.thestar1.employee.repository.RoleRepository;
+import com.thestar.employee.dto.EmployeeCreateDTO;
+import com.thestar.employee.dto.EmployeeUpdateDTO;
+import com.thestar.employee.entity.EmployeeVO;
+import com.thestar.employee.entity.RoleVO;
+import com.thestar.employee.repository.EmployeeRepository;
+import com.thestar.employee.repository.RoleRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

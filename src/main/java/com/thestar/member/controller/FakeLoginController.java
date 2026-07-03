@@ -1,6 +1,6 @@
-package com.example.thestar1.member.controller;
+package com.thestar.member.controller;
 
-import com.example.thestar1.member.entity.MemberVO;
+import com.thestar.member.entity.MemberVO;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

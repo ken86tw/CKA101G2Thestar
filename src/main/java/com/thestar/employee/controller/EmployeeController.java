@@ -1,8 +1,8 @@
-package com.example.thestar1.employee.controller;
+package com.thestar.employee.controller;
 
-import com.example.thestar1.employee.dto.*;
-import com.example.thestar1.employee.entity.EmployeeVO;
-import com.example.thestar1.employee.service.EmployeeService;
+import com.thestar.employee.dto.*;
+import com.thestar.employee.entity.EmployeeVO;
+import com.thestar.employee.service.EmployeeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

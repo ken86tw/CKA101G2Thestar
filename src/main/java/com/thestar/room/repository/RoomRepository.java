@@ -1,6 +1,6 @@
-package com.example.thestar1.room.repository;
+package com.thestar.room.repository;
 
-import com.example.thestar1.room.entity.RoomVO;
+import com.thestar.room.entity.RoomVO;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;

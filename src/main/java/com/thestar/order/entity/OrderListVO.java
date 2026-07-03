@@ -1,5 +1,5 @@
-package com.example.thestar1.order.entity;
-import com.example.thestar1.stayrecord.entity.StayRecordVO;
+package com.thestar.order.entity;
+import com.thestar.stayrecord.entity.StayRecordVO;
 
 import java.util.List;
 

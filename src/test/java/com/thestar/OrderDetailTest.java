@@ -1,12 +1,12 @@
-package com.example.thestar1;
+package com.thestar;
 
-import com.example.thestar1.order.dto.OrderDetailDTO;
-import com.example.thestar1.order.entity.OrderVO;
-import com.example.thestar1.order.entity.OrderListVO;
-import com.example.thestar1.room.entity.RoomTypeVO;
-import com.example.thestar1.order.repository.OrderRepository;
-import com.example.thestar1.room.repository.RoomTypeRepository;
-import com.example.thestar1.order.service.OrderQueryService;
+import com.thestar.order.dto.OrderDetailDTO;
+import com.thestar.order.entity.OrderVO;
+import com.thestar.order.entity.OrderListVO;
+import com.thestar.room.entity.RoomTypeVO;
+import com.thestar.order.repository.OrderRepository;
+import com.thestar.room.repository.RoomTypeRepository;
+import com.thestar.order.service.OrderQueryService;
 
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;

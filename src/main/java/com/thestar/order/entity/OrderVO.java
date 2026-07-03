@@ -1,5 +1,5 @@
-package com.example.thestar1.order.entity;
-import com.example.thestar1.refund.entity.RefundListVO;
+package com.thestar.order.entity;
+import com.thestar.refund.entity.RefundListVO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

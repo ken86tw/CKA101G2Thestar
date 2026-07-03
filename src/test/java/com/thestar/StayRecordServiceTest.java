@@ -1,12 +1,12 @@
-package com.example.thestar1;
+package com.thestar;
 
-import com.example.thestar1.stayrecord.dto.CheckInDTO;
-import com.example.thestar1.order.entity.OrderListVO;
-import com.example.thestar1.room.entity.RoomVO;
-import com.example.thestar1.order.repository.OrderListRepository;
-import com.example.thestar1.room.repository.RoomRepository;
-import com.example.thestar1.stayrecord.repository.StayRecordRepository;
-import com.example.thestar1.stayrecord.service.StayRecordService;
+import com.thestar.stayrecord.dto.CheckInDTO;
+import com.thestar.order.entity.OrderListVO;
+import com.thestar.room.entity.RoomVO;
+import com.thestar.order.repository.OrderListRepository;
+import com.thestar.room.repository.RoomRepository;
+import com.thestar.stayrecord.repository.StayRecordRepository;
+import com.thestar.stayrecord.service.StayRecordService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,8 +1,8 @@
-package com.example.thestar1.order.controller;
+package com.thestar.order.controller;
 
-import com.example.thestar1.order.entity.OrderVO;
-import com.example.thestar1.order.repository.OrderRepository;
-import com.example.thestar1.order.service.OrderService;
+import com.thestar.order.entity.OrderVO;
+import com.thestar.order.repository.OrderRepository;
+import com.thestar.order.service.OrderService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;

@@ -1,4 +1,4 @@
-package com.example.thestar1.employee.security;
+package com.thestar.employee.security;
 
 public final class PermissionCodes {
 

@@ -1,10 +1,10 @@
-package com.example.thestar1.payment.controller;
+package com.thestar.payment.controller;
 
-import com.example.thestar1.member.entity.MemberVO;
-import com.example.thestar1.order.entity.OrderVO;
-import com.example.thestar1.order.repository.OrderRepository;
-import com.example.thestar1.payment.service.EcpayService;
-import com.example.thestar1.order.service.OrderService;
+import com.thestar.member.entity.MemberVO;
+import com.thestar.order.entity.OrderVO;
+import com.thestar.order.repository.OrderRepository;
+import com.thestar.payment.service.EcpayService;
+import com.thestar.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;

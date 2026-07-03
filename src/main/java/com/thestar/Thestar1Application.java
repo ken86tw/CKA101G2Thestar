@@ -1,4 +1,4 @@
-package com.example.thestar1;
+package com.thestar;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

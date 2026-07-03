@@ -1,7 +1,7 @@
-package com.example.thestar1.employee.controller;
+package com.thestar.employee.controller;
 
-import com.example.thestar1.employee.dto.PermissionDTO;
-import com.example.thestar1.employee.service.RoleService;
+import com.thestar.employee.dto.PermissionDTO;
+import com.thestar.employee.service.RoleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

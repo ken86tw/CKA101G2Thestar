@@ -1,17 +1,17 @@
-package com.example.thestar1.stayrecord.service;
+package com.thestar.stayrecord.service;
 
-import com.example.thestar1.order.service.OrderService;
+import com.thestar.order.service.OrderService;
 
-import com.example.thestar1.room.repository.RoomTypeRepository;
-import com.example.thestar1.stayrecord.dto.CheckInDTO;
-import com.example.thestar1.order.entity.OrderListVO;
-import com.example.thestar1.order.entity.OrderVO;
-import com.example.thestar1.room.entity.RoomVO;
-import com.example.thestar1.stayrecord.dto.FindCheckInRoomDTO;
-import com.example.thestar1.stayrecord.entity.StayRecordVO;
-import com.example.thestar1.order.repository.OrderListRepository;
-import com.example.thestar1.room.repository.RoomRepository;
-import com.example.thestar1.stayrecord.repository.StayRecordRepository;
+import com.thestar.room.repository.RoomTypeRepository;
+import com.thestar.stayrecord.dto.CheckInDTO;
+import com.thestar.order.entity.OrderListVO;
+import com.thestar.order.entity.OrderVO;
+import com.thestar.room.entity.RoomVO;
+import com.thestar.stayrecord.dto.FindCheckInRoomDTO;
+import com.thestar.stayrecord.entity.StayRecordVO;
+import com.thestar.order.repository.OrderListRepository;
+import com.thestar.room.repository.RoomRepository;
+import com.thestar.stayrecord.repository.StayRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,6 @@
-package com.example.thestar1.order.repository;
+package com.thestar.order.repository;
 
-import com.example.thestar1.order.entity.OrderVO;
+import com.thestar.order.entity.OrderVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,12 +1,11 @@
-package com.example.thestar1.stayrecord.repository;
+package com.thestar.stayrecord.repository;
 
-import com.example.thestar1.order.entity.OrderListVO;
-import com.example.thestar1.stayrecord.entity.StayRecordVO;
+import com.thestar.order.entity.OrderListVO;
+import com.thestar.stayrecord.entity.StayRecordVO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
