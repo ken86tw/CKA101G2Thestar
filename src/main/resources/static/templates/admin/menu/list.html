@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/common_sidebar :: common-head('餐廳菜單管理')}"></head>
+<body>
+    <div th:replace="~{admin/common_sidebar :: sidebar('menu')}"></div>
+    <div class="main-content">
+        <div th:replace="~{admin/common_sidebar :: topbar('菜單與線上餐點管理')}"></div>
+        <div class="page-body">
+            <div class="card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="m-0 fw-bold"><i class="fa-solid fa-utensils me-2"></i>目前供應品項</h5>
+                    <a href="/admin/restaurant/menu/addPage" class="btn btn-success"><i class="fa-solid fa-plus me-1"></i>上架新餐點</a>
+                </div>
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>縮圖</th>
+                            <th>品項分類</th>
+                            <th>餐點名稱</th>
+                            <th>描述介紹</th>
+                            <th>售價</th>
+                            <th>排序</th>
+                            <th width="160">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="menu : ${menuList}">
+                            <td th:text="${menu.itemId}">1</td>
+                            <td>
+                                <img th:if="${menu.imageUrl != null && !#strings.isEmpty(menu.imageUrl)}" 
+     th:src="@{'/images/' + ${menu.imageUrl}}" 
+     width="55" height="40" class="img-thumbnail" alt="餐點圖片">
+                            </td>
+                            <td th:text="${menu.menuCategoryVO.categoryName}"><span class="badge bg-secondary">分類</span></td>
+                            <td th:text="${menu.itemName}" class="fw-bold text-dark">經典牛排</td>
+                            <td th:text="${menu.itemDesc}" class="text-muted small">描述...</td>
+                            <td th:text="'$' + ${menu.price}" class="text-danger fw-bold">$350</td>
+                            <td th:text="${menu.sortOrder}">10</td>
+                            <td>
+                                <a th:href="@{/admin/restaurant/menu/editPage(itemId=${menu.itemId})}" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen"></i></a>
+                                <form th:action="@{/admin/restaurant/menu/delete}" method="post" style="display:inline;" onsubmit="return confirm('確定要刪除此品項嗎？');">
+                                    <input type="hidden" name="itemId" th:value="${menu.itemId}">
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
