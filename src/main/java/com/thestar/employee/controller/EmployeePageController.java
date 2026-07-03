@@ -124,6 +124,17 @@ public class EmployeePageController {
         return "redirect:/thestar/admin/employee/list";
     }
 
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            employeeService.delete(id);
+            redirectAttributes.addFlashAttribute("message", "員工已刪除");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/thestar/admin/employee/list";
+    }
+
     @GetMapping("/{id}/roles")
     public String rolesForm(@PathVariable Integer id, Model model, @AuthenticationPrincipal EmployeeUserDetails principal) {
         EmployeeVO employee = employeeService.findById(id);

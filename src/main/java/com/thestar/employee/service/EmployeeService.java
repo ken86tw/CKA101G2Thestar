@@ -6,6 +6,7 @@ import com.thestar.employee.entity.EmployeeVO;
 import com.thestar.employee.entity.RoleVO;
 import com.thestar.employee.repository.EmployeeRepository;
 import com.thestar.employee.repository.RoleRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,5 +107,17 @@ public class EmployeeService {
     public void updateLastLoginTime(Integer employeeId) {
         employeeRepository.findById(employeeId)
                 .ifPresent(employee -> employee.setLastLoginTime(LocalDateTime.now()));
+    }
+
+    public void delete(Integer employeeId) {
+        EmployeeVO employee = findById(employeeId);
+        employee.setRoles(new HashSet<>());
+        employeeRepository.flush();
+        try {
+            employeeRepository.delete(employee);
+            employeeRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("此員工已有相關訂單、文章或住宿紀錄，無法刪除，請改為設定「離職」");
+        }
     }
 }

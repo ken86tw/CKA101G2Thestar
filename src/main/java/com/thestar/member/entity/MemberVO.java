@@ -34,14 +34,14 @@ public class MemberVO implements Serializable {
     @Column(name = "MEMBER_BIRTHDAY")
     private LocalDate memberBirthday; // 欄位為 DATE，建議用 LocalDate
 
-    @Column(name = "MEMBER_GENDER")
+    @Column(name = "MEMBER_GENDER", columnDefinition = "TINYINT")
     private Integer memberGender; // 0:FEMALE, 1:MALE, 2:UNKNOWN
 
     @Lob
     @Column(name = "MEMBER_PICTURE", columnDefinition = "LONGBLOB")
     private byte[] memberPicture; // 對應 LONGBLOB 欄位
 
-    @Column(name = "MEMBER_STATUS", nullable = false)
+    @Column(name = "MEMBER_STATUS", nullable = false, columnDefinition = "TINYINT")
     private Integer memberStatus = 0; // 預設 0:NOT ENABLED, 1:ENABLED, 2:DISENABLED
 
     @Column(name = "CREATED_TIME", nullable = false)

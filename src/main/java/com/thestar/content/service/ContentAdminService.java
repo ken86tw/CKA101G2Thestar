@@ -1,10 +1,8 @@
 package com.thestar.content.service;
 
 import com.thestar.content.entity.ArticleVO;
-import com.thestar.content.entity.NewsVO;
 import com.thestar.content.entity.ReviewVO;
 import com.thestar.content.repository.ArticleRepository;
-import com.thestar.content.repository.NewsRepository;
 import com.thestar.content.repository.ReviewRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -17,46 +15,20 @@ import java.util.NoSuchElementException;
 @Transactional
 public class ContentAdminService {
 
-    private final NewsRepository newsRepository;
     private final ArticleRepository articleRepository;
     private final ReviewRepository reviewRepository;
 
-    public ContentAdminService(NewsRepository newsRepository, ArticleRepository articleRepository,
-                               ReviewRepository reviewRepository) {
-        this.newsRepository = newsRepository;
+    public ContentAdminService(ArticleRepository articleRepository, ReviewRepository reviewRepository) {
         this.articleRepository = articleRepository;
         this.reviewRepository = reviewRepository;
     }
 
+    /**
+     * 最新消息＝最新 5 篇已發布文章的內容，不足 5 篇就顯示現有的篇數；刪除最新消息即刪除對應的文章。
+     */
     @Transactional(readOnly = true)
-    public List<NewsVO> findAllNews() {
-        return newsRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
-    }
-
-    @Transactional(readOnly = true)
-    public NewsVO findNews(Integer id) {
-        return newsRepository.findById(id).orElseThrow(() -> new NoSuchElementException("查無最新消息"));
-    }
-
-    public NewsVO saveNews(NewsVO news) {
-        if (news.getTitle() == null || news.getTitle().isBlank()) {
-            throw new IllegalArgumentException("標題為必填");
-        }
-        if (news.getContent() == null || news.getContent().isBlank()) {
-            throw new IllegalArgumentException("內容為必填");
-        }
-        if (news.getViewCount() == null) {
-            news.setViewCount(0);
-        }
-        if (news.getStatus() == null) {
-            news.setStatus((byte) 1);
-        }
-        return newsRepository.save(news);
-    }
-
-    public void updateNewsStatus(Integer id, boolean published) {
-        NewsVO news = findNews(id);
-        news.setStatus((byte) (published ? 1 : 0));
+    public List<ArticleVO> findLatestNews() {
+        return articleRepository.findFirst5ByStatusOrderByCreateAtDesc((byte) 1);
     }
 
     @Transactional(readOnly = true)
@@ -97,6 +69,13 @@ public class ContentAdminService {
     public void updateArticleStatus(Integer id, boolean published) {
         ArticleVO article = findArticle(id);
         article.setStatus((byte) (published ? 1 : 0));
+    }
+
+    public void deleteArticle(Integer id) {
+        if (!articleRepository.existsById(id)) {
+            throw new NoSuchElementException("查無文章");
+        }
+        articleRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)

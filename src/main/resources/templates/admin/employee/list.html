@@ -8,10 +8,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <script th:src="@{/js/theme.js}"></script>
 </head>
 <body class="admin-body">
 <div class="admin-frame">
     <div class="admin-topbar">
+        <button class="theme-toggle" onclick="toggleTheme()" title="切換深色 / 淺色模式">🌓</button>
         <div class="admin-brand">
             <b>The Star</b>
             <span class="admin-pill">Admin</span>
@@ -92,8 +94,12 @@
                 <form th:action="@{'/thestar/admin/employee/' + ${emp.employeeId} + '/toggle-status'}"
                       method="post" style="display:inline">
                     <input type="hidden" name="enabled" th:value="${emp.status == 1} ? 'false' : 'true'">
-                        <button type="submit" class="admin-button danger sm"
+                        <button type="submit" class="admin-button line sm"
                             th:text="${emp.status == 1} ? '設為離職' : '恢復在職'"></button>
+                </form>
+                <form th:if="${isSuperAdmin}" th:action="@{'/thestar/admin/employee/' + ${emp.employeeId} + '/delete'}"
+                      method="post" style="display:inline" onsubmit="return confirm('確定要刪除這位員工嗎？此動作無法復原。')">
+                    <button type="submit" class="admin-button danger sm">刪除</button>
                 </form>
             </td>
         </tr>

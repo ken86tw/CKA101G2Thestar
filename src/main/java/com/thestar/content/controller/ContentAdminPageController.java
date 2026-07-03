@@ -1,7 +1,6 @@
 package com.thestar.content.controller;
 
 import com.thestar.content.entity.ArticleVO;
-import com.thestar.content.entity.NewsVO;
 import com.thestar.content.service.ContentAdminService;
 import com.thestar.employee.security.EmployeeUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,57 +22,14 @@ public class ContentAdminPageController {
     @GetMapping("/news")
     public String newsList(Model model, @AuthenticationPrincipal EmployeeUserDetails principal) {
         addShell(model, principal);
-        model.addAttribute("newsList", contentAdminService.findAllNews());
+        model.addAttribute("newsList", contentAdminService.findLatestNews());
         return "admin/content/news-list";
     }
 
-    @GetMapping("/news/add")
-    public String newsAdd(Model model, @AuthenticationPrincipal EmployeeUserDetails principal) {
-        addShell(model, principal);
-        model.addAttribute("mode", "add");
-        model.addAttribute("news", new NewsVO());
-        return "admin/content/news-form";
-    }
-
-    @PostMapping("/news/add")
-    public String newsCreate(@ModelAttribute NewsVO news, RedirectAttributes redirectAttributes) {
-        try {
-            contentAdminService.saveNews(news);
-            redirectAttributes.addFlashAttribute("message", "新增最新消息成功");
-        } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/thestar/admin/content/news";
-    }
-
-    @GetMapping("/news/edit/{id}")
-    public String newsEdit(@PathVariable Integer id, Model model,
-                           @AuthenticationPrincipal EmployeeUserDetails principal) {
-        addShell(model, principal);
-        model.addAttribute("mode", "edit");
-        model.addAttribute("news", contentAdminService.findNews(id));
-        return "admin/content/news-form";
-    }
-
-    @PostMapping("/news/edit/{id}")
-    public String newsUpdate(@PathVariable Integer id, @ModelAttribute NewsVO news,
-                             RedirectAttributes redirectAttributes) {
-        NewsVO old = contentAdminService.findNews(id);
-        news.setNewsId(id);
-        news.setViewCount(old.getViewCount());
-        if (news.getStatus() == null) {
-            news.setStatus(old.getStatus());
-        }
-        contentAdminService.saveNews(news);
-        redirectAttributes.addFlashAttribute("message", "最新消息已更新");
-        return "redirect:/thestar/admin/content/news";
-    }
-
-    @PostMapping("/news/{id}/toggle-status")
-    public String newsToggle(@PathVariable Integer id, @RequestParam boolean published,
-                             RedirectAttributes redirectAttributes) {
-        contentAdminService.updateNewsStatus(id, published);
-        redirectAttributes.addFlashAttribute("message", published ? "最新消息已發布" : "最新消息已下架");
+    @PostMapping("/news/{id}/delete")
+    public String newsDelete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        contentAdminService.deleteArticle(id);
+        redirectAttributes.addFlashAttribute("message", "最新消息已刪除");
         return "redirect:/thestar/admin/content/news";
     }
 
@@ -136,6 +92,13 @@ public class ContentAdminPageController {
                                 RedirectAttributes redirectAttributes) {
         contentAdminService.updateArticleStatus(id, published);
         redirectAttributes.addFlashAttribute("message", published ? "文章已發布" : "文章已下架");
+        return "redirect:/thestar/admin/content/article";
+    }
+
+    @PostMapping("/article/{id}/delete")
+    public String articleDelete(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+        contentAdminService.deleteArticle(id);
+        redirectAttributes.addFlashAttribute("message", "文章已刪除");
         return "redirect:/thestar/admin/content/article";
     }
 

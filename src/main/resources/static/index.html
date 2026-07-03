@@ -16,6 +16,23 @@
       --muted:#9b9486; --gold:#9c7c4f; --gold-d:#80623a; --line:#e4ddd0;
       --hero:url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80');
     }
+    :root[data-theme="dark"]{
+      --cream:#1c1a16; --paper:#242019; --ink:#f3ede0; --soft:#cbc3b2;
+      --muted:#8f8776; --gold:#c7a06a; --gold-d:#e4bd85; --line:#3a352c;
+    }
+    :root[data-theme="dark"] .badge-on{color:#9fd8b8;background:rgba(74,115,80,.22)}
+    :root[data-theme="dark"] .badge-off{color:#e7a89f;background:rgba(156,82,73,.22)}
+    :root[data-theme="dark"] .b0{color:#e0c184;border-color:#5a4c2c;background:rgba(154,123,50,.18)}
+    :root[data-theme="dark"] .b1{color:#9ccbe8;border-color:#2c4152;background:rgba(63,107,138,.18)}
+    :root[data-theme="dark"] .b2{color:#9fd8b8;border-color:#2c4d33;background:rgba(74,115,80,.18)}
+    :root[data-theme="dark"] .b3{color:#e7a89f;border-color:#4d302c;background:rgba(156,82,73,.18)}
+    :root[data-theme="dark"] .stab .box:hover{background:#2a251d}
+    :root[data-theme="dark"] .stab .box.on{background:#2e2820}
+    :root[data-theme="dark"] tr.det td{background:#2a251d}
+    .theme-toggle{position:fixed;bottom:24px;left:24px;z-index:80;width:44px;height:44px;border-radius:50%;
+      border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;font-size:18px;
+      display:grid;place-items:center;box-shadow:0 8px 24px rgba(35,33,22,.14);transition:.2s}
+    .theme-toggle:hover{border-color:var(--gold)}
     *{box-sizing:border-box}
     html,body{margin:0}
     body{font-family:var(--sans);background:var(--cream);color:var(--ink);font-weight:300;font-size:15px;line-height:1.7}
@@ -157,8 +174,10 @@
       nav.menu{display:none}.g2,.g3{grid-template-columns:1fr}.stab{grid-template-columns:repeat(2,1fr)}
       .stab .box:nth-child(2){border-right:0}.hero h1{font-size:34px}}
   </style>
+  <script src="/js/theme.js"></script>
 </head>
 <body>
+<button class="theme-toggle" onclick="toggleTheme()" title="切換深色 / 淺色模式">🌓</button>
 <div id="app">
 
   <!-- ============ 登入（精品入口，與其他頁分開） ============ -->
