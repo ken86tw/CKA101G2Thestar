@@ -1,4 +1,4 @@
-package com.example.thestar1.payment.service;
+package com.thestar.payment.service;
 
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import org.springframework.web.util.HtmlUtils;
 
 //算章 驗章 組結帳表單
 @Service
@@ -102,8 +103,8 @@ public class EcpayService {
         form.append("<form id=\"ecpay\" method=\"post\" action=\"").append(aioUrl).append("\">");
         for (Map.Entry<String, String> e : params.entrySet()) {
             form.append("<input type=\"hidden\" name=\"")
-                    .append(e.getKey()).append("\" value=\"")
-                    .append(e.getValue()).append("\"/>");
+                    .append(HtmlUtils.htmlEscape(e.getKey())).append("\" value=\"")
+                    .append(HtmlUtils.htmlEscape(e.getValue())).append("\"/>");
         }
         form.append("</form>");
         form.append("<script>document.getElementById('ecpay').submit();</script>");
