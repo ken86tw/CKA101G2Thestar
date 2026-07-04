@@ -40,6 +40,11 @@ public class ContentPublicController {
                 .map(ArticlePublicDTO::from);
     }
 
+    @GetMapping("/articles/{id}")
+    public ArticlePublicDTO articleDetail(@PathVariable Integer id) {
+        return ArticlePublicDTO.fromDetail(contentAdminService.findArticle(id));
+    }
+
     @GetMapping("/articles/{id}/reviews")
     public List<ReviewPublicDTO> reviews(@PathVariable Integer id) {
         return contentAdminService.findReviewsForArticle(id).stream()

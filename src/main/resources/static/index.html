@@ -256,15 +256,15 @@
       <div class="wrap">
         <div class="sechead"><div class="up">News</div><h2>最新消息</h2><p>最新發布的 5 則消息，內容與文章管理同步</p></div>
         <div class="grid g2">
-          <div class="panel" v-for="a in news.list" :key="a.articleId">
+          <div class="panel" style="cursor:pointer" v-for="a in news.list" :key="a.articleId" @click="openArticle(a.articleId)">
             <div class="up" style="color:var(--gold)">{{ a.category }}</div>
             <h3 style="margin:10px 0" class="ser">{{ a.title }}</h3>
             <p style="color:var(--soft)">{{ a.contentPreview }}</p>
             <p class="hint" style="margin-top:14px">{{ fmt(a.createAt) }} · {{ a.viewCount||0 }} 次瀏覽</p>
-            <button class="reslink" style="margin-top:10px" @click="toggleReviews(a.articleId)">
+            <button class="reslink" style="margin-top:10px" @click.stop="toggleReviews(a.articleId)">
               {{ reviews[a.articleId]&&reviews[a.articleId].open?'收合留言':'查看留言' }}
             </button>
-            <div v-if="reviews[a.articleId]&&reviews[a.articleId].open" style="margin-top:16px;border-top:1px solid var(--line);padding-top:16px">
+            <div v-if="reviews[a.articleId]&&reviews[a.articleId].open" style="margin-top:16px;border-top:1px solid var(--line);padding-top:16px" @click.stop>
               <div v-if="!reviews[a.articleId].list.length" class="hint">尚無留言</div>
               <div v-for="rv in reviews[a.articleId].list" :key="rv.reviewId" style="margin-bottom:14px">
                 <p style="margin:0"><b>會員 #{{ rv.memberId }}</b> <span class="hint">{{ fmt(rv.createdAt) }}</span></p>
@@ -287,15 +287,15 @@
       <div class="wrap">
         <div class="sechead"><div class="up">Journal</div><h2>文章</h2><p>旅遊攻略、美食推薦與住宿體驗分享</p></div>
         <div class="grid g2">
-          <div class="panel" v-for="a in articles.list" :key="a.articleId">
+          <div class="panel" style="cursor:pointer" v-for="a in articles.list" :key="a.articleId" @click="openArticle(a.articleId)">
             <div class="up" style="color:var(--gold)">{{ a.category }}</div>
             <h3 style="margin:10px 0" class="ser">{{ a.title }}</h3>
             <p style="color:var(--soft)">{{ a.contentPreview }}</p>
             <p class="hint" style="margin-top:14px">{{ fmt(a.createAt) }} · {{ a.viewCount||0 }} 次瀏覽</p>
-            <button class="reslink" style="margin-top:10px" @click="toggleReviews(a.articleId)">
+            <button class="reslink" style="margin-top:10px" @click.stop="toggleReviews(a.articleId)">
               {{ reviews[a.articleId]&&reviews[a.articleId].open?'收合留言':'查看留言' }}
             </button>
-            <div v-if="reviews[a.articleId]&&reviews[a.articleId].open" style="margin-top:16px;border-top:1px solid var(--line);padding-top:16px">
+            <div v-if="reviews[a.articleId]&&reviews[a.articleId].open" style="margin-top:16px;border-top:1px solid var(--line);padding-top:16px" @click.stop>
               <div v-if="!reviews[a.articleId].list.length" class="hint">尚無留言</div>
               <div v-for="rv in reviews[a.articleId].list" :key="rv.reviewId" style="margin-bottom:14px">
                 <p style="margin:0"><b>會員 #{{ rv.memberId }}</b> <span class="hint">{{ fmt(rv.createdAt) }}</span></p>
@@ -315,6 +315,37 @@
           <span>{{ articles.page+1 }} / {{ articles.totalPages }}</span>
           <button class="reslink" :disabled="articles.page>=articles.totalPages-1" @click="articles.page++;loadArticles()">下一頁 ›</button>
         </div>
+      </div>
+    </section>
+
+    <!-- ===== 文章內頁（單篇查看） ===== -->
+    <section v-if="nav==='article-detail'">
+      <div class="wrap">
+        <button class="reslink" @click="nav='articles';loadArticles()">‹ 返回文章列表</button>
+        <div v-if="articleDetail.data" class="panel" style="max-width:820px;margin:30px auto 0">
+          <div class="up" style="color:var(--gold)">{{ articleDetail.data.category }}</div>
+          <h2 class="ser" style="margin:10px 0 20px">{{ articleDetail.data.title }}</h2>
+          <p class="hint" style="margin-bottom:24px">{{ fmt(articleDetail.data.createAt) }} · {{ articleDetail.data.viewCount||0 }} 次瀏覽</p>
+          <p style="white-space:pre-wrap">{{ articleDetail.data.content }}</p>
+          <div style="margin-top:30px;border-top:1px solid var(--line);padding-top:20px">
+            <button class="reslink" @click="toggleReviews(articleDetail.data.articleId)">
+              {{ reviews[articleDetail.data.articleId]&&reviews[articleDetail.data.articleId].open?'收合留言':'查看留言' }}
+            </button>
+            <div v-if="reviews[articleDetail.data.articleId]&&reviews[articleDetail.data.articleId].open" style="margin-top:16px">
+              <div v-if="!reviews[articleDetail.data.articleId].list.length" class="hint">尚無留言</div>
+              <div v-for="rv in reviews[articleDetail.data.articleId].list" :key="rv.reviewId" style="margin-bottom:14px">
+                <p style="margin:0"><b>會員 #{{ rv.memberId }}</b> <span class="hint">{{ fmt(rv.createdAt) }}</span></p>
+                <p style="margin:4px 0 0">{{ rv.content }}</p>
+              </div>
+              <div v-if="member.on" style="margin-top:14px">
+                <textarea class="review-textarea" v-model="reviews[articleDetail.data.articleId].draft" placeholder="留下您的想法…"></textarea>
+                <button class="btn sm" style="margin-top:10px" @click="submitReview(articleDetail.data.articleId)">送出留言</button>
+              </div>
+              <p v-else class="hint" style="margin-top:14px">登入會員後即可留言</p>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="!articleDetail.loading" class="empty" style="margin-top:30px"><div class="big">找不到這篇文章</div></div>
       </div>
     </section>
 
@@ -565,13 +596,18 @@ createApp({
             checkoutRoomId:null,staying:[],find:{roomId:null,stayCustomer:'',checkInTime:'',checkOutTime:''},records:[]},
       news:{list:[]},
       articles:{page:0,size:6,list:[],totalPages:0},
+      articleDetail:{loading:false,data:null},
       reviews:{},
       toasts:[], logLines:[], _tid:0,
     };
   },
   computed:{
     logText(){ return this.logLines.join('\n')||'（尚無紀錄）'; },
-    isPublicNav(){ return ['about','news','articles'].includes(this.nav); },
+    isPublicNav(){ return ['about','news','articles','article-detail'].includes(this.nav); },
+  },
+  mounted(){
+    const articleId = new URLSearchParams(window.location.search).get('article');
+    if(articleId){ this.nav='article-detail'; this.loadArticleDetail(Number(articleId)); }
   },
   methods:{
     fmt(s){ return s? String(s).replace('T',' ').slice(0,16):''; },
@@ -618,6 +654,12 @@ createApp({
         const r=await this.api(`/thestar/content/articles?page=${this.articles.page}&size=${this.articles.size}`);
         this.articles.list=r.content||[]; this.articles.totalPages=r.totalPages||0;
       }catch{ this.articles.list=[]; } },
+    async loadArticleDetail(articleId){
+      this.articleDetail.loading=true; this.articleDetail.data=null;
+      try{ this.articleDetail.data=await this.api(`/thestar/content/articles/${articleId}`); }
+      catch(e){ this.toast('err','文章載入失敗',this.errMsg(e)); }
+      finally{ this.articleDetail.loading=false; } },
+    openArticle(articleId){ this.nav='article-detail'; this.loadArticleDetail(articleId); },
     async toggleReviews(articleId){
       if(!this.reviews[articleId]) this.reviews[articleId]={open:false,list:[],draft:''};
       const r=this.reviews[articleId]; r.open=!r.open;

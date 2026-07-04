@@ -8,4 +8,6 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<ReviewVO, Integer> {
 
     List<ReviewVO> findByArticleIdOrderByCreatedAtDesc(Integer articleId);
+
+    void deleteByArticleId(Integer articleId);
 }

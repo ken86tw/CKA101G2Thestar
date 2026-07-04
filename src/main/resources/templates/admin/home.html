@@ -36,14 +36,6 @@
             <a class="side-link" th:classappend="${!canManageEmployees} ? ' locked'" th:href="${canManageEmployees} ? @{/thestar/admin/employee/list} : @{/thestar/admin/home(error='沒有員工管理權限')}">
                 <span class="side-icon">◎</span>員工管理
             </a>
-            <a class="side-link" th:classappend="${!canManageRoles} ? ' locked'" th:href="${canManageRoles} ? @{/thestar/admin/employee/list} : @{/thestar/admin/home(error='沒有角色管理權限')}">
-                <span class="side-icon">◇</span>權限管理
-            </a>
-        </div>
-        <div class="side-section">
-            <p class="side-title">營運管理</p>
-            <a class="side-link" th:href="@{/}"><span class="side-icon">□</span>訂單管理</a>
-            <a class="side-link" th:href="@{/}"><span class="side-icon">▣</span>房務管理</a>
         </div>
         <div class="side-section">
             <p class="side-title">內容管理</p>
@@ -67,18 +59,6 @@
             <a class="dashboard-tile" th:classappend="${!canManageEmployees} ? ' locked'" th:href="${canManageEmployees} ? @{/thestar/admin/employee/list} : @{/thestar/admin/home(error='沒有員工管理權限')}">
                 <h2>員工管理</h2>
                 <p>新增、編輯員工資料與在職狀態。</p>
-            </a>
-            <a class="dashboard-tile" th:classappend="${!canManageRoles} ? ' locked'" th:href="${canManageRoles} ? @{/thestar/admin/employee/list} : @{/thestar/admin/home(error='沒有角色管理權限')}">
-                <h2>權限管理</h2>
-                <p>系統管理員可調整員工角色。</p>
-            </a>
-            <a class="dashboard-tile" th:classappend="${!canUseOrders} ? ' locked'" th:href="@{/}">
-                <h2>訂單管理</h2>
-                <p>查看後台訂單與付款狀態。</p>
-            </a>
-            <a class="dashboard-tile" th:classappend="${!canUseStayRecord} ? ' locked'" th:href="@{/}">
-                <h2>房務管理</h2>
-                <p>入住、退房與住宿紀錄查詢。</p>
             </a>
             <a class="dashboard-tile" th:href="@{/thestar/admin/content/news}">
                 <h2>最新消息管理</h2>

@@ -10,6 +10,7 @@ public class ArticlePublicDTO {
     private String title;
     private String category;
     private String contentPreview;
+    private String content;
     private Integer viewCount;
     private LocalDateTime createAt;
 
@@ -21,6 +22,12 @@ public class ArticlePublicDTO {
         dto.contentPreview = preview(article.getContent());
         dto.viewCount = article.getViewCount();
         dto.createAt = article.getCreateAt();
+        return dto;
+    }
+
+    public static ArticlePublicDTO fromDetail(ArticleVO article) {
+        ArticlePublicDTO dto = from(article);
+        dto.content = article.getContent();
         return dto;
     }
 
@@ -45,6 +52,10 @@ public class ArticlePublicDTO {
 
     public String getContentPreview() {
         return contentPreview;
+    }
+
+    public String getContent() {
+        return content;
     }
 
     public Integer getViewCount() {

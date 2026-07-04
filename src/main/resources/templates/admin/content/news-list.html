@@ -30,6 +30,7 @@
                     </td>
                     <td th:text="${#temporals.format(news.updateAt, 'yyyy/MM/dd HH:mm')}"></td>
                     <td class="admin-actions">
+                        <a class="admin-button line sm" th:href="@{'/'(article=${news.articleId})}" target="_blank">查看</a>
                         <a class="admin-button line sm" th:href="@{'/thestar/admin/content/article/edit/' + ${news.articleId}}">編輯</a>
                         <form th:action="@{'/thestar/admin/content/news/' + ${news.articleId} + '/delete'}" method="post"
                               onsubmit="return confirm('確定要刪除這篇文章嗎？')">

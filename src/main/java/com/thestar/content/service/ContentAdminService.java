@@ -82,6 +82,7 @@ public class ContentAdminService {
         if (!articleRepository.existsById(id)) {
             throw new NoSuchElementException("查無文章");
         }
+        reviewRepository.deleteByArticleId(id);
         articleRepository.deleteById(id);
     }
 

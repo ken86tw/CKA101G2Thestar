@@ -31,6 +31,7 @@
                     </td>
                     <td th:text="${#temporals.format(article.updateAt, 'yyyy/MM/dd HH:mm')}"></td>
                     <td class="admin-actions">
+                        <a class="admin-button line sm" th:href="@{'/'(article=${article.articleId})}" target="_blank">查看</a>
                         <a class="admin-button line sm" th:href="@{'/thestar/admin/content/article/edit/' + ${article.articleId}}">編輯</a>
                         <form th:action="@{'/thestar/admin/content/article/' + ${article.articleId} + '/toggle-status'}" method="post">
                             <input type="hidden" name="published" th:value="${article.status == 1} ? 'false' : 'true'">
