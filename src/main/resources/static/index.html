@@ -16,6 +16,23 @@
       --muted:#9b9486; --gold:#9c7c4f; --gold-d:#80623a; --line:#e4ddd0;
       --hero:url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80');
     }
+    :root[data-theme="dark"]{
+      --cream:#1c1a16; --paper:#242019; --ink:#f3ede0; --soft:#cbc3b2;
+      --muted:#8f8776; --gold:#c7a06a; --gold-d:#e4bd85; --line:#3a352c;
+    }
+    :root[data-theme="dark"] .badge-on{color:#9fd8b8;background:rgba(74,115,80,.22)}
+    :root[data-theme="dark"] .badge-off{color:#e7a89f;background:rgba(156,82,73,.22)}
+    :root[data-theme="dark"] .b0{color:#e0c184;border-color:#5a4c2c;background:rgba(154,123,50,.18)}
+    :root[data-theme="dark"] .b1{color:#9ccbe8;border-color:#2c4152;background:rgba(63,107,138,.18)}
+    :root[data-theme="dark"] .b2{color:#9fd8b8;border-color:#2c4d33;background:rgba(74,115,80,.18)}
+    :root[data-theme="dark"] .b3{color:#e7a89f;border-color:#4d302c;background:rgba(156,82,73,.18)}
+    :root[data-theme="dark"] .stab .box:hover{background:#2a251d}
+    :root[data-theme="dark"] .stab .box.on{background:#2e2820}
+    :root[data-theme="dark"] tr.det td{background:#2a251d}
+    .theme-toggle{position:fixed;bottom:24px;left:24px;z-index:80;width:44px;height:44px;border-radius:50%;
+      border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;font-size:18px;
+      display:grid;place-items:center;box-shadow:0 8px 24px rgba(35,33,22,.14);transition:.2s}
+    .theme-toggle:hover{border-color:var(--gold)}
     *{box-sizing:border-box}
     html,body{margin:0}
     body{font-family:var(--sans);background:var(--cream);color:var(--ink);font-weight:300;font-size:15px;line-height:1.7}
@@ -43,6 +60,9 @@
       font-family:var(--sans);font-weight:300;font-size:15px;padding:10px 2px;outline:none;border-radius:0;transition:.25s}
     input:focus,select:focus{border-bottom-color:var(--gold)}
     label{display:block;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+    .review-textarea{width:100%;min-height:80px;resize:vertical;border:1px solid var(--line);background:transparent;
+      color:var(--ink);font-family:var(--sans);font-weight:300;font-size:14px;line-height:1.6;padding:12px;outline:none;transition:.25s}
+    .review-textarea:focus{border-color:var(--gold)}
 
     /* ===== gate ===== */
     .gate{min-height:100vh;display:grid;grid-template-columns:1.15fr .85fr}
@@ -157,12 +177,14 @@
       nav.menu{display:none}.g2,.g3{grid-template-columns:1fr}.stab{grid-template-columns:repeat(2,1fr)}
       .stab .box:nth-child(2){border-right:0}.hero h1{font-size:34px}}
   </style>
+  <script src="/js/theme.js"></script>
 </head>
 <body>
+<button class="theme-toggle" onclick="toggleTheme()" title="切換深色 / 淺色模式">🌓</button>
 <div id="app">
 
   <!-- ============ 登入（精品入口，與其他頁分開） ============ -->
-  <div v-if="!member.on && !employee.on" class="gate">
+  <div v-if="!member.on && !employee.on && !isPublicNav" class="gate">
     <div class="visual"><div class="cap"><div class="up">The Star · Since 2026</div><h1>Arrive as a guest,<br>leave as family.</h1></div></div>
     <div class="form">
       <div class="mark"><div class="star">✦</div><h2>THE STAR</h2><p>Hotel &amp; Residences</p></div>
@@ -180,6 +202,11 @@
         <button class="btn block" @click="loginEmployee">進入後台</button>
         <p class="hint">後台訂單 · 房務入住 / 退房</p>
       </div>
+      <div class="seg" style="margin-top:30px;border-top:1px solid var(--line);padding-top:26px;border-bottom:0">
+        <button @click="nav='about'">關於我們</button>
+        <button @click="nav='news';loadNews()">最新消息</button>
+        <button @click="nav='articles';loadArticles()">文章</button>
+      </div>
     </div>
   </div>
 
@@ -189,6 +216,9 @@
       <div class="hbar">
         <div class="logo"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp; Residences</small></div>
         <nav class="menu">
+          <button :class="{on:nav==='about'}" @click="nav='about'">關於我們</button>
+          <button :class="{on:nav==='news'}" @click="nav='news';loadNews()">最新消息</button>
+          <button :class="{on:nav==='articles'}" @click="nav='articles';loadArticles()">文章</button>
           <button v-if="member.on" :class="{on:nav==='book'}" @click="nav='book'">預訂客房</button>
           <button v-if="member.on" :class="{on:nav==='orders'}" @click="nav='orders';loadOrders()">我的預訂</button>
           <button v-if="employee.on" :class="{on:nav==='admin'}" @click="nav='admin';loadAdmin()">後台訂單</button>
@@ -199,10 +229,94 @@
             <div v-if="member.on">貴賓 <b>#{{ member.on }}</b></div>
             <div v-if="employee.on">員工 <b>#{{ employee.on }}</b></div>
           </div>
-          <button class="btn line" @click="logout">登出</button>
+          <button v-if="member.on || employee.on" class="btn line" @click="logout">登出</button>
+          <button v-else class="btn line" @click="nav='book'">登入</button>
         </div>
       </div>
     </header>
+
+    <!-- ===== 關於我們 ===== -->
+    <section v-if="nav==='about'">
+      <div class="hero"><div class="inner"><div class="up">Our Story</div><h1>關於我們</h1><div class="rule"></div></div></div>
+      <div class="wrap">
+        <div class="panel" style="max-width:820px;margin:0 auto">
+          <div class="sechead" style="margin-bottom:30px">
+            <div class="up">Since 2026</div>
+            <h2>THE STAR Hotel &amp; Residences</h2>
+          </div>
+          <p style="margin-bottom:22px">THE STAR 座落於城市與海岸線之間，自 2026 年開業以來，以精品旅宿的姿態款待每一位旅人。我們相信真正的奢華不在於裝飾，而在於被細心記住的每一個細節。</p>
+          <p style="margin-bottom:22px">從客房設計、餐飲體驗到房務服務，每一個環節皆由專業團隊親自把關，只為讓您「以賓客身分抵達，以家人身分離開」。</p>
+          <p>無論是短暫商務停留，或是與家人共度的假期，THE STAR 都希望成為您在旅途中，最安心的那個角落。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 最新消息 ===== -->
+    <section v-if="nav==='news'">
+      <div class="wrap">
+        <div class="sechead"><div class="up">News</div><h2>最新消息</h2><p>最新發布的 5 則消息，內容與文章管理同步</p></div>
+        <div class="grid g2">
+          <div class="panel" v-for="a in news.list" :key="a.articleId">
+            <div class="up" style="color:var(--gold)">{{ a.category }}</div>
+            <h3 style="margin:10px 0" class="ser">{{ a.title }}</h3>
+            <p style="color:var(--soft)">{{ a.contentPreview }}</p>
+            <p class="hint" style="margin-top:14px">{{ fmt(a.createAt) }} · {{ a.viewCount||0 }} 次瀏覽</p>
+            <button class="reslink" style="margin-top:10px" @click="toggleReviews(a.articleId)">
+              {{ reviews[a.articleId]&&reviews[a.articleId].open?'收合留言':'查看留言' }}
+            </button>
+            <div v-if="reviews[a.articleId]&&reviews[a.articleId].open" style="margin-top:16px;border-top:1px solid var(--line);padding-top:16px">
+              <div v-if="!reviews[a.articleId].list.length" class="hint">尚無留言</div>
+              <div v-for="rv in reviews[a.articleId].list" :key="rv.reviewId" style="margin-bottom:14px">
+                <p style="margin:0"><b>會員 #{{ rv.memberId }}</b> <span class="hint">{{ fmt(rv.createdAt) }}</span></p>
+                <p style="margin:4px 0 0">{{ rv.content }}</p>
+              </div>
+              <div v-if="member.on" style="margin-top:14px">
+                <textarea class="review-textarea" v-model="reviews[a.articleId].draft" placeholder="留下您的想法…"></textarea>
+                <button class="btn sm" style="margin-top:10px" @click="submitReview(a.articleId)">送出留言</button>
+              </div>
+              <p v-else class="hint" style="margin-top:14px">登入會員後即可留言</p>
+            </div>
+          </div>
+          <div v-if="!news.list.length" class="empty"><div class="big">尚無最新消息</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 文章 ===== -->
+    <section v-if="nav==='articles'">
+      <div class="wrap">
+        <div class="sechead"><div class="up">Journal</div><h2>文章</h2><p>旅遊攻略、美食推薦與住宿體驗分享</p></div>
+        <div class="grid g2">
+          <div class="panel" v-for="a in articles.list" :key="a.articleId">
+            <div class="up" style="color:var(--gold)">{{ a.category }}</div>
+            <h3 style="margin:10px 0" class="ser">{{ a.title }}</h3>
+            <p style="color:var(--soft)">{{ a.contentPreview }}</p>
+            <p class="hint" style="margin-top:14px">{{ fmt(a.createAt) }} · {{ a.viewCount||0 }} 次瀏覽</p>
+            <button class="reslink" style="margin-top:10px" @click="toggleReviews(a.articleId)">
+              {{ reviews[a.articleId]&&reviews[a.articleId].open?'收合留言':'查看留言' }}
+            </button>
+            <div v-if="reviews[a.articleId]&&reviews[a.articleId].open" style="margin-top:16px;border-top:1px solid var(--line);padding-top:16px">
+              <div v-if="!reviews[a.articleId].list.length" class="hint">尚無留言</div>
+              <div v-for="rv in reviews[a.articleId].list" :key="rv.reviewId" style="margin-bottom:14px">
+                <p style="margin:0"><b>會員 #{{ rv.memberId }}</b> <span class="hint">{{ fmt(rv.createdAt) }}</span></p>
+                <p style="margin:4px 0 0">{{ rv.content }}</p>
+              </div>
+              <div v-if="member.on" style="margin-top:14px">
+                <textarea class="review-textarea" v-model="reviews[a.articleId].draft" placeholder="留下您的想法…"></textarea>
+                <button class="btn sm" style="margin-top:10px" @click="submitReview(a.articleId)">送出留言</button>
+              </div>
+              <p v-else class="hint" style="margin-top:14px">登入會員後即可留言</p>
+            </div>
+          </div>
+          <div v-if="!articles.list.length" class="empty"><div class="big">尚無文章</div></div>
+        </div>
+        <div class="pager" v-if="articles.totalPages>1">
+          <button class="reslink" :disabled="articles.page<=0" @click="articles.page--;loadArticles()">‹ 上一頁</button>
+          <span>{{ articles.page+1 }} / {{ articles.totalPages }}</span>
+          <button class="reslink" :disabled="articles.page>=articles.totalPages-1" @click="articles.page++;loadArticles()">下一頁 ›</button>
+        </div>
+      </div>
+    </section>
 
     <!-- ===== 預訂客房 ===== -->
     <section v-if="member.on && nav==='book'">
@@ -449,10 +563,16 @@ createApp({
       stay:{orderId:null,pending:[],lines:[],activeListId:null,activeTypeName:'',rooms:[],
             checkin:{orderListId:null,roomId:null,stayCustomer:''},
             checkoutRoomId:null,staying:[],find:{roomId:null,stayCustomer:'',checkInTime:'',checkOutTime:''},records:[]},
+      news:{list:[]},
+      articles:{page:0,size:6,list:[],totalPages:0},
+      reviews:{},
       toasts:[], logLines:[], _tid:0,
     };
   },
-  computed:{ logText(){ return this.logLines.join('\n')||'（尚無紀錄）'; } },
+  computed:{
+    logText(){ return this.logLines.join('\n')||'（尚無紀錄）'; },
+    isPublicNav(){ return ['about','news','articles'].includes(this.nav); },
+  },
   methods:{
     fmt(s){ return s? String(s).replace('T',' ').slice(0,16):''; },
     errMsg(e){ const b=e&&e.body; if(b&&typeof b==='object')return b.error||b.message||JSON.stringify(b);
@@ -493,6 +613,23 @@ createApp({
         this.admin.list=r.content||[]; this.admin.totalPages=r.totalPages||0; this.admin.open={};
         this.refreshCounts(this.admin,'/thestar/admin/order');
       }catch{ this.admin.list=[]; } },
+    async loadNews(){ try{ this.news.list=await this.api('/thestar/content/news'); }catch{ this.news.list=[]; } },
+    async loadArticles(){ try{
+        const r=await this.api(`/thestar/content/articles?page=${this.articles.page}&size=${this.articles.size}`);
+        this.articles.list=r.content||[]; this.articles.totalPages=r.totalPages||0;
+      }catch{ this.articles.list=[]; } },
+    async toggleReviews(articleId){
+      if(!this.reviews[articleId]) this.reviews[articleId]={open:false,list:[],draft:''};
+      const r=this.reviews[articleId]; r.open=!r.open;
+      if(r.open){ try{ r.list=await this.api(`/thestar/content/articles/${articleId}/reviews`); }catch{ r.list=[]; } } },
+    async submitReview(articleId){
+      const r=this.reviews[articleId]; if(!r||!r.draft||!r.draft.trim())return;
+      try{
+        await this.api(`/thestar/content/articles/${articleId}/reviews`,{method:'POST',
+          headers:{'Content-Type':'application/json'},body:JSON.stringify({content:r.draft})});
+        r.draft=''; r.list=await this.api(`/thestar/content/articles/${articleId}/reviews`);
+        this.toast('ok','留言成功');
+      }catch(e){ this.toast('err','留言失敗',this.errMsg(e)); } },
     async refreshCounts(box,base){
       for(const s of STATUS){ try{
         const r=await this.api(`${base}?orderStatus=${s.v}&page=0&size=1`);

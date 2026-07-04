@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>後台首頁 - The Star Hotel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <script th:src="@{/js/theme.js}"></script>
+</head>
+<body class="admin-body">
+<button class="theme-toggle" onclick="toggleTheme()" title="切換深色 / 淺色模式">🌓</button>
+<div class="admin-frame">
+    <div class="admin-topbar">
+        <div class="admin-brand">
+            <b>The Star</b>
+            <span class="admin-pill">Admin</span>
+        </div>
+        <div class="admin-user">
+            <span class="admin-avatar" th:text="${#strings.substring(currentEmployeeName, 0, 1)}"></span>
+            <span th:text="${currentEmployeeName}"></span>
+            <form th:action="@{/thestar/admin/logout}" method="post">
+                <button type="submit" class="admin-button line sm">登出</button>
+            </form>
+        </div>
+    </div>
+
+    <aside class="admin-sidebar">
+        <div class="side-section">
+            <a class="side-link active" th:href="@{/thestar/admin/home}"><span class="side-icon">⌂</span>控制中心</a>
+        </div>
+        <div class="side-section">
+            <p class="side-title">用戶管理</p>
+            <a class="side-link" th:classappend="${!canManageEmployees} ? ' locked'" th:href="${canManageEmployees} ? @{/thestar/admin/employee/list} : @{/thestar/admin/home(error='沒有員工管理權限')}">
+                <span class="side-icon">◎</span>員工管理
+            </a>
+            <a class="side-link" th:classappend="${!canManageRoles} ? ' locked'" th:href="${canManageRoles} ? @{/thestar/admin/employee/list} : @{/thestar/admin/home(error='沒有角色管理權限')}">
+                <span class="side-icon">◇</span>權限管理
+            </a>
+        </div>
+        <div class="side-section">
+            <p class="side-title">營運管理</p>
+            <a class="side-link" th:href="@{/}"><span class="side-icon">□</span>訂單管理</a>
+            <a class="side-link" th:href="@{/}"><span class="side-icon">▣</span>房務管理</a>
+        </div>
+        <div class="side-section">
+            <p class="side-title">內容管理</p>
+            <a class="side-link" th:href="@{/thestar/admin/content/news}"><span class="side-icon">▤</span>最新消息管理</a>
+            <a class="side-link" th:href="@{/thestar/admin/content/article}"><span class="side-icon">✎</span>文章管理</a>
+            <a class="side-link" th:href="@{/thestar/admin/content/review}"><span class="side-icon">☰</span>文章評論管理</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div class="admin-heading">
+            <div>
+                <h1>後台控制中心</h1>
+                <p th:text="${employeeMail}"></p>
+            </div>
+        </div>
+
+        <p class="admin-message error" th:if="${param.error}" th:text="${param.error}"></p>
+
+        <div class="admin-dashboard">
+            <a class="dashboard-tile" th:classappend="${!canManageEmployees} ? ' locked'" th:href="${canManageEmployees} ? @{/thestar/admin/employee/list} : @{/thestar/admin/home(error='沒有員工管理權限')}">
+                <h2>員工管理</h2>
+                <p>新增、編輯員工資料與在職狀態。</p>
+            </a>
+            <a class="dashboard-tile" th:classappend="${!canManageRoles} ? ' locked'" th:href="${canManageRoles} ? @{/thestar/admin/employee/list} : @{/thestar/admin/home(error='沒有角色管理權限')}">
+                <h2>權限管理</h2>
+                <p>系統管理員可調整員工角色。</p>
+            </a>
+            <a class="dashboard-tile" th:classappend="${!canUseOrders} ? ' locked'" th:href="@{/}">
+                <h2>訂單管理</h2>
+                <p>查看後台訂單與付款狀態。</p>
+            </a>
+            <a class="dashboard-tile" th:classappend="${!canUseStayRecord} ? ' locked'" th:href="@{/}">
+                <h2>房務管理</h2>
+                <p>入住、退房與住宿紀錄查詢。</p>
+            </a>
+            <a class="dashboard-tile" th:href="@{/thestar/admin/content/news}">
+                <h2>最新消息管理</h2>
+                <p>發布飯店公告、活動消息與維護通知。</p>
+            </a>
+            <a class="dashboard-tile" th:href="@{/thestar/admin/content/article}">
+                <h2>文章管理</h2>
+                <p>管理攻略、住宿體驗與美食推薦文章。</p>
+            </a>
+            <a class="dashboard-tile" th:href="@{/thestar/admin/content/review}">
+                <h2>文章評論管理</h2>
+                <p>查看會員留言並移除不適當內容。</p>
+            </a>
+        </div>
+    </main>
+</div>
+</body>
+</html>
