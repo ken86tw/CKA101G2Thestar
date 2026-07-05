@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指派角色 - The Star Hotel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <script th:src="@{/js/theme.js}"></script>
+</head>
+<body class="admin-body">
+<div class="admin-frame">
+    <div class="admin-topbar">
+        <button class="theme-toggle" onclick="toggleTheme()" title="切換深色 / 淺色模式">🌓</button>
+        <div class="admin-brand">
+            <b>The Star</b>
+            <span class="admin-pill">Admin</span>
+        </div>
+        <div class="admin-user">
+            <span class="admin-avatar" th:text="${#strings.substring(currentEmployeeName, 0, 1)}"></span>
+            <span th:text="${currentEmployeeName}"></span>
+            <form th:action="@{/thestar/admin/logout}" method="post">
+                <button type="submit" class="admin-button line sm">登出</button>
+            </form>
+        </div>
+    </div>
+
+    <aside class="admin-sidebar">
+        <div class="side-section">
+            <a class="side-link" th:href="@{/thestar/admin/home}"><span class="side-icon">⌂</span>控制中心</a>
+        </div>
+        <div class="side-section">
+            <p class="side-title">用戶管理</p>
+            <a class="side-link" th:href="@{/thestar/admin/employee/list}"><span class="side-icon">◎</span>員工管理</a>
+        </div>
+        <div class="side-section">
+            <p class="side-title">內容管理</p>
+            <a class="side-link" th:href="@{/thestar/admin/content/news}"><span class="side-icon">▤</span>最新消息管理</a>
+            <a class="side-link" th:href="@{/thestar/admin/content/article}"><span class="side-icon">✎</span>文章管理</a>
+            <a class="side-link" th:href="@{/thestar/admin/content/review}"><span class="side-icon">☰</span>文章評論管理</a>
+        </div>
+    </aside>
+
+<main class="admin-main">
+    <div class="admin-heading">
+        <div>
+            <h1 th:text="'指派角色：' + ${employee.employeeName}"></h1>
+            <p th:text="${employee.employeeMail}"></p>
+        </div>
+    </div>
+
+    <form th:action="@{'/thestar/admin/employee/' + ${employee.employeeId} + '/roles'}" method="post" class="admin-card admin-form">
+        <div th:each="role : ${allRoles}" class="checkbox-row">
+            <input type="checkbox" name="roleIds" th:value="${role.roleId}"
+                   th:id="'role-' + ${role.roleId}"
+                   th:checked="${assignedRoleIds.contains(role.roleId)}">
+            <label th:for="'role-' + ${role.roleId}" style="margin:0"
+                   th:text="${role.roleName} + '（' + ${role.roleCode} + '）'"></label>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="admin-button">儲存</button>
+            <a th:href="@{/thestar/admin/employee/list}" class="admin-button line">取消</a>
+        </div>
+    </form>
+</main>
+</div>
+</body>
+</html>

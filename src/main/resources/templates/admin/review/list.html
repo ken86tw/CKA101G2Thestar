@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{admin/common_sidebar :: common-head('顧客評論管理')}"></head>
+
 <body>
     <div th:replace="~{admin/common_sidebar :: sidebar('review')}"></div>
     <div class="main-content">
@@ -25,13 +27,16 @@
                             <td th:text="${review.memberVO.memberId}">會員</td>
                             <td th:text="${review.restaurantReservationVO.reservationId}">1001</td>
                             <td>
-                                <span th:each="i : ${#numbers.sequence(1, review.reviewStars)}" class="text-warning">★</span>
+                                <span th:each="i : ${#numbers.sequence(1, review.reviewStars)}"
+                                    class="text-warning">★</span>
                             </td>
                             <td th:text="${review.reviewContent}" class="text-dark small">內容...</td>
                             <td>
-                                <form th:action="@{/admin/restaurant/review/delete}" method="post" onsubmit="return confirm('確定要審查並刪除這則評論嗎？');">
+                                <form th:action="@{/admin/restaurant/review/delete}" method="post"
+                                    onsubmit="return confirm('確定要審查並刪除這則評論嗎？');">
                                     <input type="hidden" name="reviewId" th:value="${review.reviewId}">
-                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> 刪除</button>
+                                    <button type="submit" class="btn btn-danger btn-sm"><i
+                                            class="fa-solid fa-trash"></i> 刪除</button>
                                 </form>
                             </td>
                         </tr>
@@ -41,4 +46,5 @@
         </div>
     </div>
 </body>
+
 </html>
