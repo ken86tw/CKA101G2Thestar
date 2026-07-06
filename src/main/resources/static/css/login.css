@@ -1,0 +1,147 @@
+[v-cloak] {
+  display: none;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f6f2ea;
+  color: #23211c;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 28px 20px;
+}
+
+.login-card {
+  width: min(420px, 92vw);
+  background: #fbf9f4;
+  border: 1px solid #e4ddd0;
+  padding: 42px;
+  box-shadow: 0 20px 60px rgba(35, 33, 28, 0.08);
+}
+
+.login-card h1 {
+  margin: 0 0 8px;
+  text-align: center;
+  letter-spacing: 4px;
+  color: #9c7138;
+}
+
+.login-card > p {
+  text-align: center;
+  color: #8a8172;
+  margin: 0 0 32px;
+}
+
+.field {
+  margin-bottom: 22px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: #8a8172;
+  margin-bottom: 8px;
+}
+
+.field input {
+  width: 100%;
+  border: 1px solid #ddd4c6;
+  background: #fff;
+  padding: 13px 14px;
+  font-size: 15px;
+  border-radius: 4px;
+}
+
+button {
+  width: 100%;
+  border: 0;
+  background: #9c7c4f;
+  color: white;
+  padding: 14px;
+  font-size: 15px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.msg {
+  min-height: 24px;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.error {
+  color: #a85b50;
+}
+
+.success {
+  color: #3f7f58;
+}
+
+.login-links {
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+  text-align: center;
+  color: #8a8172;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.login-links a {
+  color: #9c7c4f;
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 6px;
+}
+
+.login-links a:hover {
+  text-decoration: underline;
+}
+
+
+.resend-box {
+  margin: 14px 0 8px;
+  padding: 14px;
+  border: 1px solid #e2c59b;
+  background: #fff8ec;
+  text-align: center;
+  border-radius: 6px;
+}
+
+.resend-box p {
+  margin: 0 0 10px;
+  color: #8a6f45;
+  font-size: 14px;
+}
+
+.resend-btn {
+  background: #fff;
+  color: #9c7c4f;
+  border: 1px solid #9c7c4f;
+  padding: 11px 14px;
+}
+
+
+.remember-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -6px 0 18px;
+  color: #8a8172;
+  font-size: 14px;
+}
+
+.remember-row input {
+  width: auto;
+}
