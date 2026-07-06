@@ -161,7 +161,7 @@
 <body>
 <div id="app">
 
-  <!-- ============ 登入（精品入口，與其他頁分開） ============ -->
+  <!-- ============ 登入（入口，與其他頁分開） ============ -->
   <div v-if="!member.on && !employee.on" class="gate">
     <div class="visual"><div class="cap"><div class="up">The Star · Since 2026</div><h1>Arrive as a guest,<br>leave as family.</h1></div></div>
     <div class="form">
@@ -453,6 +453,14 @@ createApp({
     };
   },
   computed:{ logText(){ return this.logLines.join('\n')||'（尚無紀錄）'; } },
+  // 重整後跟後端要 session 裡的登入者，還原登入狀態
+  async mounted(){
+    try{
+      const me=await this.api('/dev/me');
+      if(me.memberId){ this.member.id=me.memberId; this.member.on=me.memberId; this.nav='orders'; this.loadOrders(); }
+      else if(me.employeeId){ this.employee.id=me.employeeId; this.employee.on=me.employeeId; this.nav='admin'; this.loadAdmin(); }
+    }catch{ /* 沒登入就停在登入頁 */ }
+  },
   methods:{
     fmt(s){ return s? String(s).replace('T',' ').slice(0,16):''; },
     errMsg(e){ const b=e&&e.body; if(b&&typeof b==='object')return b.error||b.message||JSON.stringify(b);
