@@ -17,13 +17,23 @@ public class FakeLoginController {
         MemberVO member = new MemberVO();
         member.setMemberId(memberId);
         session.setAttribute("loginMember", member);
+        // 切換身分:登入會員就清掉員工，避免 session 同時有兩種身分
+        session.removeAttribute("loginEmployee");
         return "fake login ok, memberId=" + memberId + ", sessionId=" + session.getId();
     }
 
     @GetMapping("/dev/employeelogin/{employeeId}")
     public  String fakeEmployeeLogin(@PathVariable Integer employeeId, HttpSession session){
         session.setAttribute("loginEmployee", employeeId);
+        // 切換身分:登入員工就清掉會員，避免重整後 /dev/me 還原成會員
+        session.removeAttribute("loginMember");
         return"fake employee login OK employeeId = " + employeeId;
+    }
+
+    @GetMapping("/dev/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "logout ok";
     }
 
     // 回傳 session 裡目前的登入者，讓前端重整後能還原登入狀態

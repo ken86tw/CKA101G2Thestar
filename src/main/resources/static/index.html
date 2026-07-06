@@ -482,7 +482,8 @@ createApp({
     async loginEmployee(){ try{ await this.api(`/dev/employeelogin/${this.employee.id}`); this.employee.on=this.employee.id;
       this.toast('ok','員工已登入',`#${this.employee.id}`); this.nav='admin'; this.loadAdmin();
     }catch{ this.toast('err','登入失敗'); } },
-    logout(){ this.member.on=null; this.employee.on=null; this.nav='book';
+    async logout(){ try{ await this.api('/dev/logout'); }catch{ /* 後端沒清成也照樣登出前端 */ }
+      this.member.on=null; this.employee.on=null; this.nav='book';
       this.orders.list=[]; this.admin.list=[]; this.toast('warn','已登出'); },
     async createOrder(){ try{
       const r=await this.api('/thestar/order/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.form)});
