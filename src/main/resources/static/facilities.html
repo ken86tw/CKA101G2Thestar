@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>東方之星 The Star｜飯店設施</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/facilities.css">
+</head>
+<body>
+  <header class="page-header">
+    <nav class="navbar">
+      <a href="/index.html" class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <path d="M32 4 L37 23 L56 12 L45 31 L60 38 L41 40 L48 60 L32 46 L16 60 L23 40 L4 38 L19 31 L8 12 L27 23 Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linejoin="round"/>
+            <circle cx="32" cy="32" r="7" fill="currentColor" opacity="0.28"/>
+            <path d="M32 9 V55 M9 32 H55" stroke="currentColor" stroke-width="1.6" opacity="0.75"/>
+          </svg>
+        </div>
+        <h1>東方之星<span>The Star</span></h1>
+      </a>
+
+      <div class="nav-links">
+        <a href="/index.html">首頁</a>
+        <a href="/index.html#about-preview">關於我們</a>
+        <a href="/articles.html">文章</a>
+        <a href="/booking.html">訂房</a>
+        <a href="/restaurant">餐廳</a>
+        <a href="/shop.html">購物</a>
+        <a href="/facilities.html" class="active">設施</a>
+        <a href="/index.html#faq">FAQ</a>
+
+        <div class="nav-actions">
+          <button class="notify-btn" id="notifyBtn" type="button" title="通知">
+            <i class="fa-regular fa-bell"></i>
+            <span class="notify-dot" id="notifyDot"></span>
+          </button>
+
+          <a href="/login.html" class="login-btn" id="loginLink">登入</a>
+
+          <div class="member-menu" id="memberMenu" style="display:none;">
+            <button class="member-avatar" id="memberAvatar" type="button">
+              <i class="fa-regular fa-user"></i>
+            </button>
+
+            <div class="member-dropdown" id="memberDropdown">
+              <div class="member-greeting" id="memberGreeting">貴賓，會員</div>
+              <a href="#" class="js-coming-soon" data-message="會員資料管理頁尚未完成">會員資料管理</a>
+              <a href="/booking.html">訂房訂單管理</a>
+              <a href="#" class="js-coming-soon" data-message="餐廳訂單管理頁尚未完成">餐廳訂單管理</a>
+              <button type="button" id="logoutBtn">登出</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sub-hero">
+      <h2>飯店設施</h2>
+      <p>泳池、SPA、健身房，享受完整度假體驗</p>
+      <div class="gold-line"></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" id="facilities">
+      <p class="intro">
+        我們提供多樣化的休閒設施，無論是放鬆身心或是活力鍛鍊，
+        都能在這裡找到屬於您的美好時光。
+      </p>
+      <div class="gold-line"></div>
+
+      <div class="facility-grid">
+        <article class="facility-card">
+          <div class="facility-img pool"></div>
+          <div class="facility-body">
+            <div class="circle-icon">
+              <i class="fa-solid fa-person-swimming fa-flip-horizontal"></i>
+            </div>
+            <h3>游泳池 <span>POOL</span></h3>
+            <p>在陽光灑落的無邊際泳池中暢游，享受海風輕拂，感受度假生活的愜意。</p>
+            <div class="info">
+              <div><strong>開放時間</strong><span>06:00 - 22:00</span></div>
+              <div><strong>地點</strong><span>5F 戶外泳池</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="facility-card">
+          <div class="facility-img spa"></div>
+          <div class="facility-body">
+            <div class="circle-icon">
+              <i class="fa-solid fa-shower"></i>
+            </div>
+            <h3>SPA 芳療中心 <span>SPA</span></h3>
+            <p>專業芳療師為您量身打造療程，舒緩壓力，找回身心的平靜與平衡。</p>
+            <div class="info">
+              <div><strong>開放時間</strong><span>10:00 - 22:00</span></div>
+              <div><strong>地點</strong><span>4F SPA 芳療中心</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="facility-card">
+          <div class="facility-img gym"></div>
+          <div class="facility-body">
+            <div class="circle-icon">
+              <i class="fa-solid fa-dumbbell"></i>
+            </div>
+            <h3>健身房 <span>FITNESS CENTER</span></h3>
+            <p>配備完善器材的健身空間，滿足您的運動需求，保持最佳狀態。</p>
+            <div class="info">
+              <div><strong>開放時間</strong><span>24H</span></div>
+              <div><strong>地點</strong><span>4F 健身中心</span></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="more-section">
+      <h2 class="section-title">更多設施與服務</h2>
+      <div class="gold-line"></div>
+
+      <div class="more-grid">
+        <div class="more-item">
+          <div class="more-icon"><i class="fa-solid fa-hot-tub-person"></i></div>
+          <h4>三溫暖</h4>
+          <p>舒緩疲勞，促進循環</p>
+        </div>
+        <div class="more-item">
+          <div class="more-icon"><i class="fa-solid fa-utensils"></i></div>
+          <h4>餐廳</h4>
+          <p>精緻料理，滿足味蕾</p>
+        </div>
+        <div class="more-item">
+          <div class="more-icon"><i class="fa-solid fa-child-reaching"></i></div>
+          <h4>兒童遊戲室</h4>
+          <p>親子同樂的歡樂空間</p>
+        </div>
+        <div class="more-item">
+          <div class="more-icon"><i class="fa-solid fa-square-parking"></i></div>
+          <h4>停車服務</h4>
+          <p>提供住客專屬停車位</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div>
+        <h2>開啟您的度假旅程</h2>
+        <p>立即預訂，體驗東方之星的美好時光</p>
+        <a href="/booking.html" class="btn">立即訂房</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/header-auth.js"></script>
+</body>
+</html>
