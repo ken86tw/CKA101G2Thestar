@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title th:text="${productsVO.productName} + '｜東方之星 The Star'">商品詳情｜東方之星</title>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link
+	href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap"
+	rel="stylesheet">
+<style>
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'Noto Sans TC', sans-serif;
+	background: #f5f8fa;
+	color: #2c3e50;
+}
+
+.navbar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 100;
+	background: rgba(30, 45, 55, 0.92);
+	backdrop-filter: blur(8px);
+	padding: 0 48px;
+	height: 68px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+.navbar-brand {
+	text-decoration: none;
+	display: flex;
+	flex-direction: column;
+}
+
+.navbar-brand .brand-zh {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 16px;
+	font-weight: 700;
+	color: #fff;
+	letter-spacing: 2px;
+}
+
+.navbar-brand .brand-en {
+	font-family: 'Cormorant Garamond', serif;
+	font-style: italic;
+	font-size: 13px;
+	color: #c9a84c;
+	letter-spacing: 1px;
+}
+
+.navbar-links {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.navbar-links a {
+	color: #c9d8e0;
+	text-decoration: none;
+	font-size: 14px;
+	padding: 8px 14px;
+	border-radius: 4px;
+	transition: all 0.2s;
+	letter-spacing: 1px;
+}
+
+.navbar-links a:hover {
+	color: #fff;
+	background: rgba(201, 168, 76, 0.15);
+}
+
+.navbar-links a.active {
+	color: #c9a84c;
+	border-bottom: 2px solid #c9a84c;
+}
+
+.navbar-login {
+	background: #c9a84c;
+	color: #fff !important;
+	padding: 8px 20px !important;
+	border-radius: 4px !important;
+}
+
+.breadcrumb-bar {
+	background: #fff;
+	border-bottom: 1px solid #dce8ed;
+	padding: 14px 48px;
+	margin-top: 68px;
+}
+
+.breadcrumb-bar a {
+	color: #7a9aaa;
+	text-decoration: none;
+	font-size: 13px;
+}
+
+.breadcrumb-bar a:hover {
+	color: #2d5a6b;
+}
+
+.breadcrumb-bar span {
+	color: #a0b8c0;
+	font-size: 13px;
+	margin: 0 8px;
+}
+
+.breadcrumb-bar .current {
+	color: #2d5a6b;
+	font-size: 13px;
+}
+
+.detail-container {
+	max-width: 1100px;
+	margin: 48px auto;
+	padding: 0 32px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 48px;
+}
+
+.product-img-area {
+	background: linear-gradient(135deg, #e8f2f6 0%, #d0e4ed 100%);
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 420px;
+	border: 1px solid #dce8ed;
+}
+
+.product-img-area i {
+	font-size: 80px;
+	color: #a0c0cc;
+	opacity: 0.4;
+}
+
+.img-gallery {
+	border-radius: 8px;
+	overflow: hidden;
+	border: 1px solid #dce8ed;
+}
+
+.img-main {
+	width: 100%;
+	height: 420px;
+	object-fit: cover;
+	transition: opacity 0.3s;
+}
+
+.img-thumbs {
+	display: flex;
+	gap: 8px;
+	padding: 12px;
+	background: #f5f8fa;
+	flex-wrap: wrap;
+}
+
+.img-thumb {
+	width: 80px;
+	height: 60px;
+	object-fit: cover;
+	border-radius: 4px;
+	cursor: pointer;
+	border: 2px solid #dce8ed;
+	transition: border-color 0.2s;
+}
+
+.img-thumb:hover {
+	border-color: #c9a84c;
+}
+
+.img-thumb.active {
+	border-color: #c9a84c;
+}
+
+.product-info {
+	padding: 8px 0;
+}
+
+.product-category-tag {
+	display: inline-block;
+	font-size: 11px;
+	color: #7a9aaa;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	border: 1px solid #dce8ed;
+	padding: 4px 12px;
+	border-radius: 20px;
+	margin-bottom: 16px;
+}
+
+.product-name {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 1.8rem;
+	font-weight: 700;
+	color: #1e3a4a;
+	letter-spacing: 2px;
+	margin-bottom: 16px;
+	line-height: 1.4;
+}
+
+.gold-line {
+	width: 40px;
+	height: 2px;
+	background: #c9a84c;
+	margin-bottom: 24px;
+}
+
+.product-desc {
+	font-size: 15px;
+	color: #5a7a8a;
+	line-height: 1.9;
+	margin-bottom: 32px;
+}
+
+.product-price-area {
+	background: #f0f7fa;
+	border-radius: 8px;
+	padding: 20px 24px;
+	margin-bottom: 24px;
+	border: 1px solid #dce8ed;
+}
+
+.price-label {
+	font-size: 12px;
+	color: #7a9aaa;
+	letter-spacing: 2px;
+	margin-bottom: 6px;
+}
+
+.price-value {
+	font-size: 2rem;
+	font-weight: 700;
+	color: #c9a84c;
+}
+
+.stats-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 12px;
+	margin-bottom: 32px;
+}
+
+.stat-item {
+	text-align: center;
+	background: #fff;
+	border: 1px solid #dce8ed;
+	border-radius: 8px;
+	padding: 14px;
+}
+
+.stat-label {
+	font-size: 11px;
+	color: #7a9aaa;
+	letter-spacing: 1px;
+	margin-bottom: 6px;
+}
+
+.stat-value {
+	font-size: 18px;
+	font-weight: 700;
+	color: #1e3a4a;
+}
+
+.stat-value.stars {
+	color: #c9a84c;
+}
+
+.status-on {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: #e8f5ee;
+	color: #2d7a4a;
+	font-size: 13px;
+	padding: 6px 16px;
+	border-radius: 20px;
+	margin-bottom: 24px;
+}
+
+.btn-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.qty-input {
+	width: 60px;
+	padding: 10px;
+	border: 1px solid #dce8ed;
+	border-radius: 4px;
+	font-size: 14px;
+	text-align: center;
+}
+
+.btn-cart {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	background: #2d5a6b;
+	color: #fff;
+	border: 0;
+	padding: 12px 24px;
+	font-size: 14px;
+	border-radius: 4px;
+	cursor: pointer;
+	letter-spacing: 1px;
+	transition: background 0.2s;
+}
+
+.btn-cart:hover {
+	background: #1e3a4a;
+}
+
+.btn-back {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	background: transparent;
+	color: #2d5a6b;
+	border: 1px solid #2d5a6b;
+	padding: 12px 24px;
+	font-size: 14px;
+	border-radius: 4px;
+	text-decoration: none;
+	transition: all 0.2s;
+	letter-spacing: 1px;
+}
+
+.btn-back:hover {
+	background: #2d5a6b;
+	color: #fff;
+}
+
+footer {
+	background: #1e3a4a;
+	color: #7a9aaa;
+	text-align: center;
+	padding: 40px 32px;
+	font-size: 13px;
+	margin-top: 80px;
+}
+
+.footer-brand {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 16px;
+	color: #c9a84c;
+	letter-spacing: 4px;
+	margin-bottom: 8px;
+}
+
+.footer-en {
+	font-family: 'Cormorant Garamond', serif;
+	font-style: italic;
+	color: #5a8a9a;
+	font-size: 14px;
+	margin-bottom: 16px;
+}
+
+.footer-divider {
+	width: 40px;
+	height: 1px;
+	background: #c9a84c;
+	margin: 12px auto;
+	opacity: 0.4;
+}
+
+@media ( max-width : 768px) {
+	.detail-container {
+		grid-template-columns: 1fr;
+	}
+	.navbar {
+		padding: 0 24px;
+	}
+}
+</style>
+</head>
+<body>
+
+	<nav class="navbar">
+		<a href="/" class="navbar-brand"> <span class="brand-zh">東方之星</span>
+			<span class="brand-en">The Star</span>
+		</a>
+		<div class="navbar-links">
+			<a href="/">首頁</a> <a href="/roombooking.html">訂房</a> <a
+				href="/restaurant">餐廳</a> <a href="/shop" class="active">購物</a> <a
+				href="/shop/cart"><i class="fa-solid fa-cart-shopping"></i></a> <a
+				href="/login.html" class="navbar-login"><i
+				class="fa-regular fa-user me-1"></i>登入</a>
+		</div>
+	</nav>
+
+	<div class="breadcrumb-bar">
+		<a href="/">首頁</a> <span>›</span> <a href="/shop">精選商品</a> <span>›</span>
+		<span class="current" th:text="${productsVO.productName}">商品名稱</span>
+	</div>
+
+	<div class="detail-container">
+
+		<!-- 圖片區 -->
+		<div>
+			<!-- 無圖片 -->
+			<div class="product-img-area"
+				th:if="${#lists.isEmpty(imageListData)}">
+				<i class="fa-solid fa-bag-shopping"></i>
+			</div>
+			<!-- 有圖片 -->
+			<div class="img-gallery" th:if="${!#lists.isEmpty(imageListData)}">
+				<!-- 主圖 -->
+				<img class="img-main" id="mainImg" th:if="${coverImage != null}"
+					th:src="@{/shop/image/{id}(id=${coverImage.productImageId})}"
+					alt="商品圖片">
+				<!-- 縮圖列（多於1張才顯示） -->
+				<div class="img-thumbs" th:if="${#lists.size(imageListData) > 1}">
+					<img th:each="image,iterStat : ${imageListData}"
+						th:src="@{/shop/image/{id}(id=${image.productImageId})}"
+						th:class="${iterStat.first} ? 'img-thumb active' : 'img-thumb'"
+						onclick="switchImage(this)" alt="商品縮圖">
+				</div>
+			</div>
+		</div>
+
+		<!-- 資訊區 -->
+		<div class="product-info">
+			<div class="product-category-tag">飯店精選商品</div>
+			<div class="product-name" th:text="${productsVO.productName}">商品名稱</div>
+			<div class="gold-line"></div>
+			<div class="product-desc" th:text="${productsVO.productDesc}">商品介紹</div>
+
+			<div class="product-price-area">
+				<div class="price-label">售價</div>
+				<div class="price-value">
+					NT$
+					<th:block th:text="${productsVO.productPrice}">0</th:block>
+				</div>
+			</div>
+
+			<div class="stats-row">
+				<div class="stat-item">
+					<div class="stat-label">剩餘數量</div>
+					<div class="stat-value" th:text="${productsVO.productQuantity}">0</div>
+				</div>
+				<div class="stat-item">
+					<div class="stat-label">評價人數</div>
+					<div class="stat-value" th:text="${productsVO.productReviewNumber}">0</div>
+				</div>
+				<div class="stat-item">
+					<div class="stat-label">平均評分</div>
+					<div class="stat-value stars">
+						<span th:if="${productsVO.productReviewNumber == 0}">—</span> <span
+							th:if="${productsVO.productReviewNumber > 0}"
+							th:text="${#numbers.formatDecimal(productsVO.productTotalStar / productsVO.productReviewNumber, 1, 1)} + ' ★'">
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="status-on" th:if="${productsVO.productStatus == 1}">
+				<i class="fa-solid fa-circle-check"></i> 現貨供應中
+			</div>
+
+			<!-- 加入購物車 -->
+			<form th:action="@{/shop/cart/add}" method="post">
+				<input type="hidden" name="productId"
+					th:value="${productsVO.productId}">
+				<div class="btn-row">
+					<input type="number" name="qty" value="1" min="1" class="qty-input">
+					<button type="submit" class="btn-cart">
+						<i class="fa-solid fa-cart-plus"></i> 加入購物車
+					</button>
+				</div>
+			</form>
+
+			<a href="/shop" class="btn-back"> <i
+				class="fa-solid fa-arrow-left"></i> 返回商品列表
+			</a>
+		</div>
+	</div>
+
+	<footer>
+		<div class="footer-brand">東方之星</div>
+		<div class="footer-en">The Star Resort Hotel</div>
+		<div class="footer-divider"></div>
+		<div>© 2026 東方之星 The Star．All Rights Reserved</div>
+	</footer>
+
+	<script>
+function switchImage(thumb) {
+  document.getElementById('mainImg').src = thumb.src;
+  document.querySelectorAll('.img-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+</script>
+
+</body>
+</html>

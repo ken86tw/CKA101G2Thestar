@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/shop_sidebar :: common-head('訂單管理')}"></head>
+<body>
+    <div th:replace="~{admin/shop_sidebar :: sidebar('order')}"></div>
+    <div class="main-content">
+        <div th:replace="~{admin/shop_sidebar :: topbar('訂單管理')}"></div>
+        <div class="page-body">
+            <div class="card p-4">
+                <h5 class="m-0 fw-bold mb-3">
+                    <i class="fa-solid fa-cart-shopping me-2"></i>訂單列表
+                </h5>
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>訂單編號</th>
+                            <th>會員編號</th>
+                            <th>訂單時間</th>
+                            <th>總額</th>
+                            <th>取貨方式</th>
+                            <th>付款狀態</th>
+                            <th>訂單狀態</th>
+                            <th>收件人</th>
+                            <th>電話</th>
+                            <th width="100">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${orderListData}">
+                            <td th:text="${order.shopOrderId}"></td>
+                            <td th:text="${order.memberId}"></td>
+                            <td th:text="${order.shopOrderTime}"></td>
+                            <td th:text="'$' + ${order.shopOrderTotal}" class="text-danger fw-bold"></td>
+                            <td>
+                                <span th:if="${order.shopOrderPickup == 0}">自取</span>
+                                <span th:if="${order.shopOrderPickup == 1}">宅配</span>
+                            </td>
+                            <td>
+                                <span th:if="${order.shopPaymentStatus == 0}" class="badge bg-warning text-dark">未付款</span>
+                                <span th:if="${order.shopPaymentStatus == 1}" class="badge bg-success">已付款</span>
+                                <span th:if="${order.shopPaymentStatus == 2}" class="badge bg-secondary">已退款</span>
+                            </td>
+                            <td>
+                                <span th:if="${order.shopOrderStatus == 0}" class="badge bg-info text-dark">訂單成立</span>
+                                <span th:if="${order.shopOrderStatus == 1}" class="badge bg-primary">出貨中</span>
+                                <span th:if="${order.shopOrderStatus == 2}" class="badge bg-success">已送達</span>
+                                <span th:if="${order.shopOrderStatus == 3}" class="badge bg-danger">已取消</span>
+                            </td>
+                            <td th:text="${order.shopOrderName}"></td>
+                            <td th:text="${order.shopOrderPhone}"></td>
+                            <td>
+                                <form th:action="@{/admin/shop/order/getOne}" method="post" style="display:inline;">
+                                    <input type="hidden" name="shopOrderId" th:value="${order.shopOrderId}">
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
