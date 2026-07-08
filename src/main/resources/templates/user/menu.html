@@ -17,19 +17,23 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg sticky-top">
-    <div class="container">
-        <a class="navbar-brand" th:href="@{/restaurant/index}">⭐ The Star</a>
-        <div class="collapse navbar-collapse justify-content-end">
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" th:href="@{/restaurant/index}">首頁介紹</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/restaurant/menu}">美味菜單</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/restaurant/booking}">線上訂位</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/restaurant/reviews}">顧客評論</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+	<nav class="navbar navbar-expand-lg sticky-top">
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/index.html}">⭐ The Star</a>
+			<div class="collapse navbar-collapse justify-content-end">
+				<ul class="navbar-nav">
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/restaurant/index}">餐廳首頁介紹</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/restaurant/menu}">美味菜單</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/restaurant/booking/list}">我的訂位</a></li>
+					<li class="nav-item"><a class="nav-link"
+						th:href="@{/restaurant/reviews}">顧客評論</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
 
 <div class="container my-5">
     <h1 class="text-center mb-5 fw-bold">⭐ 璀璨精選菜單 ⭐</h1>
