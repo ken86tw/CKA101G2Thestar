@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/shop_sidebar :: common-head('新增商品類別')}"></head>
+<body>
+    <div th:replace="~{admin/shop_sidebar :: sidebar('category')}"></div>
+    <div class="main-content">
+        <div th:replace="~{admin/shop_sidebar :: topbar('新增商品類別')}"></div>
+        <div class="page-body">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-plus me-2"></i>新增商品類別
+                </h5>
+                <form th:action="@{/admin/shop/category/insert}" method="post" th:object="${productCategoryVO}">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">類別名稱</label>
+                        <input type="text" class="form-control" th:field="*{productCategoryName}">
+                        <div class="text-danger small" th:if="${#fields.hasErrors('productCategoryName')}"
+                             th:errors="*{productCategoryName}"></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-teal">
+                            <i class="fa-solid fa-check me-1"></i>送出新增
+                        </button>
+                        <a href="/admin/shop/category/listAllCategories" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left me-1"></i>返回列表
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

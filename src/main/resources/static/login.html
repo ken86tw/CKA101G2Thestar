@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>會員登入｜東方之星 The Star</title>
+
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/login.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+<body>
+  <main id="app" class="login-page" v-cloak>
+    <section class="login-card">
+      <h1>會員登入</h1>
+      <p>東方之星 The Star</p>
+
+      <form @submit.prevent="submitLogin" autocomplete="on">
+        <div class="field">
+          <label for="email">會員信箱</label>
+          <input id="email" type="email" required v-model.trim="form.memberEmail" autocomplete="username">
+        </div>
+
+        <div class="field">
+          <label for="password">會員密碼</label>
+          <input id="password" type="password" required v-model="form.memberPassword" autocomplete="current-password">
+        </div>
+
+        <label class="remember-row">
+          <input type="checkbox" v-model="form.rememberMe">
+          <span>記住我</span>
+        </label>
+
+        <button type="submit" :disabled="submitting">
+          {{ submitting ? '登入中...' : '登入' }}
+        </button>
+
+        <div class="msg error">{{ errorMsg }}</div>
+
+        <div v-if="showResendVerify" class="resend-box">
+          <p>這個帳號還沒完成信箱驗證。</p>
+          <button type="button" class="resend-btn" :disabled="resending" @click="resendVerification">
+            {{ resending ? '寄送中...' : '重送驗證信' }}
+          </button>
+        </div>
+
+        <div class="msg success">{{ successMsg }}</div>
+      </form>
+
+      <div class="login-links">
+        <a href="/register.html">還沒有帳號，註冊會員</a>
+        <a href="/index.html">回首頁</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/login.js"></script>
+</body>
+</html>

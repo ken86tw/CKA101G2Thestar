@@ -1,14 +1,22 @@
 package com.thestar.member.entity;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 @Entity
 @Table(name = "MEMBERS")
 public class MemberVO implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -22,6 +30,7 @@ public class MemberVO implements Serializable {
     @Column(name = "MEMBER_EMAIL", nullable = false, unique = true, length = 100)
     private String memberEmail;
 
+    @JsonIgnore
     @Column(name = "MEMBER_PASSWORD", nullable = false, length = 255)
     private String memberPassword;
 
@@ -32,34 +41,43 @@ public class MemberVO implements Serializable {
     private String memberAddress;
 
     @Column(name = "MEMBER_BIRTHDAY")
-    private LocalDate memberBirthday; // 欄位為 DATE，建議用 LocalDate
+    private LocalDate memberBirthday;
 
     @Column(name = "MEMBER_GENDER")
-    private Byte memberGender; // 0:FEMALE, 1:MALE, 2:UNKNOWN
+    private Byte memberGender;
 
+    @JsonIgnore
     @Lob
     @Column(name = "MEMBER_PICTURE", columnDefinition = "LONGBLOB")
-    private byte[] memberPicture; // 對應 LONGBLOB 欄位
+    private byte[] memberPicture;
 
     @Column(name = "MEMBER_STATUS", nullable = false)
-    private Byte memberStatus = 0; // 預設 0:NOT ENABLED, 1:ENABLED, 2:DISENABLED
+    private Byte memberStatus = 0;
 
-    @Column(name = "CREATED_TIME", nullable = false)
+    @Column(name = "CREATED_TIME", insertable = false, updatable = false)
     private LocalDateTime createdTime;
 
+    @Column(name = "UPDATED_TIME", insertable = false, updatable = false)
+    private LocalDateTime updatedTime;
+
+    @JsonIgnore
     @Column(name = "RESET_TOKEN", length = 255)
     private String resetToken;
 
+    @JsonIgnore
     @Column(name = "RESET_EXPIRE_TIME")
     private LocalDateTime resetExpireTime;
 
-    // --- 在持久化之前自動設定建立時間 ---
-    @PrePersist
-    protected void onCreate() {
-        this.createdTime = LocalDateTime.now();
-    }
+    @JsonIgnore
+    @Column(name = "VERIFY_TOKEN", length = 255)
+    private String verifyToken;
 
-    // --- Getters and Setters ---
+    @JsonIgnore
+    @Column(name = "VERIFY_EXPIRE_TIME")
+    private LocalDateTime verifyExpireTime;
+
+    public MemberVO() {
+    }
 
     public Integer getMemberId() {
         return memberId;
@@ -145,8 +163,8 @@ public class MemberVO implements Serializable {
         return createdTime;
     }
 
-    public void setCreatedTime(LocalDateTime createdTime) {
-        this.createdTime = createdTime;
+    public LocalDateTime getUpdatedTime() {
+        return updatedTime;
     }
 
     public String getResetToken() {
@@ -165,14 +183,32 @@ public class MemberVO implements Serializable {
         this.resetExpireTime = resetExpireTime;
     }
 
-    // --- 修改後的 toString() ---
+    public String getVerifyToken() {
+        return verifyToken;
+    }
+
+    public void setVerifyToken(String verifyToken) {
+        this.verifyToken = verifyToken;
+    }
+
+    public LocalDateTime getVerifyExpireTime() {
+        return verifyExpireTime;
+    }
+
+    public void setVerifyExpireTime(LocalDateTime verifyExpireTime) {
+        this.verifyExpireTime = verifyExpireTime;
+    }
+
     @Override
     public String toString() {
-        return "MemberVO {" +
+        return "MemberVO{" +
                 "memberId=" + memberId +
                 ", memberName='" + memberName + '\'' +
                 ", memberEmail='" + memberEmail + '\'' +
+                ", memberPhone='" + memberPhone + '\'' +
                 ", memberStatus=" + memberStatus +
+                ", createdTime=" + createdTime +
+                ", updatedTime=" + updatedTime +
                 '}';
     }
 }
