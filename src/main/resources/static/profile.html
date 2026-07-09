@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>會員資料管理｜東方之星 The Star</title>
+
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/profile.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+
+<body>
+  <main id="app" class="profile-page" v-cloak>
+    <div class="page-top">
+      <div>
+        <h1>會員資料管理</h1>
+        <p class="sub">查看與修改目前登入會員的基本資料。</p>
+      </div>
+      <a href="/index.html" class="btn secondary">回首頁</a>
+    </div>
+
+    <section v-if="loading">
+      <div class="profile-table">
+        <div class="profile-row">
+          <div class="label">讀取狀態</div>
+          <div class="value">會員資料讀取中...</div>
+        </div>
+      </div>
+    </section>
+
+    <section v-else-if="!editing">
+      <div class="profile-table">
+        <div class="profile-row photo-row">
+          <div class="label">會員照片</div>
+          <div class="value">
+            <div class="photo-box">
+              <img v-if="profilePictureUrl" class="member-photo" :src="profilePictureUrl" alt="會員照片" @error="hideBrokenPhoto">
+              <div v-else class="photo-placeholder">尚未上傳照片</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">會員編號</div>
+          <div class="value">{{ safeText(profile.memberId) }}</div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">姓名</div>
+          <div class="value">{{ safeText(profile.memberName) }}</div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">信箱</div>
+          <div class="value">
+            <span>{{ safeText(profile.memberEmail) }}</span>
+<!--             <span class="readonly">目前不開放修改</span> -->
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">電話</div>
+          <div class="value">{{ safeText(profile.memberPhone) }}</div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">地址</div>
+          <div class="value">{{ safeText(profile.memberAddress) }}</div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">生日</div>
+          <div class="value">{{ safeText(profile.memberBirthday) }}</div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">性別</div>
+          <div class="value">{{ genderText(profile.memberGender) }}</div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">帳號狀態</div>
+          <div class="value">{{ statusText(profile.memberStatus) }}</div>
+        </div>
+      </div>
+    </section>
+
+    <section v-else>
+      <div class="profile-table">
+        <div class="profile-row photo-row">
+          <div class="label">會員照片</div>
+          <div class="value photo-edit-area">
+            <div class="photo-box">
+              <img v-if="previewPictureUrl || profilePictureUrl" class="member-photo" :src="previewPictureUrl || profilePictureUrl" alt="會員照片預覽" @error="hideBrokenPhoto">
+              <div v-else class="photo-placeholder">尚未上傳照片</div>
+            </div>
+
+            <div class="photo-tools">
+              <label class="file-btn">
+                選擇照片
+                <input type="file" accept="image/png, image/jpeg, image/gif, image/webp" @change="handlePictureChange">
+              </label>
+              <button type="button" class="btn secondary small" @click="clearSelectedPicture" :disabled="saving || !selectedPictureFile">取消新照片</button>
+              <p class="hint">可上傳 JPG、PNG、GIF、WEBP，檔案不可超過 5MB。選擇後會先預覽，按儲存才會真正更新。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">會員編號</div>
+          <div class="value">{{ safeText(profile.memberId) }}</div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">姓名</div>
+          <div class="value">
+            <input type="text" maxlength="50" v-model.trim="form.memberName">
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">信箱</div>
+          <div class="value">
+            <span>{{ safeText(profile.memberEmail) }}</span>
+            <span class="readonly">目前不開放修改</span>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">電話</div>
+          <div class="value">
+            <input type="text" maxlength="20" v-model.trim="form.memberPhone">
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">地址</div>
+          <div class="value">
+            <input type="text" maxlength="255" v-model.trim="form.memberAddress">
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">生日</div>
+          <div class="value">
+            <input type="date" v-model="form.memberBirthday">
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">性別</div>
+          <div class="value">
+            <select v-model.number="form.memberGender">
+              <option :value="0">女</option>
+              <option :value="1">男</option>
+              <option :value="2">不透露</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="label">帳號狀態</div>
+          <div class="value">{{ statusText(profile.memberStatus) }}</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="error">{{ errorMsg }}</div>
+    <div class="success">{{ successMsg }}</div>
+
+    <div class="actions" v-if="!loading">
+      <button type="button" class="btn" v-if="!editing" @click="enterEditMode">修改資料</button>
+      <button type="button" class="btn" v-if="editing" @click="saveProfile" :disabled="saving">
+        {{ saving ? '儲存中...' : '儲存修改' }}
+      </button>
+      <button type="button" class="btn secondary" v-if="editing" @click="exitEditMode" :disabled="saving">取消修改</button>
+    </div>
+  </main>
+
+  <script src="/js/profile.js"></script>
+</body>
+</html>

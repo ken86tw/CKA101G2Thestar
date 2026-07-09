@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>員工管理 - The Star Hotel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <script th:src="@{/js/theme.js}"></script>
+</head>
+<body class="admin-body">
+<div class="admin-frame">
+    <div class="admin-topbar">
+        <button class="theme-toggle" onclick="toggleTheme()" title="切換深色 / 淺色模式">🌓</button>
+        <div class="admin-brand">
+            <b>The Star</b>
+            <span class="admin-pill">Admin</span>
+        </div>
+        <div class="admin-user">
+            <span class="admin-avatar" th:text="${#strings.substring(currentEmployeeName, 0, 1)}"></span>
+            <span th:text="${currentEmployeeName}"></span>
+            <form th:action="@{/thestar/admin/logout}" method="post">
+                <button type="submit" class="admin-button line sm">登出</button>
+            </form>
+        </div>
+    </div>
+
+    <aside class="admin-sidebar">
+        <div class="side-section">
+            <a class="side-link" th:href="@{/thestar/admin/home}"><span class="side-icon">⌂</span>控制中心</a>
+        </div>
+        <div class="side-section">
+            <p class="side-title">用戶管理</p>
+            <a class="side-link active" th:href="@{/thestar/admin/employee/list}"><span class="side-icon">◎</span>員工管理</a>
+        </div>
+        <div class="side-section">
+            <p class="side-title">內容管理</p>
+            <a class="side-link" th:href="@{/thestar/admin/content/news}"><span class="side-icon">▤</span>最新消息管理</a>
+            <a class="side-link" th:href="@{/thestar/admin/content/article}"><span class="side-icon">✎</span>文章管理</a>
+            <a class="side-link" th:href="@{/thestar/admin/content/review}"><span class="side-icon">☰</span>文章評論管理</a>
+        </div>
+    </aside>
+
+<main class="admin-main">
+    <div class="admin-heading">
+        <div>
+            <h1>員工管理</h1>
+            <p>管理員工資料、在職狀態與後台角色</p>
+        </div>
+        <a th:href="@{/thestar/admin/employee/add}" class="admin-button">+ 新增員工</a>
+    </div>
+
+    <p class="admin-message" th:if="${message}" th:text="${message}"></p>
+    <p class="admin-message error" th:if="${error}" th:text="${error}"></p>
+    <p class="admin-message error" th:if="${param.error}" th:text="${param.error}"></p>
+
+    <div class="admin-card">
+    <table class="admin-table">
+        <thead>
+        <tr>
+            <th>員工編號</th>
+            <th>姓名</th>
+            <th>Email</th>
+            <th>部門</th>
+            <th>職稱</th>
+            <th>角色</th>
+            <th>狀態</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="emp : ${employees}">
+                <td><span class="oid" th:text="'No. ' + ${emp.employeeId}"></span></td>
+            <td th:text="${emp.employeeName}"></td>
+            <td th:text="${emp.employeeMail}"></td>
+            <td th:text="${departmentNames.get(emp.departmentId)}"></td>
+            <td th:text="${jobTitleNames.get(emp.jobTitleId)}"></td>
+            <td th:text="${#strings.listJoin(emp.roleNames, ', ')}"></td>
+            <td>
+                <span th:if="${emp.status == 1}" class="admin-badge on">在職</span>
+                <span th:unless="${emp.status == 1}" class="admin-badge off">離職</span>
+            </td>
+            <td class="admin-actions">
+                    <a class="admin-button line sm" th:href="@{'/thestar/admin/employee/edit/' + ${emp.employeeId}}">編輯</a>
+                    <a class="admin-button line sm" th:if="${isSuperAdmin}" th:href="@{'/thestar/admin/employee/' + ${emp.employeeId} + '/roles'}">角色</a>
+                <form th:action="@{'/thestar/admin/employee/' + ${emp.employeeId} + '/toggle-status'}"
+                      method="post" style="display:inline">
+                    <input type="hidden" name="enabled" th:value="${emp.status == 1} ? 'false' : 'true'">
+                        <button type="submit" class="admin-button line sm"
+                            th:text="${emp.status == 1} ? '設為離職' : '恢復在職'"></button>
+                </form>
+                <form th:if="${isSuperAdmin}" th:action="@{'/thestar/admin/employee/' + ${emp.employeeId} + '/delete'}"
+                      method="post" style="display:inline" onsubmit="return confirm('確定要刪除這位員工嗎？此動作無法復原。')">
+                    <button type="submit" class="admin-button danger sm">刪除</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/shop_sidebar :: common-head('訂單詳情')}"></head>
+<body>
+	<div th:replace="~{admin/shop_sidebar :: sidebar('order')}"></div>
+	<div class="main-content">
+		<div th:replace="~{admin/shop_sidebar :: topbar('訂單詳情')}"></div>
+		<div class="page-body">
+			<div class="card p-4">
+				<h5 class="fw-bold mb-4">
+					<i class="fa-solid fa-file-invoice me-2"></i>訂單詳情
+				</h5>
+				<table class="table table-bordered">
+					<tr>
+						<th>訂單編號</th>
+						<td th:text="${shopOrderVO.shopOrderId}"></td>
+					</tr>
+					<tr>
+						<th>會員編號</th>
+						<td th:text="${shopOrderVO.memberId}"></td>
+					</tr>
+					<tr>
+						<th>訂單時間</th>
+						<td th:text="${shopOrderVO.shopOrderTime}"></td>
+					</tr>
+					<tr>
+						<th>訂單總額</th>
+						<td th:text="'NT$ ' + ${shopOrderVO.shopOrderTotal}"
+							class="text-danger fw-bold"></td>
+					</tr>
+					<tr>
+						<th>取貨方式</th>
+						<td><span th:if="${shopOrderVO.shopOrderPickup == 0}">自取</span>
+							<span th:if="${shopOrderVO.shopOrderPickup == 1}">宅配</span></td>
+					</tr>
+					<tr>
+						<th>收件人</th>
+						<td th:text="${shopOrderVO.shopOrderName}"></td>
+					</tr>
+					<tr>
+						<th>電話</th>
+						<td th:text="${shopOrderVO.shopOrderPhone}"></td>
+					</tr>
+					<tr>
+						<th>地址</th>
+						<td th:text="${shopOrderVO.shopOrderAddress}"></td>
+					</tr>
+					<tr>
+						<th>取貨時間</th>
+						<td th:text="${shopOrderVO.shopOrderPickupTime}"></td>
+					</tr>
+					<tr>
+						<th>備註</th>
+						<td th:text="${shopOrderVO.shopOrderNote}"></td>
+					</tr>
+				</table>
+
+				<!-- 更新狀態 -->
+				<form th:action="@{/admin/shop/order/updateStatus}" method="post"
+					class="mt-4">
+					<input type="hidden" name="shopOrderId"
+						th:value="${shopOrderVO.shopOrderId}">
+					<div class="row g-3">
+						<div class="col-md-4">
+							<label class="form-label fw-bold">付款狀態</label> <select
+								name="shopPaymentStatus" class="form-select">
+								<option value="0"
+									th:selected="${shopOrderVO.shopPaymentStatus == 0}">未付款</option>
+								<option value="1"
+									th:selected="${shopOrderVO.shopPaymentStatus == 1}">已付款</option>
+								<option value="2"
+									th:selected="${shopOrderVO.shopPaymentStatus == 2}">已退款</option>
+							</select>
+						</div>
+						<div class="col-md-4">
+							<label class="form-label fw-bold">訂單狀態</label> <select
+								name="shopOrderStatus" class="form-select">
+								<option value="0"
+									th:selected="${shopOrderVO.shopOrderStatus == 0}">訂單成立</option>
+								<option value="1"
+									th:selected="${shopOrderVO.shopOrderStatus == 1}">出貨中</option>
+								<option value="2"
+									th:selected="${shopOrderVO.shopOrderStatus == 2}">已送達</option>
+								<option value="3"
+									th:selected="${shopOrderVO.shopOrderStatus == 3}">已取消</option>
+							</select>
+						</div>
+
+						<!-- 訂單項目 -->
+						<h6 class="fw-bold mt-4 mb-3">訂單項目</h6>
+						<table class="table table-bordered table-hover align-middle">
+							<thead class="table-light">
+								<tr>
+									<th>商品名稱</th>
+									<th>數量</th>
+									<th>單價</th>
+									<th>小計</th>
+									<th>評論狀態</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="item : ${itemListData}">
+									<td
+										th:text="${item.product != null ? item.product.productName : '-'}"></td>
+									<td th:text="${item.prodOrderItemQty}"></td>
+									<td th:text="'NT$ ' + ${item.prodOrderItemPrice}"></td>
+									<td
+										th:text="'NT$ ' + ${item.prodOrderItemQty * item.prodOrderItemPrice}"></td>
+									<td><span th:if="${item.prodOrderReviewStat == 0}"
+										class="badge bg-secondary">未評論</span> <span
+										th:if="${item.prodOrderReviewStat == 1}"
+										class="badge bg-success">已評論</span></td>
+								</tr>
+							</tbody>
+						</table>
+
+						<div class="col-md-4 d-flex align-items-end">
+							<button type="submit" class="btn btn-teal w-100">
+								<i class="fa-solid fa-check me-1"></i>更新狀態
+							</button>
+						</div>
+					</div>
+				</form>
+
+				<div class="mt-3">
+					<a href="/admin/shop/order/listAllOrders" class="btn btn-secondary">
+						<i class="fa-solid fa-arrow-left me-1"></i>返回列表
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

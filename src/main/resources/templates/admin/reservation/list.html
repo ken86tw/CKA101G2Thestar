@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/common_sidebar :: common-head('預約紀錄管理')}"></head>
+<body>
+    <div th:replace="~{admin/common_sidebar :: sidebar('reservation')}"></div>
+    <div class="main-content">
+        <div th:replace="~{admin/common_sidebar :: topbar('客戶訂位預約控制中心')}"></div>
+        <div class="page-body">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-book-bookmark me-2"></i>預約紀錄報表</h5>
+                <table class="table table-hover table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>預約編號</th>
+                            <th>會員 ID</th>
+                            <th>預約日期</th>
+                            <th>訂位時段 (Session)</th>
+                            <th>預約桌型</th>
+                            <th>特殊需求備註</th>
+                            <th>目前狀態</th>
+                            <th width="200">狀態操作動作</th>
+                            <th>評論狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="res : ${reservationList}">
+                            <td th:text="${res.reservationId}">1</td>
+                            <td th:text="${res.memberVO.memberId}">1</td>
+                            <td th:text="${res.date}" class="fw-bold">2024-06-01</td>
+                            <td th:text="${res.businessHoursVO.startTime} + ' ~ ' + ${res.businessHoursVO.endTime}">12:00~14:00</td>
+                            
+                            <td>
+                                <span class="badge bg-secondary" th:if="${res.restaurantTableVO != null}" th:text="${res.restaurantTableVO.tableTypeName}">LARGE_TABLE</span>
+                                
+                                </td>
+
+                            <td th:text="${res.reservationRequest}" class="text-muted small">無</td>
+                            <td>
+                                <span th:if="${res.reservationStatus.name() == 'BOOKED'}" class="badge bg-primary p-2">已預約</span>
+                                <span th:if="${res.reservationStatus.name() == 'FINISHED'}" class="badge bg-success p-2">已就餐</span>
+                                <span th:if="${res.reservationStatus.name() == 'CANCELED'}" class="badge bg-danger p-2">已取消</span>
+                            </td>
+                            <td>
+                                <div th:if="${res.reservationStatus.name() == 'BOOKED'}">
+                                    <form th:action="@{/admin/restaurant/reservation/updateStatus}" method="post" style="display:inline;">
+                                        <input type="hidden" name="reservationId" th:value="${res.reservationId}">
+                                        <input type="hidden" name="status" value="FINISHED">
+                                        <button type="submit" class="btn btn-success btn-sm"><i class="fa-solid fa-check"></i> 結案就餐</button>
+                                    </form>
+                                    <form th:action="@{/admin/restaurant/reservation/updateStatus}" method="post" style="display:inline;">
+                                        <input type="hidden" name="reservationId" th:value="${res.reservationId}">
+                                        <input type="hidden" name="status" value="CANCELED">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm"> 取消</button>
+                                    </form>
+                                </div>
+                                <span th:unless="${res.reservationStatus.name() == 'BOOKED'}" class="text-muted small">無可用操作</span>
+                                <td th:text="${res.reviewStatus}"></td>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

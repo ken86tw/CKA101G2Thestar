@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/shop_sidebar :: common-head('商品資訊')}"></head>
+<body>
+    <div th:replace="~{admin/shop_sidebar :: sidebar('shop')}"></div>
+    <div class="main-content">
+        <div th:replace="~{admin/shop_sidebar :: topbar('商品資訊')}"></div>
+        <div class="page-body">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-4">
+                    <i class="fa-solid fa-bag-shopping me-2"></i>商品資訊
+                </h5>
+
+                <table class="table table-bordered">
+                    <tr>
+                        <th>商品編號</th>
+                        <td th:text="${productsVO.productId}"></td>
+                    </tr>
+                    <tr>
+                        <th>商品名稱</th>
+                        <td th:text="${productsVO.productName}"></td>
+                    </tr>
+                    <tr>
+                        <th>商品類別編號</th>
+                        <td th:text="${productsVO.productCategoryId}"></td>
+                    </tr>
+                    <tr>
+                        <th>商品介紹</th>
+                        <td th:text="${productsVO.productDesc}"></td>
+                    </tr>
+                    <tr>
+                        <th>商品價格</th>
+                        <td th:text="'$' + ${productsVO.productPrice}"></td>
+                    </tr>
+                    <tr>
+                        <th>商品數量</th>
+                        <td th:text="${productsVO.productQuantity}"></td>
+                    </tr>
+                    <tr>
+                        <th>商品狀態</th>
+                        <td>
+                            <span th:if="${productsVO.productStatus == 1}" class="badge bg-success">上架</span>
+                            <span th:if="${productsVO.productStatus == 0}" class="badge bg-secondary">下架</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>評價總人數</th>
+                        <td th:text="${productsVO.productReviewNumber}"></td>
+                    </tr>
+                    <tr>
+                        <th>評價總星星數</th>
+                        <td th:text="${productsVO.productTotalStar}"></td>
+                    </tr>
+                    <tr>
+                        <th>平均星數</th>
+                        <td>
+                            <span th:if="${productsVO.productReviewNumber == 0}">尚無評價</span>
+                            <span th:if="${productsVO.productReviewNumber > 0}"
+                                  th:text="${#numbers.formatDecimal(productsVO.productTotalStar / productsVO.productReviewNumber, 1, 1)}">
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="d-flex gap-2 mt-3">
+                    <a href="/admin/shop/listAllProducts" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrow-left me-1"></i>返回列表
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

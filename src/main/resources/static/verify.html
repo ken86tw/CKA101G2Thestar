@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>會員信箱驗證｜東方之星 The Star</title>
+
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/verify.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+<body>
+  <main id="app" class="verify-page" v-cloak>
+    <section class="verify-card">
+      <h1>會員信箱驗證</h1>
+
+      <div v-if="loading" class="state-box">
+        <div class="loader"></div>
+        <p>正在確認驗證連結...</p>
+      </div>
+
+      <div v-else-if="success" class="state-box success-box">
+        <div class="symbol">✓</div>
+        <h2>驗證成功</h2>
+        <p>{{ message }}</p>
+        <a class="btn-link" href="/login.html?verified=1">前往登入</a>
+      </div>
+
+      <div v-else class="state-box error-box">
+        <div class="symbol">×</div>
+        <h2>驗證失敗</h2>
+        <p>{{ message }}</p>
+        <a class="btn-link" href="/register.html">重新註冊</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/verify.js"></script>
+</body>
+</html>

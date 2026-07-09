@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>東方之星 The Star｜購物車</title>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link
+	href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap"
+	rel="stylesheet">
+<style>
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'Noto Sans TC', sans-serif;
+	background: #f5f8fa;
+	color: #2c3e50;
+}
+
+.navbar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 100;
+	background: rgba(30, 45, 55, 0.92);
+	backdrop-filter: blur(8px);
+	padding: 0 48px;
+	height: 68px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+.navbar-brand {
+	text-decoration: none;
+	display: flex;
+	flex-direction: column;
+}
+
+.navbar-brand .brand-zh {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 16px;
+	font-weight: 700;
+	color: #fff;
+	letter-spacing: 2px;
+}
+
+.navbar-brand .brand-en {
+	font-family: 'Cormorant Garamond', serif;
+	font-style: italic;
+	font-size: 13px;
+	color: #c9a84c;
+	letter-spacing: 1px;
+}
+
+.navbar-links {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.navbar-links a {
+	color: #c9d8e0;
+	text-decoration: none;
+	font-size: 14px;
+	padding: 8px 14px;
+	border-radius: 4px;
+	transition: all 0.2s;
+	letter-spacing: 1px;
+}
+
+.navbar-links a:hover {
+	color: #fff;
+	background: rgba(201, 168, 76, 0.15);
+}
+
+.navbar-links a.active {
+	color: #c9a84c;
+	border-bottom: 2px solid #c9a84c;
+}
+
+.navbar-login {
+	background: #c9a84c;
+	color: #fff !important;
+	padding: 8px 20px !important;
+	border-radius: 4px !important;
+}
+
+.page-header {
+	background: linear-gradient(135deg, #1e3a4a 0%, #2d5a6b 50%, #1a2f3a 100%);
+	padding: 120px 0 60px;
+	text-align: center;
+}
+
+.page-header h1 {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 2rem;
+	color: #fff;
+	letter-spacing: 6px;
+	margin-bottom: 12px;
+}
+
+.gold-line {
+	width: 60px;
+	height: 2px;
+	background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+	margin: 16px auto;
+}
+
+.cart-container {
+	max-width: 900px;
+	margin: 48px auto;
+	padding: 0 32px;
+}
+
+/* 空購物車 */
+.empty-cart {
+	text-align: center;
+	padding: 80px 0;
+}
+
+.empty-cart i {
+	font-size: 64px;
+	color: #c8dae0;
+	margin-bottom: 24px;
+}
+
+.empty-cart p {
+	font-size: 16px;
+	color: #7a9aaa;
+	margin-bottom: 24px;
+}
+
+/* 購物車表格 */
+.cart-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #fff;
+	border: 1px solid #dce8ed;
+	border-radius: 8px;
+	overflow: hidden;
+	margin-bottom: 32px;
+}
+
+.cart-table th {
+	background: #e8f2f6;
+	color: #3a7a8a;
+	font-size: 13px;
+	font-weight: 600;
+	padding: 14px 20px;
+	text-align: left;
+	letter-spacing: 1px;
+	border-bottom: 1px solid #dce8ed;
+}
+
+.cart-table td {
+	padding: 16px 20px;
+	border-bottom: 1px solid #f0f6f8;
+	font-size: 14px;
+	vertical-align: middle;
+}
+
+.cart-table tr:last-child td {
+	border-bottom: 0;
+}
+
+.cart-table tr:hover td {
+	background: #f8fbfc;
+}
+
+.product-name {
+	font-family: 'Noto Serif TC', serif;
+	font-weight: 700;
+	color: #1e3a4a;
+}
+
+.product-price {
+	color: #c9a84c;
+	font-weight: 700;
+}
+
+/* 數量輸入 */
+.qty-form {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.qty-input {
+	width: 60px;
+	padding: 6px 10px;
+	border: 1px solid #dce8ed;
+	border-radius: 4px;
+	font-size: 14px;
+	text-align: center;
+}
+
+.btn-update {
+	background: #2d5a6b;
+	color: #fff;
+	border: 0;
+	padding: 6px 12px;
+	border-radius: 4px;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.btn-update:hover {
+	background: #1e3a4a;
+}
+
+/* 刪除按鈕 */
+.btn-delete {
+	background: transparent;
+	color: #e05a5a;
+	border: 1px solid #e05a5a;
+	padding: 6px 12px;
+	border-radius: 4px;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+.btn-delete:hover {
+	background: #e05a5a;
+	color: #fff;
+}
+
+/* 總計區 */
+.cart-summary {
+	background: #fff;
+	border: 1px solid #dce8ed;
+	border-radius: 8px;
+	padding: 24px 32px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.total-label {
+	font-size: 14px;
+	color: #7a9aaa;
+	letter-spacing: 1px;
+}
+
+.total-value {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 2rem;
+	font-weight: 700;
+	color: #c9a84c;
+}
+
+.btn-checkout {
+	background: #2d5a6b;
+	color: #fff;
+	border: 0;
+	padding: 14px 40px;
+	font-size: 15px;
+	cursor: pointer;
+	letter-spacing: 2px;
+	border-radius: 4px;
+	transition: background 0.2s;
+	text-decoration: none;
+	display: inline-block;
+}
+
+.btn-checkout:hover {
+	background: #1e3a4a;
+	color: #fff;
+}
+
+.btn-continue {
+	display: inline-block;
+	color: #2d5a6b;
+	text-decoration: none;
+	font-size: 13px;
+	letter-spacing: 1px;
+	margin-top: 16px;
+}
+
+.btn-continue:hover {
+	color: #c9a84c;
+}
+
+footer {
+	background: #1e3a4a;
+	color: #7a9aaa;
+	text-align: center;
+	padding: 40px 32px;
+	font-size: 13px;
+	margin-top: 80px;
+}
+
+.footer-brand {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 16px;
+	color: #c9a84c;
+	letter-spacing: 4px;
+	margin-bottom: 8px;
+}
+
+.footer-en {
+	font-family: 'Cormorant Garamond', serif;
+	font-style: italic;
+	color: #5a8a9a;
+	font-size: 14px;
+	margin-bottom: 16px;
+}
+
+.footer-divider {
+	width: 40px;
+	height: 1px;
+	background: #c9a84c;
+	margin: 12px auto;
+	opacity: 0.4;
+}
+</style>
+</head>
+<body>
+
+	<!-- Navbar -->
+	<nav class="navbar">
+		<a href="/" class="navbar-brand"> <span class="brand-zh">東方之星</span>
+			<span class="brand-en">The Star</span>
+		</a>
+		<div class="navbar-links">
+			<a href="/">首頁</a> <a href="/roombooking.html">訂房</a> <a
+				href="/restaurant">餐廳</a> <a href="/shop" class="active">購物</a> <a
+				href="/shop/cart"><i class="fa-solid fa-cart-shopping"></i></a> <a
+				href="/login.html" class="navbar-login"><i
+				class="fa-regular fa-user me-1"></i>登入</a>
+		</div>
+	</nav>
+
+	<!-- Header -->
+	<div class="page-header">
+		<h1>購物車</h1>
+		<div class="gold-line"></div>
+	</div>
+
+	<!-- Cart -->
+	<div class="cart-container">
+
+		<!-- 空購物車 -->
+		<div class="empty-cart" th:if="${#lists.isEmpty(cartListData)}">
+			<i class="fa-solid fa-cart-shopping"></i>
+			<p>購物車是空的</p>
+			<a href="/shop" class="btn-checkout">前往購物</a>
+		</div>
+
+		<!-- 購物車列表 -->
+		<div th:if="${!#lists.isEmpty(cartListData)}">
+			<table class="cart-table">
+				<thead>
+					<tr>
+						<th>商品名稱</th>
+						<th>單價</th>
+						<th>數量</th>
+						<th>小計</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="item : ${cartListData}">
+						<td><a th:href="@{/shop/{id}(id=${item.productId})}"
+							class="product-name"
+							th:text="${item.product != null ? item.product.productName : '商品已下架'}"
+							style="text-decoration: none;"> </a></td>
+						<td class="product-price"
+							th:text="${item.product != null ? 'NT$ ' + item.product.productPrice : '-'}">
+						</td>
+						<td>
+							<form th:action="@{/shop/cart/update}" method="post"
+								class="qty-form">
+								<input type="hidden" name="cartItemId"
+									th:value="${item.cartItemId}"> <input type="number"
+									name="qty" class="qty-input" th:value="${item.cartItemProdQty}"
+									min="1" onchange="this.form.submit()">
+							</form>
+						</td>
+						<td class="product-price"
+							th:text="${item.product != null ? 'NT$ ' + (item.product.productPrice * item.cartItemProdQty) : '-'}">
+						</td>
+						<td>
+							<form th:action="@{/shop/cart/delete}" method="post">
+								<input type="hidden" name="cartItemId"
+									th:value="${item.cartItemId}">
+								<button type="submit" class="btn-delete"
+									onclick="return confirm('確定移除此商品？')">
+									<i class="fa-solid fa-trash"></i> 移除
+								</button>
+							</form>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!-- 總計 -->
+			<div class="cart-summary">
+				<div>
+					<div class="total-label">總計金額</div>
+					<div class="total-value">
+						NT$ <span th:text="${cartTotal}">0</span>
+					</div>
+				</div>
+				<div style="text-align: right;">
+					<a href="#" class="btn-checkout"> <i
+						class="fa-solid fa-credit-card me-2"></i>前往結帳
+					</a> <br> <a href="/shop" class="btn-continue"> <i
+						class="fa-solid fa-arrow-left me-1"></i>繼續購物
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<footer>
+		<div class="footer-brand">東方之星</div>
+		<div class="footer-en">The Star Resort Hotel</div>
+		<div class="footer-divider"></div>
+		<div>© 2026 東方之星 The Star．All Rights Reserved</div>
+	</footer>
+
+</body>
+</html>

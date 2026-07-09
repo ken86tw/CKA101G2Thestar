@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/shop_sidebar :: common-head('修改商品')}"></head>
+<body>
+	<div th:replace="~{admin/shop_sidebar :: sidebar('shop')}"></div>
+	<div class="main-content">
+		<div th:replace="~{admin/shop_sidebar :: topbar('修改商品')}"></div>
+		<div class="page-body">
+			<div class="card p-4">
+				<h5 class="fw-bold mb-4">
+					<i class="fa-solid fa-pen me-2"></i>修改商品
+				</h5>
+
+				<form th:action="@{/admin/shop/update}" method="post"
+					th:object="${productsVO}">
+
+					<!-- 隱藏欄位傳遞 productId -->
+					<input type="hidden" th:field="*{productId}">
+					<!-- 保留評價數據 -->
+					<input type="hidden" th:field="*{productReviewNumber}"> <input
+						type="hidden" th:field="*{productTotalStar}">
+
+					<div class="mb-3">
+						<label class="form-label fw-bold">商品編號</label> <input type="text"
+							class="form-control" th:value="${productsVO.productId}" disabled>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label fw-bold">商品名稱</label> <input type="text"
+							class="form-control" th:field="*{productName}">
+						<div class="text-danger small"
+							th:if="${#fields.hasErrors('productName')}"
+							th:errors="*{productName}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label fw-bold">商品類別</label> <select
+							class="form-select" th:field="*{productCategoryId}">
+							<option value="">-- 請選擇類別 --</option>
+							<option th:each="category : ${categoryListData}"
+								th:value="${category.productCategoryId}"
+								th:text="${category.productCategoryName}"></option>
+						</select>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label fw-bold">商品價格</label> <input
+							type="number" class="form-control" th:field="*{productPrice}">
+						<div class="text-danger small"
+							th:if="${#fields.hasErrors('productPrice')}"
+							th:errors="*{productPrice}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label fw-bold">商品介紹</label>
+						<textarea class="form-control" rows="3" th:field="*{productDesc}"></textarea>
+						<div class="text-danger small"
+							th:if="${#fields.hasErrors('productDesc')}"
+							th:errors="*{productDesc}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label fw-bold">商品數量</label> <input
+							type="number" class="form-control" th:field="*{productQuantity}">
+						<div class="text-danger small"
+							th:if="${#fields.hasErrors('productQuantity')}"
+							th:errors="*{productQuantity}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label fw-bold">商品狀態</label> <select
+							class="form-select" th:field="*{productStatus}">
+							<option value="1">上架</option>
+							<option value="0">下架</option>
+						</select>
+					</div>
+
+					<div class="d-flex gap-2">
+						<button type="submit" class="btn btn-warning">
+							<i class="fa-solid fa-check me-1"></i>送出修改
+						</button>
+						<a href="/admin/shop/listAllProducts" class="btn btn-secondary">
+							<i class="fa-solid fa-arrow-left me-1"></i>返回列表
+						</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

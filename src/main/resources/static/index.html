@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>東方之星 The Star｜首頁</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/facilities.css">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+
+    .login-btn-as-button {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .login-modal-mask {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(20, 18, 14, 0.46);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-modal {
+      width: min(420px, 92vw);
+      background: #fffdf8;
+      border: 1px solid #e5dccd;
+      box-shadow: 0 20px 60px rgba(35, 33, 28, 0.2);
+      padding: 36px;
+      position: relative;
+    }
+
+    .login-modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 50%;
+      background: #f5efe5;
+      color: #7f623b;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .login-modal h2 {
+      margin: 0 0 8px;
+      text-align: center;
+      letter-spacing: 4px;
+      color: #3a3329;
+    }
+
+    .login-modal-subtitle {
+      margin: 0 0 28px;
+      text-align: center;
+      color: #8a8172;
+      font-size: 14px;
+    }
+
+    .login-field {
+      margin-bottom: 18px;
+    }
+
+    .login-field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: #8a8172;
+    }
+
+    .login-field input {
+      width: 100%;
+      border: 1px solid #ddd4c6;
+      background: #fff;
+      padding: 13px 14px;
+      font-size: 15px;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .login-submit {
+      width: 100%;
+      border: 0;
+      background: #9c7c4f;
+      color: #fff;
+      padding: 14px;
+      font-size: 15px;
+      letter-spacing: 2px;
+      cursor: pointer;
+    }
+
+    .login-submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .login-message {
+      min-height: 22px;
+      margin-top: 16px;
+      text-align: center;
+      color: #a85b50;
+      font-size: 14px;
+    }
+
+    .login-modal-register {
+      display: block;
+      margin-top: 12px;
+      text-align: center;
+      color: #9c7c4f;
+      font-weight: 700;
+    }
+
+    .login-remember {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: -4px 0 18px;
+      color: #7f6b50;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .login-remember input {
+      width: 16px;
+      height: 16px;
+      accent-color: #9c7c4f;
+    }
+
+
+    .login-resend-box {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid #eadbc6;
+      background: #fff9ef;
+      text-align: center;
+      color: #8a6b40;
+      font-size: 14px;
+    }
+
+    .login-resend-box p {
+      margin: 0 0 10px;
+    }
+
+    .login-resend-btn {
+      width: 100%;
+      border: 1px solid #b08b55;
+      background: #fffdf8;
+      color: #9c7c4f;
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .login-resend-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .login-success-message {
+      min-height: 22px;
+      margin-top: 12px;
+      text-align: center;
+      color: #4f8a57;
+      font-size: 14px;
+    }
+
+    .login-modal-links {
+      margin-top: 18px;
+      text-align: center;
+      line-height: 1.9;
+      color: #8a8172;
+      font-size: 14px;
+    }
+
+    .login-modal-links a {
+      margin-left: 8px;
+      color: #9c7c4f;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .login-modal-links a:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+<div id="app" v-cloak>
+  <header :class="currentPage === 'home' ? 'hero' : 'page-header'" id="home">
+    <nav class="navbar">
+      <a href="#" class="brand" @click.prevent="goPage('home')">
+<!--         <div class="brand-icon" aria-hidden="true"> -->
+<!--           <svg viewBox="0 0 64 64"> -->
+<!--             <path d="M32 4 L37 23 L56 12 L45 31 L60 38 L41 40 L48 60 L32 46 L16 60 L23 40 L4 38 L19 31 L8 12 L27 23 Z" -->
+<!--                   fill="none" -->
+<!--                   stroke="currentColor" -->
+<!--                   stroke-width="2" -->
+<!--                   stroke-linejoin="round"/> -->
+<!--             <circle cx="32" cy="32" r="7" fill="currentColor" opacity="0.28"/> -->
+<!--             <path d="M32 9 V55 M9 32 H55" stroke="currentColor" stroke-width="1.6" opacity="0.75"/> -->
+<!--           </svg> -->
+<!--         </div> -->
+        <h1>東方之星<span>The Star</span></h1>
+      </a>
+
+      <div class="nav-links">
+        <a href="#" :class="{ active: currentPage === 'home' }" @click.prevent="goPage('home')">首頁</a>
+        <a href="#" @click.prevent="goHomeAnchor('about-preview')">關於我們</a>
+        <a href="/articles.html">文章</a>
+        <a href="/roombooking.html">訂房</a>
+        <a href="/restaurant">餐廳</a>
+        <a href="/shop.html">購物</a>
+        <a href="#" :class="{ active: currentPage === 'facilities' }" @click.prevent="goPage('facilities')">設施</a>
+        <a href="#" @click.prevent="goHomeAnchor('faq')">FAQ</a>
+
+        <div class="nav-actions">
+          <button class="notify-btn" type="button" title="通知" @click="notifyComingSoon">
+            <i class="fa-regular fa-bell"></i>
+            <span class="notify-dot" v-show="hasNotify"></span>
+          </button>
+
+          <button v-if="!loggedIn" type="button" class="login-btn login-btn-as-button" @click="openLoginModal">登入</button>
+
+          <div v-else class="member-menu">
+            <button class="member-avatar" type="button" :title="displayName" @click.stop="toggleMemberMenu">
+              <i class="fa-regular fa-user"></i>
+            </button>
+
+            <div class="member-dropdown" :class="{ show: memberDropdownOpen }" @click.stop>
+              <div class="member-greeting">貴賓，{{ displayName }}</div>
+			  <a href="/profile.html">會員資料管理</a>
+              <a href="/roombooking.html?tab=orders">訂房訂單管理</a>
+              <a href="#" @click.prevent="featureComingSoon('餐廳訂單管理')">餐廳訂單管理</a>
+              <button type="button" @click="logoutMember">登出</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="hero-content" v-if="currentPage === 'home'">
+      <h2>東方之星度假飯店</h2>
+      <p>享受墾丁海岸的陽光、沙灘與慢步調假期</p>
+      <div class="gold-line"></div>
+      <div class="hero-buttons">
+        <a href="/roombooking.html" class="btn primary-btn">立即訂房</a>
+      </div>
+    </div>
+
+    <div class="sub-hero" v-if="currentPage === 'facilities'">
+      <h2>飯店設施</h2>
+      <p>泳池、SPA、健身房，享受完整度假體驗</p>
+      <div class="gold-line"></div>
+    </div>
+  </header>
+
+  <main>
+    <template v-if="currentPage === 'home'">
+      <section class="section" id="about-preview">
+        <h2 class="section-title">關於東方之星</h2>
+        <div class="gold-line"></div>
+        <p class="intro">
+          東方之星 The Star 以海景度假飯店為主題，結合舒適客房、精緻餐飲、購物服務與休閒設施，
+          讓旅客能在同一個平台完成訂房、用餐、購物與設施查詢。
+        </p>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-img room-img"></div>
+            <div class="feature-body">
+              <i class="fa-solid fa-bed"></i>
+              <h3>舒適訂房</h3>
+              <p>查看房型、空房與住宿資訊，快速安排理想假期。</p>
+              <a href="/roombooking.html" class="text-link">查看房型</a>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-img restaurant-img"></div>
+            <div class="feature-body">
+              <i class="fa-solid fa-utensils"></i>
+              <h3>餐廳服務</h3>
+              <p>提供飯店餐飲資訊，讓旅客輕鬆安排用餐時段。</p>
+              <a href="/restaurant" class="text-link">了解餐廳</a>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-img shop-img"></div>
+            <div class="feature-body">
+              <i class="fa-solid fa-bag-shopping"></i>
+              <h3>購物服務</h3>
+              <p>旅客可瀏覽飯店精選商品，包含伴手禮、旅遊用品與住宿相關服務。</p>
+              <a href="/shop.html" class="text-link">前往購物</a>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-img facility-img"></div>
+            <div class="feature-body">
+              <i class="fa-solid fa-person-swimming"></i>
+              <h3>飯店設施</h3>
+              <p>包含泳池、SPA、健身房與更多休閒服務。</p>
+              <a href="#" class="text-link" @click.prevent="goPage('facilities')">前往設施頁</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section news-section" id="news">
+        <h2 class="section-title">最新消息</h2>
+        <div class="gold-line"></div>
+        <div class="news-box">
+          <div class="news-item">
+            <span class="news-date">2026/05/19</span>
+            <a class="news-title" href="/articles.html">夏季住房專案開放預訂，享海景房型優惠</a>
+          </div>
+          <div class="news-item">
+            <span class="news-date">2026/05/12</span>
+            <a class="news-title" href="/articles.html">戶外泳池保養公告與開放時間調整</a>
+          </div>
+          <div class="news-item">
+            <span class="news-date">2026/05/05</span>
+            <a class="news-title" href="/articles.html">SPA 芳療中心推出雙人放鬆療程</a>
+          </div>
+          <div class="news-item">
+            <span class="news-date">2026/04/28</span>
+            <a class="news-title" href="/articles.html">餐廳新增季節限定海鮮套餐</a>
+          </div>
+          <div class="news-item">
+            <span class="news-date">2026/04/20</span>
+            <a class="news-title" href="/articles.html">館內購物服務新增伴手禮預訂功能</a>
+          </div>
+          <div class="news-more">
+            <a href="/articles.html" class="text-link">查看全部公告</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section shop-faq" id="faq">
+        <h2 class="section-title">FAQ</h2>
+        <div class="gold-line"></div>
+        <div class="simple-grid">
+          <article class="simple-card">
+            <h3>常見問題</h3>
+            <p>整理訂房、入住、設施使用、購物與付款相關問題，方便旅客快速查看。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="cta">
+        <div>
+          <h2>開啟您的度假旅程</h2>
+          <p>立即預訂，體驗東方之星的海岸假期</p>
+          <a href="/roombooking.html" class="btn primary-btn">立即訂房</a>
+        </div>
+      </section>
+    </template>
+
+    <template v-if="currentPage === 'facilities'">
+      <section class="section" id="facilities">
+        <p class="intro">
+          我們提供多樣化的休閒設施，無論是放鬆身心或是活力鍛鍊，
+          都能在這裡找到屬於您的美好時光。
+        </p>
+        <div class="gold-line"></div>
+
+        <div class="facility-grid">
+          <article class="facility-card">
+            <div class="facility-img pool"></div>
+            <div class="facility-body">
+              <div class="circle-icon">
+                <i class="fa-solid fa-person-swimming fa-flip-horizontal"></i>
+              </div>
+              <h3>游泳池 <span>POOL</span></h3>
+              <p>在陽光灑落的無邊際泳池中暢游，享受海風輕拂，感受度假生活的愜意。</p>
+              <div class="info">
+                <div><strong>開放時間</strong><span>06:00 - 22:00</span></div>
+                <div><strong>地點</strong><span>5F 戶外泳池</span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="facility-card">
+            <div class="facility-img spa"></div>
+            <div class="facility-body">
+              <div class="circle-icon">
+                <i class="fa-solid fa-shower"></i>
+              </div>
+              <h3>SPA 芳療中心 <span>SPA</span></h3>
+              <p>專業芳療師為您量身打造療程，舒緩壓力，找回身心的平靜與平衡。</p>
+              <div class="info">
+                <div><strong>開放時間</strong><span>10:00 - 22:00</span></div>
+                <div><strong>地點</strong><span>4F SPA 芳療中心</span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="facility-card">
+            <div class="facility-img gym"></div>
+            <div class="facility-body">
+              <div class="circle-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+              </div>
+              <h3>健身房 <span>FITNESS CENTER</span></h3>
+              <p>配備完善器材的健身空間，滿足您的運動需求，保持最佳狀態。</p>
+              <div class="info">
+                <div><strong>開放時間</strong><span>24H</span></div>
+                <div><strong>地點</strong><span>4F 健身中心</span></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="more-section">
+        <h2 class="section-title">更多設施與服務</h2>
+        <div class="gold-line"></div>
+
+        <div class="more-grid">
+          <div class="more-item">
+            <div class="more-icon"><i class="fa-solid fa-hot-tub-person"></i></div>
+            <h4>三溫暖</h4>
+            <p>舒緩疲勞，促進循環</p>
+          </div>
+          <div class="more-item">
+            <div class="more-icon"><i class="fa-solid fa-utensils"></i></div>
+            <h4>餐廳</h4>
+            <p>精緻料理，滿足味蕾</p>
+          </div>
+          <div class="more-item">
+            <div class="more-icon"><i class="fa-solid fa-child-reaching"></i></div>
+            <h4>兒童遊戲室</h4>
+            <p>親子同樂的歡樂空間</p>
+          </div>
+          <div class="more-item">
+            <div class="more-icon"><i class="fa-solid fa-square-parking"></i></div>
+            <h4>停車服務</h4>
+            <p>提供住客專屬停車位</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta">
+        <div>
+          <h2>開啟您的度假旅程</h2>
+          <p>立即預訂，體驗東方之星的美好時光</p>
+          <a href="/roombooking.html" class="btn">立即訂房</a>
+        </div>
+      </section>
+    </template>
+  </main>
+
+  <div class="login-modal-mask" v-if="loginModalOpen" @click.self="closeLoginModal">
+    <section class="login-modal" role="dialog" aria-modal="true" aria-label="會員登入">
+      <button class="login-modal-close" type="button" @click="closeLoginModal">×</button>
+      <h2>會員登入</h2>
+      <p class="login-modal-subtitle">東方之星 The Star</p>
+
+      <form @submit.prevent="loginMember" autocomplete="on">
+        <div class="login-field">
+          <label for="loginEmail">會員信箱</label>
+          <input id="loginEmail" type="email" v-model.trim="loginForm.memberEmail" autocomplete="username" required>
+        </div>
+
+        <div class="login-field">
+          <label for="loginPassword">會員密碼</label>
+          <input id="loginPassword" type="password" v-model="loginForm.memberPassword" autocomplete="current-password" required>
+        </div>
+
+        <label class="login-remember">
+          <input type="checkbox" v-model="loginForm.rememberMe">
+          <span>記住我</span>
+        </label>
+
+        <button class="login-submit" type="submit" :disabled="loginLoading">
+          {{ loginLoading ? '登入中...' : '登入' }}
+        </button>
+
+        <div class="login-message">{{ loginMessage }}</div>
+
+        <div v-if="showResendVerify" class="login-resend-box">
+          <p>這個帳號還沒完成信箱驗證。</p>
+          <button type="button" class="login-resend-btn" :disabled="resending" @click="resendVerification">
+            {{ resending ? '寄送中...' : '重送驗證信' }}
+          </button>
+        </div>
+
+        <div class="login-success-message">{{ loginSuccessMessage }}</div>
+      </form>
+
+      <div class="login-modal-links">
+        <div>還沒有帳號 <a href="/register.html">註冊會員</a></div>
+        <div>回到網站 <a href="/index.html">回首頁</a></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+  const { createApp, nextTick } = Vue;
+
+  createApp({
+    data() {
+      return {
+        currentPage: 'home',
+        loggedIn: false,
+        memberId: null,
+        memberName: '',
+        memberEmail: '',
+        memberDropdownOpen: false,
+        hasNotify: false,
+        loginModalOpen: false,
+        loginLoading: false,
+        resending: false,
+        loginMessage: '',
+        loginSuccessMessage: '',
+        showResendVerify: false,
+        loginForm: {
+          memberEmail: '',
+          memberPassword: '',
+          rememberMe: false
+        }
+      };
+    },
+
+    computed: {
+      displayName() {
+        return this.memberName || '會員';
+      }
+    },
+
+    mounted() {
+      this.cleanIndexUrl();
+      this.loadRememberedLogin();
+      this.checkMemberStatus();
+
+      document.addEventListener('click', () => {
+        this.memberDropdownOpen = false;
+      });
+    },
+
+    methods: {
+      cleanIndexUrl() {
+        if (location.pathname === '/index.html') {
+          history.replaceState(null, '', '/');
+        }
+      },
+
+      keepRootUrl() {
+        if (location.pathname !== '/') {
+          history.replaceState(null, '', '/');
+        }
+      },
+
+      goPage(page) {
+        this.currentPage = page;
+        this.memberDropdownOpen = false;
+        this.keepRootUrl();
+
+        nextTick(function () {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        });
+      },
+
+      goHomeAnchor(anchorId) {
+        this.currentPage = 'home';
+        this.memberDropdownOpen = false;
+        this.keepRootUrl();
+
+        nextTick(function () {
+          const target = document.getElementById(anchorId);
+
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth'
+            });
+          }
+        });
+      },
+
+      loadRememberedLogin() {
+        const rememberedEmail = localStorage.getItem('theStarRememberEmail') || '';
+        const rememberedPassword = localStorage.getItem('theStarRememberPassword') || '';
+
+        this.loginForm.memberEmail = rememberedEmail;
+        this.loginForm.memberPassword = rememberedPassword;
+        this.loginForm.rememberMe = rememberedEmail !== '' && rememberedPassword !== '';
+      },
+
+      clearLoginMessages() {
+        this.loginMessage = '';
+        this.loginSuccessMessage = '';
+        this.showResendVerify = false;
+      },
+
+      resetLoginFormForOpen() {
+        this.loadRememberedLogin();
+        this.clearLoginMessages();
+      },
+
+      async checkMemberStatus() {
+        try {
+          const res = await fetch('/api/member/status', {
+            credentials: 'same-origin'
+          });
+
+          if (!res.ok) {
+            this.clearMemberState();
+            return;
+          }
+
+          const data = await res.json();
+
+          this.loggedIn = data.loggedIn === true;
+          this.memberId = data.memberId || null;
+          this.memberName = data.memberName || '';
+          this.memberEmail = data.memberEmail || '';
+
+        } catch (e) {
+          this.clearMemberState();
+        }
+      },
+
+      clearMemberState() {
+        this.loggedIn = false;
+        this.memberId = null;
+        this.memberName = '';
+        this.memberEmail = '';
+        this.memberDropdownOpen = false;
+      },
+
+      toggleMemberMenu(event) {
+        event.stopPropagation();
+        this.memberDropdownOpen = !this.memberDropdownOpen;
+      },
+
+      openLoginModal() {
+        this.resetLoginFormForOpen();
+        this.loginModalOpen = true;
+        this.memberDropdownOpen = false;
+      },
+
+      closeLoginModal() {
+        if (this.loginLoading) {
+          return;
+        }
+
+        this.loginModalOpen = false;
+        this.clearLoginMessages();
+        this.loginForm.memberPassword = '';
+      },
+
+      async loginMember() {
+        this.loginLoading = true;
+        this.loginMessage = '';
+
+        try {
+          const res = await fetch('/api/member/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              memberEmail: this.loginForm.memberEmail,
+              memberPassword: this.loginForm.memberPassword
+            })
+          });
+
+          const data = await res.json().catch(function () {
+            return {};
+          });
+
+          if (!res.ok) {
+            this.loginMessage = data.error || '登入失敗';
+            this.showResendVerify = this.loginMessage.includes('帳號尚未完成信箱驗證');
+            return;
+          }
+
+          if (this.loginForm.rememberMe) {
+            localStorage.setItem('theStarRememberEmail', this.loginForm.memberEmail);
+            localStorage.setItem('theStarRememberPassword', this.loginForm.memberPassword);
+          } else {
+            localStorage.removeItem('theStarRememberEmail');
+            localStorage.removeItem('theStarRememberPassword');
+          }
+
+          this.loggedIn = true;
+          this.memberId = data.memberId || null;
+          this.memberName = data.memberName || '';
+          this.memberEmail = data.memberEmail || '';
+          this.loginModalOpen = false;
+          this.clearLoginMessages();
+          this.keepRootUrl();
+
+        } catch (e) {
+          this.loginMessage = '無法連線到伺服器';
+
+        } finally {
+          this.loginLoading = false;
+        }
+      },
+
+      async logoutMember() {
+        try {
+          await fetch('/api/member/logout', {
+            method: 'POST',
+            credentials: 'same-origin'
+          });
+        } catch (e) {
+        }
+
+        this.clearMemberState();
+        this.currentPage = 'home';
+        this.loadRememberedLogin();
+        this.keepRootUrl();
+      },
+
+      async resendVerification() {
+        this.loginMessage = '';
+        this.loginSuccessMessage = '';
+
+        if (!this.loginForm.memberEmail) {
+          this.loginMessage = '請先輸入會員信箱';
+          return;
+        }
+
+        this.resending = true;
+
+        try {
+          const res = await fetch('/api/member/resend-verification', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              memberEmail: this.loginForm.memberEmail
+            })
+          });
+
+          const data = await res.json().catch(function () {
+            return {};
+          });
+
+          if (!res.ok) {
+            this.loginMessage = data.error || '驗證信重送失敗';
+            return;
+          }
+
+          this.loginSuccessMessage = data.message || '驗證信已重新寄出，請到信箱收信';
+          this.showResendVerify = false;
+        } catch (e) {
+          this.loginMessage = '無法連線到伺服器';
+        } finally {
+          this.resending = false;
+        }
+      },
+
+      notifyComingSoon() {
+        alert('通知功能尚未完成');
+      },
+
+      featureComingSoon(featureName) {
+        alert(featureName + '尚未完成');
+      }
+    }
+  }).mount('#app');
+</script>
+</body>
+</html>
