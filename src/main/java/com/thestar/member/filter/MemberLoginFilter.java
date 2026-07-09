@@ -65,7 +65,9 @@ public class MemberLoginFilter extends OncePerRequestFilter {
         return path.equals("/thestar/order/create")
                 || path.startsWith("/thestar/order/member")
                 || path.startsWith("/thestar/order/cancel")
-                || path.startsWith("/thestar/ecpay/checkout");
+                || path.startsWith("/thestar/ecpay/checkout")
+                || path.equals("/shop/cart")
+                || path.startsWith("/shop/cart/");
     }
 
     private boolean isApiRequest(String path, HttpServletRequest request) {
