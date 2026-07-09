@@ -911,7 +911,7 @@
     <template v-else>
         <header>
             <div class="hbar">
-                <div class="logo"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp; Residences</small></div>
+                <a class="logo" href="/index.html"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp; Residences</small></a>
                 <nav class="menu">
                     <button v-if="member.on" :class="{on:nav==='book'}" @click="nav='book'">預訂客房</button>
                     <button v-if="member.on" :class="{on:nav==='orders'}" @click="nav='orders';loadOrders()">我的預訂
@@ -1418,8 +1418,6 @@
                 if (me.loggedIn) {
                     this.member.id = me.memberId;
                     this.member.on = me.memberId;
-                    this.nav = 'orders';
-                    this.loadOrders();
                 }
             } catch { /* 沒登入就停在登入頁 */
             }
