@@ -895,10 +895,8 @@
                 <button :class="{on:gateTab==='staff'}" @click="gateTab='staff'">員工登入</button>
             </div>
             <div v-if="gateTab==='member'">
-                <div class="field"><label>Member ID</label><input type="number" v-model.number="member.id"
-                                                                  @keyup.enter="loginMember"></div>
-                <button class="btn block" @click="loginMember">進入專屬服務</button>
-                <p class="hint">尚未付款訂房、查詢預訂與結帳</p>
+                <p class="hint" style="margin-bottom:26px">貴賓請先於官網首頁登入，完成後即自動進入專屬服務</p>
+                <a class="btn block" href="/index.html">前往首頁登入</a>
             </div>
             <div v-else>
                 <div class="field"><label>Employee ID</label><input type="number" v-model.number="employee.id"
@@ -913,7 +911,7 @@
     <template v-else>
         <header>
             <div class="hbar">
-                <div class="logo"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp; Residences</small></div>
+                <a class="logo" href="/index.html"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp; Residences</small></a>
                 <nav class="menu">
                     <button v-if="member.on" :class="{on:nav==='book'}" @click="nav='book'">預訂客房</button>
                     <button v-if="member.on" :class="{on:nav==='orders'}" @click="nav='orders';loadOrders()">我的預訂
@@ -1413,20 +1411,13 @@
                 return this.logLines.join('\n') || '（尚無紀錄）';
             }
         },
-        // 重整後跟後端要 session 裡的登入者，還原登入狀態
+        // 重整後問會員登入狀態(首頁的真登入);員工登入不跨頁記憶,重整需重登
         async mounted() {
             try {
-                const me = await this.api('/dev/me');
-                if (me.memberId) {
+                const me = await this.api('/api/member/status');
+                if (me.loggedIn) {
                     this.member.id = me.memberId;
                     this.member.on = me.memberId;
-                    this.nav = 'orders';
-                    this.loadOrders();
-                } else if (me.employeeId) {
-                    this.employee.id = me.employeeId;
-                    this.employee.on = me.employeeId;
-                    this.nav = 'admin';
-                    this.loadAdmin();
                 }
             } catch { /* 沒登入就停在登入頁 */
             }
@@ -1467,17 +1458,6 @@
                 }
                 return body;
             },
-            async loginMember() {
-                try {
-                    await this.api(`/dev/login/${this.member.id}`);
-                    this.member.on = this.member.id;
-                    this.toast('ok', '歡迎光臨', `貴賓 #${this.member.id}`);
-                    this.nav = 'orders';
-                    this.loadOrders();
-                } catch {
-                    this.toast('err', '登入失敗');
-                }
-            },
             async loginEmployee() {
                 try {
                     await this.api(`/dev/employeelogin/${this.employee.id}`);
@@ -1490,9 +1470,12 @@
                 }
             },
             async logout() {
-                try {
-                    await this.api('/dev/logout');
-                } catch { /* 後端沒清成也照樣登出前端 */
+                // 會員走首頁的真登出;員工端目前無登出API,清前端狀態即可
+                if (this.member.on) {
+                    try {
+                        await this.api('/api/member/logout', {method: 'POST'});
+                    } catch { /* 後端沒清成也照樣登出前端 */
+                    }
                 }
                 this.member.on = null;
                 this.employee.on = null;
