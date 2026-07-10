@@ -85,7 +85,7 @@ public class StayRecordService {
 
 
     @Transactional
-    public StayRecordVO checkOut(Integer roomId, Integer employeeId) {
+    public void checkOut(Integer roomId, Integer employeeId) {
 
         //先用客人房號找出住宿明細
         StayRecordVO stay = stayRecordRepository.findByRoomIdAndCheckOutTimeIsNull(roomId);
@@ -114,7 +114,6 @@ public class StayRecordService {
             orderService.completeOrder(orderId);
         }
         stayRecordRepository.save(stay);
-        return stay;
     }
 
 
@@ -168,6 +167,8 @@ public class StayRecordService {
         return roomRepository.findByRoomTypeIdOrderByRoomId(orderList.getRoomTypeId());
     }
 
+
+    //退房時使用列出所有還沒退房的房間
     @Transactional(readOnly = true)
     public List<StayRecordVO> findAllNotCheckOutRoom(){
 
@@ -178,6 +179,12 @@ public class StayRecordService {
     //找出客人入住照片
     public byte[] findStayCustomerPhoto(Integer stayId){
         return stayRecordRepository.findById(stayId).orElseThrow().getStayCustomerPhoto();
+    }
+
+    //住宿紀錄顯示訂單資訊
+    @Transactional(readOnly = true)
+    public OrderVO findOrderByStay(Integer stayId){
+        return stayRecordRepository.findOrderByStayId(stayId);
     }
 }
 

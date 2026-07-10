@@ -1,4 +1,5 @@
 package com.thestar.order.service;
+
 import com.thestar.room.service.RedisRoomStock;
 
 import com.thestar.order.dto.CreateRoomOrderDTO;
@@ -243,7 +244,9 @@ public class OrderService {
 
     public void cancelOrder(Integer memberId, Integer orderId, String reason) {
 
-        if (!Objects.equals(memberId, orderRepository.findById(orderId).orElseThrow().getMemberId())) {
+        OrderVO ordervo = orderRepository.findById(orderId).orElseThrow();
+
+        if (!Objects.equals(memberId, ordervo.getMemberId())) {
             throw new IllegalArgumentException("無法修改其他會員訂單");
         }
 
@@ -251,12 +254,11 @@ public class OrderService {
         if (row == 0) {
             throw new IllegalArgumentException("訂單狀態非已付款,不能取消");
         }
-        OrderVO vo = orderRepository.findById(orderId).orElseThrow();
-        LocalDate checkInDate = vo.getCheckInDate();
-        LocalDate checkOutDate = vo.getCheckOutDate();
+        LocalDate checkInDate = ordervo.getCheckInDate();
+        LocalDate checkOutDate = ordervo.getCheckOutDate();
         long nights = checkOutDate.toEpochDay() - checkInDate.toEpochDay();
 
-        List<OrderListVO> orderList = vo.getOrderList();
+        List<OrderListVO> orderList = ordervo.getOrderList();
         for (OrderListVO list : orderList) {
             Integer roomTypeId = list.getRoomTypeId();
             int qty = list.getQuantity();
@@ -267,10 +269,10 @@ public class OrderService {
             }
         }
         RefundListVO refund = new RefundListVO();
-        refund.setAmount(vo.getPaidAmount());
+        refund.setAmount(ordervo.getPaidAmount());
         refund.setRefundStatus((byte) 0);
         refund.setReason(reason);
-        refund.setOrdervo(vo);
+        refund.setOrdervo(ordervo);
         refundListRepository.save(refund);
     }
 

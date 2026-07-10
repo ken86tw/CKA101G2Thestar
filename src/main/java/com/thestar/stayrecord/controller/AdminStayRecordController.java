@@ -1,6 +1,7 @@
 package com.thestar.stayrecord.controller;
 
 
+import com.thestar.order.entity.OrderVO;
 import com.thestar.stayrecord.dto.CheckInDTO;
 import com.thestar.room.entity.RoomVO;
 import com.thestar.stayrecord.dto.FindCheckInRoomDTO;
@@ -95,6 +96,7 @@ public class AdminStayRecordController {
         return ResponseEntity.ok(stayRecordService.findRoomsByOrderList(orderListId));
     }
 
+    //退房時使用列出所有還沒退房的房間
     @GetMapping("/find/all")
     public ResponseEntity<List<StayRecordVO>> searchAllNotCheckOutRoom(HttpSession session) {
         Integer employeeId = (Integer) session.getAttribute("loginEmployee");
@@ -107,17 +109,28 @@ public class AdminStayRecordController {
 
 
     //查詢顧客照片
-    @GetMapping("/photo/{stayId}")
+    @GetMapping("/find/photo/{stayId}")
     public ResponseEntity<byte[]> stayPhoto(@PathVariable Integer stayId, HttpSession session) {
         Integer employeeId = (Integer) session.getAttribute("loginEmployee");
         if (employeeId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         byte[] photo = stayRecordService.findStayCustomerPhoto(stayId);
-        if (photo == null || photo.length == 0){
+        if (photo == null || photo.length == 0) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(photo);
     }
+
+    //查詢住宿紀錄時查看訂單詳情
+    @GetMapping("/find/order/{stayId}")
+    public ResponseEntity<OrderVO> orderOfStay(@PathVariable Integer stayId, HttpSession session) {
+        Integer employeeId = (Integer)session.getAttribute("loginEmployee");
+        if(employeeId == null){
+            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(stayRecordService.findOrderByStay(stayId));
+    }
+
 }
 
