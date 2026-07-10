@@ -1604,7 +1604,6 @@
             async loadPending() {
                 try {
                     this.stay.pending = await this.api('/thestar/admin/order/find/order');
-                    this.toast('ok', '查詢完成', `未入住 ${this.stay.pending.length} 筆`);
                 } catch (e) {
                     this.stay.pending = [];
                     this.toast('err', '查詢失敗', this.errMsg(e));
@@ -1701,7 +1700,6 @@
             async loadStaying() {
                 try {
                     this.stay.staying = await this.api('/thestar/admin/stayrecord/find/all');
-                    this.toast('ok', '查詢完成', `在住 ${this.stay.staying.length} 間`);
                 } catch (e) {
                     this.stay.staying = [];
                     this.toast('err', '查詢失敗', this.errMsg(e));
