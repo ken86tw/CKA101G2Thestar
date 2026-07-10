@@ -42,7 +42,7 @@ public class StayRecordService {
     }
 
     @Transactional
-    public void checkIn(Integer employeeId, CheckInDTO dto) {
+    public void checkIn(Integer employeeId, CheckInDTO dto, byte[] stayCustomerPhoto) {
 
         Integer orderListId = dto.getOrderListId();
         OrderListVO orderList = orderListRepository.findById(orderListId)
@@ -78,6 +78,7 @@ public class StayRecordService {
         stay.setRoomId(dto.getRoomId());
         stay.setOrderListvo(orderList);
         stay.setStayCustomer(dto.getStayCustomer());
+        stay.setStayCustomerPhoto(stayCustomerPhoto);
         stayRecordRepository.save(stay);
 
     }
@@ -171,6 +172,12 @@ public class StayRecordService {
     public List<StayRecordVO> findAllNotCheckOutRoom(){
 
         return stayRecordRepository.findByCheckOutTimeIsNullOrderByOrderListvoOrdervoOrderIdDesc();
+    }
+
+
+    //找出客人入住照片
+    public byte[] findStayCustomerPhoto(Integer stayId){
+        return stayRecordRepository.findById(stayId).orElseThrow().getStayCustomerPhoto();
     }
 }
 
