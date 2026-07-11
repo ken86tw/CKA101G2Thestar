@@ -39,12 +39,14 @@ public class RefundService {
     }
 
     @Transactional
-    public void processRefund(Integer employeeId, Integer refundId) {
+    public Integer processRefund(Integer employeeId, Integer refundId) {
 
         int row = refundListRepository.refundOrder(employeeId, refundId);
         if (row == 0) {
             throw new IllegalStateException("此訂單已處理或是不存在");
         }
+        //回傳這筆退款單的會員ID 給controller在交易commit後廣播用
+        return refundListRepository.findById(refundId).orElseThrow().getOrdervo().getMemberId();
     }
 }
 

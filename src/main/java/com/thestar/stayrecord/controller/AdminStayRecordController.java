@@ -10,6 +10,7 @@ import com.thestar.stayrecord.service.StayRecordService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,15 +18,18 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/thestar/admin/stayrecord")
 public class AdminStayRecordController {
 
     private final StayRecordService stayRecordService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public AdminStayRecordController(StayRecordService stayRecordService) {
+    public AdminStayRecordController(StayRecordService stayRecordService, SimpMessagingTemplate simpMessagingTemplate) {
         this.stayRecordService = stayRecordService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @PostMapping("/checkin")
@@ -54,9 +58,14 @@ public class AdminStayRecordController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        stayRecordService.checkOut(roomId, employeeId);
-
+        Integer memberId = stayRecordService.checkOut(roomId, employeeId);
+        simpMessagingTemplate.convertAndSend("/topic/orders", (Object)
+                Map.of("event", "completed"));
+        if (memberId != null) {
+            simpMessagingTemplate.convertAndSend("/topic/member/" + memberId, (Object) Map.of("event", "completed"));
+        }
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("房號" + roomId + "退房成功");
+
     }
 
     @GetMapping("/find")
@@ -125,9 +134,9 @@ public class AdminStayRecordController {
     //查詢住宿紀錄時查看訂單詳情
     @GetMapping("/find/order/{stayId}")
     public ResponseEntity<OrderVO> orderOfStay(@PathVariable Integer stayId, HttpSession session) {
-        Integer employeeId = (Integer)session.getAttribute("loginEmployee");
-        if(employeeId == null){
-            return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        Integer employeeId = (Integer) session.getAttribute("loginEmployee");
+        if (employeeId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return ResponseEntity.ok(stayRecordService.findOrderByStay(stayId));
     }

@@ -65,6 +65,7 @@ createApp({
             if (me.loggedIn) {
                 this.member.id = me.memberId;
                 this.member.on = me.memberId;
+                this.connectWs();   // 會員身分確認後連線 訂閱自己專屬的通知頻道
             }
         } catch { /* 沒登入就停在登入頁 */
         }
@@ -109,6 +110,7 @@ createApp({
             try {
                 await this.api(`/dev/employeelogin/${this.employee.id}`);
                 this.employee.on = this.employee.id;
+                this.connectWs();
                 this.toast('ok', '員工已登入', `#${this.employee.id}`);
                 this.nav = 'admin';
                 this.loadAdmin();
@@ -123,6 +125,9 @@ createApp({
                     await this.api('/api/member/logout', {method: 'POST'});
                 } catch { /* 後端沒清成也照樣登出前端 */
                 }
+            }
+            if(this._stomp){
+                this._stomp.deactivate(); this._stomp = null;
             }
             this.member.on = null;
             this.employee.on = null;
@@ -422,6 +427,51 @@ createApp({
             }catch (e) {
                 this.toast('err','退款失敗',this.errMsg(e));
             }
-        }
+        },
+
+        connectWs(){
+            if(this._stomp)return;
+            const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+            const client = new StompJs.Client({
+               brokerURL: `${proto}://${location.host}/ws`,
+               reconnectDelay: 5000,
+            });
+            client.onConnect = () => {
+                this.log('✔ WS', '已連線');
+                if (this.employee.on) {
+                    client.subscribe('/topic/rooms', (msg) => {
+                        const data = JSON.parse(msg.body);
+                        this.log('WS rooms', data);
+                        const room = this.stay.rooms.find(r => r.roomId ===
+                            data.roomId);
+                        if (room) room.roomStatus = data.roomStatus;
+                    });
+                    client.subscribe('/topic/refunds',()=> {
+                        this.log('WS refunds', '清單變動');
+                        //取消訂單或退款完成都會敲這口鐘 人在哪個分頁就重查哪邊
+                        if(this.nav ==='refund')this.loadRefunds();
+                        //後台訂單的列表跟上面統計數字也會受影響 一起重查
+                        if(this.nav ==='admin')this.loadAdmin();
+                    });
+                    client.subscribe('/topic/orders',()=> {
+                        this.log('WS orders','訂單變動');
+                        if(this.nav ==='admin')this.loadAdmin();
+                    });
+                }
+                if (this.member.on) {
+                    // 名字裡的ID是自己的 所以只會收到自己的通知
+                    client.subscribe(`/topic/member/${this.member.on}`, (msg) => {
+                        const data = JSON.parse(msg.body);
+                        //同一個頻道兩種事件 看event決定跳哪句
+                        if (data.event === 'refunded') this.toast('ok', '退款完成', '您的訂單狀態已更新');
+                        if (data.event === 'completed') this.toast('ok', '退房完成', '感謝您的入住');
+                        this.loadOrders();
+                    });
+                }
+            };
+            client.activate();
+            this._stomp = client;
+        },
     },
 }).mount('#app');
+

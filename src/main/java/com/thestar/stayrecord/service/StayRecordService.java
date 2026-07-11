@@ -13,6 +13,7 @@ import com.thestar.order.repository.OrderListRepository;
 import com.thestar.room.repository.RoomRepository;
 import com.thestar.stayrecord.repository.StayRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class StayRecordService {
@@ -29,16 +31,18 @@ public class StayRecordService {
     private final OrderListRepository orderListRepository;
     private final OrderService orderService;
     private final RoomTypeRepository roomTypeRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Autowired
     public StayRecordService(RoomRepository roomRepository, StayRecordRepository stayRecordRepository,
                              OrderListRepository orderListRepository, OrderService orderService,
-                             RoomTypeRepository roomTypeRepository) {
+                             RoomTypeRepository roomTypeRepository, SimpMessagingTemplate simpMessagingTemplate) {
         this.roomRepository = roomRepository;
         this.stayRecordRepository = stayRecordRepository;
         this.orderListRepository = orderListRepository;
         this.orderService = orderService;
         this.roomTypeRepository = roomTypeRepository;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Transactional
@@ -80,12 +84,13 @@ public class StayRecordService {
         stay.setStayCustomer(dto.getStayCustomer());
         stay.setStayCustomerPhoto(stayCustomerPhoto);
         stayRecordRepository.save(stay);
+        simpMessagingTemplate.convertAndSend("/topic/rooms", (Object) Map.of("roomId", dto.getRoomId(),"roomStatus",1));
 
     }
 
 
     @Transactional
-    public void checkOut(Integer roomId, Integer employeeId) {
+    public Integer checkOut(Integer roomId, Integer employeeId) {
 
         //先用客人房號找出住宿明細
         StayRecordVO stay = stayRecordRepository.findByRoomIdAndCheckOutTimeIsNull(roomId);
@@ -110,10 +115,14 @@ public class StayRecordService {
         int totalBookedRooms = orderListRepository.sumQtyByOrderId(orderId);
         int totalStayRecord = stayRecordRepository.countByOrderListvoOrdervoOrderId(orderId);
 
+        Integer memberId = null;
         if (notCheckOutRooms == 0 && totalBookedRooms == totalStayRecord) {
             orderService.completeOrder(orderId);
+            memberId = stay.getOrderListvo().getOrdervo().getMemberId();
         }
         stayRecordRepository.save(stay);
+        simpMessagingTemplate.convertAndSend("/topic/rooms",(Object) Map.of("roomId",roomId,"roomStatus",0));
+        return memberId;
     }
 
 

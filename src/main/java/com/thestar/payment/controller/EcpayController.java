@@ -7,6 +7,7 @@ import com.thestar.payment.service.EcpayService;
 import com.thestar.order.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,12 +20,14 @@ public class EcpayController {
     private final EcpayService ecpayService;
     private final OrderRepository orderRepository;
     private final OrderService orderService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
 
-    public EcpayController(EcpayService ecpayService, OrderRepository orderRepository, OrderService orderService) {
+    public EcpayController(EcpayService ecpayService, OrderRepository orderRepository, OrderService orderService, SimpMessagingTemplate simpMessagingTemplate) {
         this.ecpayService = ecpayService;
         this.orderRepository = orderRepository;
         this.orderService = orderService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     //進結帳頁 回傳一段會自動送出的html表單 讓瀏覽器直接跳去綠界付款
@@ -87,7 +90,8 @@ public class EcpayController {
         //所以這裡catch起來一樣回1|OK 讓綠界不要一直重送
         try {
             orderService.confirmOrder(merchantTradeNo, paidAmount, (byte) 1, ecpayTradeNo);
-
+            simpMessagingTemplate.convertAndSend("/topic/orders", (Object)
+                    Map.of("event", "paid"));
         } catch (IllegalStateException e) {
 
             return "1|OK";

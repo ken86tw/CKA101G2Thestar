@@ -11,9 +11,11 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -22,10 +24,13 @@ public class OrderController {
 
     private final OrderService orderService;
     private final OrderQueryService orderQueryService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public OrderController(OrderService orderService, OrderQueryService orderQueryService) {
+    public OrderController(OrderService orderService, OrderQueryService orderQueryService,
+                           SimpMessagingTemplate simpMessagingTemplate) {
         this.orderService = orderService;
         this.orderQueryService = orderQueryService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @PostMapping("/create")
@@ -34,8 +39,9 @@ public class OrderController {
         if (member == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.createOrder(member.getMemberId(), dto));
+        OrderVO order = orderService.createOrder(member.getMemberId(),dto);
+        simpMessagingTemplate.convertAndSend("/topic/orders",(Object)Map.of("event","created"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 
 
@@ -53,6 +59,9 @@ public class OrderController {
 
 
         orderService.cancelOrder(memberId, orderId, reason);
+
+        //廣播要放在service之後 交易commit完員工重查才查得到新退款單
+        simpMessagingTemplate.convertAndSend("/topic/refunds", (Object) Map.of("event", "created"));
 
         return ResponseEntity.ok("訂單" + orderId + "取消訂單成功");
     }
