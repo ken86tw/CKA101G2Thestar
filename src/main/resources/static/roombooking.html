@@ -56,6 +56,9 @@
                     <button v-if="employee.on" :class="{on:nav==='admin'}" @click="nav='admin';loadAdmin()">後台訂單
                     </button>
                     <button v-if="employee.on" :class="{on:nav==='stay'}" @click="nav='stay'">房務管理</button>
+                    <button v-if="employee.on" :class="{on:nav==='refund'}" @click="nav='refund';loadRefunds()">
+                        退款管理
+                    </button>
                 </nav>
                 <div class="hright">
                     <div class="ident">
@@ -168,6 +171,7 @@
                         <tr>
                             <th>預訂編號</th>
                             <th>狀態</th>
+                            <th>退款</th>
                             <th>入住</th>
                             <th>退房</th>
                             <th>應付</th>
@@ -179,7 +183,15 @@
                             <tr>
                                 <td><span class="oid">No. {{ o.orderId }}</span></td>
                                 <td><span class="badge" :class="'b'+o.orderStatus">{{ STATUS[o.orderStatus].label
-                                    }}</span></td>
+                                    }}</span>
+                                </td>
+                                <td>
+                                    <span v-if="o.orderStatus===3 && o.refundvo">
+                                        {{o.refundvo.refundStatus === 1 ?'已退款':'退款處理中'}}
+                                    </span>
+                                    <span v-else>-</span>
+                                </td>
+
                                 <td>{{ o.checkInDate }}</td>
                                 <td>{{ o.checkOutDate }}</td>
                                 <td><span class="money">${{ (o.totalAmount - o.discountAmount).toLocaleString()
@@ -204,7 +216,7 @@
                                 </td>
                             </tr>
                             <tr v-if="orders.open[o.orderId]" class="det">
-                                <td colspan="6">
+                                <td colspan="7">
                                     <table>
                                         <thead>
                                         <tr>
@@ -580,14 +592,52 @@
                 </div>
             </div>
         </section>
+
+        <section v-if="employee.on && nav==='refund'">
+            <div class="wrap">
+                <div class="sechead">
+                    <div class="up">Refund</div>
+                    <h2>退款管理</h2>
+                    <p>未退款訂單查詢 ， 退款</p></div>
+                <div class="panel">
+                    <table v-if="refund.list.length">
+                        <thead>
+                        <tr>
+                            <th>退款單號</th>
+                            <th>訂單</th>
+                            <th>會員</th>
+                            <th>金額</th>
+                            <th>原因</th>
+                            <th>申請時間</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="r in refund.list" :key="r.refundId">
+                            <td>{{ r.refundId }}</td>
+                            <td>{{ r.orderId }}</td>
+                            <td>{{ r.memberId }}</td>
+                            <td>${{r.amount.toLocaleString()}}</td>
+                            <td>{{r.reason}}</td>
+                            <td>{{fmt(r.createdTime)}}</td>
+                            <td>
+                                <button class="btn danger sm" @click="doRefund(r)">執行退款</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <p v-else class="hint">目前沒有待處理的退款</p>
+                </div>
+            </div>
+        </section>
     </template>
 
-<div class="toasts">
-    <transition-group name="fade">
-        <div v-for="t in toasts" :key="t.id" class="toast" :class="t.type"><b>{{ t.title }}</b><small>{{ t.msg
-            }}</small></div>
-    </transition-group>
-</div>
+    <div class="toasts">
+        <transition-group name="fade">
+            <div v-for="t in toasts" :key="t.id" class="toast" :class="t.type"><b>{{ t.title }}</b><small>{{ t.msg
+                }}</small></div>
+        </transition-group>
+    </div>
 </div>
 
 <script src="js/roombooking.js"></script>
