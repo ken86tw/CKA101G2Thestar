@@ -43,6 +43,7 @@ createApp({
                 detailRecord: null,
                 detailLines: []
             },
+            refund:{list:[]},
             toasts: [], logLines: [], _tid: 0,
         };
     },
@@ -400,5 +401,27 @@ createApp({
                 this.toast('err', '詳情查詢失敗', this.errMsg(e));
             }
         },
+
+        async loadRefunds(){
+            try{
+                this.refund.list = await
+                    this.api('/thestar/admin/refund/find');
+            }catch (e) {
+                this.refund.list = [];
+                this.toast('err','退款清單查詢失敗',this.errMsg(e));
+            }
+        },
+
+        async doRefund(r){
+            if(!confirm(`退款單 #${r.refundId} · $${r.amount} 確認執行退款？`)) return;
+            try{
+                const msg = await
+                    this.api(`/thestar/admin/refund/process/${r.refundId}`, {method:'POST'});
+                    this.toast('ok','退款完成',msg);
+                    this.loadRefunds();
+            }catch (e) {
+                this.toast('err','退款失敗',this.errMsg(e));
+            }
+        }
     },
 }).mount('#app');
