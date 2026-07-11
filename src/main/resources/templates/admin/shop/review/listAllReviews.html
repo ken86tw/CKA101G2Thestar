@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/shop_sidebar :: common-head('商品評論管理')}"></head>
+<body>
+    <div th:replace="~{admin/shop_sidebar :: sidebar('review')}"></div>
+    <div class="main-content">
+        <div th:replace="~{admin/shop_sidebar :: topbar('商品評論管理')}"></div>
+        <div class="page-body">
+            <div class="card p-4">
+                <h5 class="m-0 fw-bold mb-3">
+                    <i class="fa-solid fa-comment-dots me-2"></i>商品評論列表
+                </h5>
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>評論編號</th>
+                            <th>商品名稱</th>
+                            <th>會員編號</th>
+                            <th>評論內容</th>
+                            <th>星等</th>
+                            <th>評論日期</th>
+                            <th width="100">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="review : ${reviewListData}">
+                            <td th:text="${review.productReviewId}"></td>
+                            <td th:text="${review.product != null ? review.product.productName : '-'}" class="fw-bold"></td>
+                            <td th:text="${review.memberId}"></td>
+                            <td th:text="${review.productReview}" class="text-muted small"></td>
+                            <td>
+                                <span th:text="${review.productRate} + ' ★'" style="color:#c9a84c; font-weight:700;"></span>
+                            </td>
+                            <td th:text="${review.productReviewDate}"></td>
+                            <td>
+                                <form th:action="@{/admin/shop/review/delete}" method="post"
+                                      onsubmit="return confirm('確定要刪除此評論嗎？');">
+                                    <input type="hidden" name="productReviewId" th:value="${review.productReviewId}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

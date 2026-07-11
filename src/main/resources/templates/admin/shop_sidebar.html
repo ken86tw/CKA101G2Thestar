@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="common-head(title)">
+<meta charset="UTF-8">
+<title th:text="${title}">The Star 購物後台</title>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link
+	href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap"
+	rel="stylesheet">
+<style>
+* {
+	font-family: 'Noto Sans TC', sans-serif;
+}
+
+body {
+	display: flex;
+	min-height: 100vh;
+	background-color: #faf5ec;
+	overflow-x: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+	width: 260px;
+	background-color: #2d5a6b;
+	color: #fff;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.sidebar .logo {
+	padding: 28px 20px;
+	text-align: center;
+	background-color: #1e3f4d;
+	border-bottom: 1px solid #3a6d80;
+}
+
+.sidebar .logo-en {
+	font-family: 'Cormorant Garamond', serif;
+	font-style: italic;
+	font-size: 1.6rem;
+	color: #c9a84c;
+	letter-spacing: 2px;
+	margin-bottom: 4px;
+}
+
+.sidebar .logo-title {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 1rem;
+	font-weight: 700;
+	color: #e8f0f3;
+	letter-spacing: 4px;
+	margin: 0;
+}
+
+.sidebar .logo-subtitle {
+	font-size: 11px;
+	color: #7fafc0;
+	letter-spacing: 1px;
+	margin-top: 6px;
+}
+
+.sidebar .nav-section {
+	padding: 16px 12px 4px;
+	font-size: 10px;
+	color: #5a9aaf;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+}
+
+.sidebar .nav-link {
+	color: #b8d4de;
+	padding: 11px 16px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	transition: all 0.2s;
+	border-radius: 6px;
+	margin: 2px 8px;
+	font-size: 14px;
+}
+
+.sidebar .nav-link:hover {
+	background-color: rgba(201, 168, 76, 0.15);
+	color: #e8d5a0;
+	text-decoration: none;
+}
+
+.sidebar .nav-link.active {
+	background-color: #c9a84c;
+	color: #fff;
+	text-decoration: none;
+}
+
+.sidebar .nav-link i {
+	width: 16px;
+	text-align: center;
+	opacity: 0.85;
+}
+
+.sidebar-footer {
+	padding: 16px;
+	border-top: 1px solid #3a6d80;
+	margin-top: auto;
+}
+
+.sidebar-footer a {
+	color: #5a9aaf;
+	font-size: 13px;
+	text-decoration: none;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sidebar-footer a:hover {
+	color: #b8d4de;
+}
+
+/* Main content */
+.main-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.top-navbar {
+	background-color: #fffdf7;
+	padding: 16px 32px;
+	border-bottom: 1px solid #e5d5b5;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.top-navbar h4 {
+	font-family: 'Noto Serif TC', serif;
+	color: #5c3d1e;
+	font-size: 1.1rem;
+	letter-spacing: 2px;
+}
+
+.page-body {
+	padding: 32px;
+	flex: 1;
+	background-color: #faf5ec;
+}
+
+/* Card */
+.card {
+	border: 1px solid #e5d5b5;
+	box-shadow: 0 2px 12px rgba(92, 61, 30, 0.08);
+	border-radius: 8px;
+	background: #fffdf7;
+}
+
+/* Table */
+.table thead {
+	background-color: #f5ead5;
+}
+
+.table thead th {
+	color: #7a5c30;
+	font-size: 13px;
+	font-weight: 600;
+	border-color: #e5d5b5;
+	letter-spacing: 1px;
+}
+
+.table tbody tr {
+	border-color: #f0e4cc;
+}
+
+.table tbody tr:hover {
+	background-color: #fdf5e6;
+}
+
+/* Buttons */
+.btn-gold {
+	background-color: #c9a84c;
+	color: #fff;
+	border: 0;
+}
+
+.btn-gold:hover {
+	background-color: #a8893a;
+	color: #fff;
+}
+
+.btn-outline-gold {
+	background: transparent;
+	color: #c9a84c;
+	border: 1px solid #c9a84c;
+}
+
+.btn-outline-gold:hover {
+	background-color: #c9a84c;
+	color: #fff;
+}
+
+.btn-teal {
+	background-color: #3a8a7a;
+	color: #fff;
+	border: 0;
+}
+
+.btn-teal:hover {
+	background-color: #2d6d5f;
+	color: #fff;
+}
+</style>
+</head>
+<body>
+
+	<div th:fragment="sidebar(activePage)" class="sidebar">
+		<div class="logo">
+			<div class="logo-en">The Star</div>
+			<div class="logo-title">東 方 之 星</div>
+			<div class="logo-subtitle">購物後台管理系統</div>
+		</div>
+		<div class="nav flex-column mt-2 flex-grow-1">
+			<div class="nav-section">主選單</div>
+			<a href="/admin/shop/listAllProducts" class="nav-link"
+				th:classappend="${activePage == 'home'} ? 'active'"> <i
+				class="fa-solid fa-gauge fa-fw"></i> 後台控制台
+			</a>
+			<div class="nav-section">商品管理</div>
+			<a href="/admin/shop/listAllProducts" class="nav-link"
+				th:classappend="${activePage == 'shop'} ? 'active'"> <i
+				class="fa-solid fa-bag-shopping fa-fw"></i> 商品列表
+			</a> <a href="/admin/shop/category/listAllCategories" class="nav-link"
+				th:classappend="${activePage == 'category'} ? 'active'"> <i
+				class="fa-solid fa-tags fa-fw"></i> 商品類別
+			</a>
+			<div class="nav-section">訂單 & 評論</div>
+			<a href="/admin/shop/order/listAllOrders" class="nav-link"
+				th:classappend="${activePage == 'order'} ? 'active'"> <i
+				class="fa-solid fa-cart-shopping fa-fw"></i> 訂單管理
+			</a> <a href="/admin/shop/review/listAllReviews" class="nav-link"
+				th:classappend="${activePage == 'review'} ? 'active'"> <i
+				class="fa-solid fa-comment-dots fa-fw"></i> 商品評論
+			</a>
+		</div>
+		<div class="sidebar-footer">
+			<a href="/shop"><i class="fa-solid fa-arrow-left"></i> 回前台</a>
+		</div>
+	</div>
+
+	<div th:fragment="topbar(pageTitle)" class="top-navbar">
+		<h4 class="m-0 fw-bold" th:text="${pageTitle}">分頁標題</h4>
+		<div class="d-flex align-items-center gap-3">
+			<span style="color: #7a5c30; font-size: 13px"><i
+				class="fa-solid fa-user-shield me-1"></i> 管理員</span> <a href="/shop"
+				class="btn btn-outline-gold btn-sm"> <i
+				class="fa-solid fa-house me-1"></i>前台首頁
+			</a>
+		</div>
+	</div>
+
+</body>
+</html>
