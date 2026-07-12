@@ -11,11 +11,16 @@ import com.thestar.shop.entity.ProductsVO;
 
 public interface ProductsRepository extends JpaRepository<ProductsVO, Integer> {
 
-    @Transactional
-    @Modifying
-    @Query(value = "delete from products where product_id = ?1", nativeQuery = true)
-    void deleteByProductId(int productId);
-    List<ProductsVO> findByProductStatus(Byte productStatus);
-    
-    List<ProductsVO> findByProductStatusAndProductCategoryId(Byte productStatus, Integer productCategoryId);
+	@Transactional
+	@Modifying
+	@Query(value = "delete from products where product_id = ?1", nativeQuery = true)
+	void deleteByProductId(int productId);
+
+	List<ProductsVO> findByProductStatus(Byte productStatus);
+
+	List<ProductsVO> findByProductStatusAndProductCategoryId(Byte productStatus, Integer productCategoryId);
+
+	// 關鍵字搜尋（商品名稱或介紹包含關鍵字，且為上架狀態）
+	List<ProductsVO> findByProductStatusAndProductNameContainingIgnoreCaseOrProductStatusAndProductDescContainingIgnoreCase(
+			Byte status1, String keyword1, Byte status2, String keyword2);
 }
