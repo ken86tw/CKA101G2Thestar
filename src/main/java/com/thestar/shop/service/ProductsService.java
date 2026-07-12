@@ -11,38 +11,45 @@ import java.util.Optional;
 @Service
 public class ProductsService {
 
-    @Autowired
-    ProductsRepository repository;
+	@Autowired
+	ProductsRepository repository;
 
-    public void addProduct(ProductsVO productsVO) {
-        productsVO.setProductReviewNumber(0);
-        productsVO.setProductTotalStar(0);
-        repository.save(productsVO);
-    }
+	public void addProduct(ProductsVO productsVO) {
+		productsVO.setProductReviewNumber(0);
+		productsVO.setProductTotalStar(0);
+		repository.save(productsVO);
+	}
 
-    public void updateProduct(ProductsVO productsVO) {
-        repository.save(productsVO);
-    }
+	public void updateProduct(ProductsVO productsVO) {
+		repository.save(productsVO);
+	}
 
-    public void deleteProduct(Integer productId) {
-        if (repository.existsById(productId))
-            repository.deleteByProductId(productId);
-    }
+	public void deleteProduct(Integer productId) {
+		if (repository.existsById(productId))
+			repository.deleteByProductId(productId);
+	}
 
-    public ProductsVO getOneProduct(Integer productId) {
-        Optional<ProductsVO> optional = repository.findById(productId);
-        return optional.orElse(null);
-    }
+	public ProductsVO getOneProduct(Integer productId) {
+		Optional<ProductsVO> optional = repository.findById(productId);
+		return optional.orElse(null);
+	}
 
-    public List<ProductsVO> getAll() {
-        return repository.findAll();
-    }
-    
-    public List<ProductsVO> getAllByStatus(Byte productStatus) {
-        return repository.findByProductStatus(productStatus);
-    }
-    
-    public List<ProductsVO> getAllByStatusAndCategory(Byte productStatus, Integer productCategoryId) {
-        return repository.findByProductStatusAndProductCategoryId(productStatus, productCategoryId);
-    }
+	public List<ProductsVO> getAll() {
+		return repository.findAll();
+	}
+
+	public List<ProductsVO> getAllByStatus(Byte productStatus) {
+		return repository.findByProductStatus(productStatus);
+	}
+
+	public List<ProductsVO> getAllByStatusAndCategory(Byte productStatus, Integer productCategoryId) {
+		return repository.findByProductStatusAndProductCategoryId(productStatus, productCategoryId);
+	}
+
+	// 關鍵字搜尋（商品名稱或介紹包含關鍵字，且為上架狀態）
+	public List<ProductsVO> searchByKeyword(String keyword) {
+		return repository
+				.findByProductStatusAndProductNameContainingIgnoreCaseOrProductStatusAndProductDescContainingIgnoreCase(
+						(byte) 1, keyword, (byte) 1, keyword);
+	}
 }

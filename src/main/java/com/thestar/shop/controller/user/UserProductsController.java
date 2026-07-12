@@ -46,10 +46,15 @@ public class UserProductsController {
 	@GetMapping
 	public String listAllProducts(
 			@RequestParam(value = "categoryId", required = false) Integer categoryId,
+			@RequestParam(value = "keyword", required = false) String keyword,
 			ModelMap model) {
 
 		List<ProductsVO> list;
-		if (categoryId != null) {
+
+		if (keyword != null && !keyword.trim().isEmpty()) {
+			// 關鍵字搜尋（忽略類別篩選）
+			list = productsSvc.searchByKeyword(keyword.trim());
+		} else if (categoryId != null) {
 			list = productsSvc.getAllByStatusAndCategory((byte) 1, categoryId);
 		} else {
 			list = productsSvc.getAllByStatus((byte) 1);
@@ -67,6 +72,7 @@ public class UserProductsController {
 		model.addAttribute("productsListData", list);
 		model.addAttribute("categoryListData", productCategorySvc.getAll());
 		model.addAttribute("selectedCategoryId", categoryId);
+		model.addAttribute("keyword", keyword);
 		model.addAttribute("firstImageMap", firstImageMap);
 		return "user/shop/listAllProducts";
 	}

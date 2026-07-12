@@ -9,7 +9,6 @@
 <link
 	href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap"
 	rel="stylesheet">
-<link rel="stylesheet" href="/css/common.css">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3e50; }
@@ -99,94 +98,29 @@ footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 
 </head>
 <body>
 
-<nav class="navbar shop-navbar">
-  <a href="/index.html" class="navbar-brand">
-    <span class="brand-zh">東方之星</span>
-    <span class="brand-en">The Star</span>
-  </a>
-
-  <div class="navbar-links">
-    <a href="/index.html">首頁</a>
-    <a href="/index.html#about-preview">關於我們</a>
-    <a href="/articles.html">文章</a>
-    <a href="/roombooking.html">訂房</a>
-    <a href="/restaurant">餐廳</a>
-    <a href="/facilities.html">設施</a>
-    <a href="/index.html#faq">FAQ</a>
-    
-    <a href="/shop" class="active">購物</a>
-    <a href="/shop/cart"
-       class="cart-link"
-       title="購物車"
-       aria-label="購物車">
-      <i class="fa-solid fa-cart-shopping"></i>
-    </a>
-
-    <div class="nav-actions">
-      <button class="notify-btn"
-              id="notifyBtn"
-              type="button"
-              title="通知">
-        <i class="fa-regular fa-bell"></i>
-        <span class="notify-dot" id="notifyDot"></span>
-      </button>
-
-      <a href="/login.html"
-         class="navbar-login"
-         id="loginLink"
-         style="display: none;">
-        登入
-      </a>
-
-      <div class="member-menu"
-           id="memberMenu"
-           style="display: none;">
-
-        <button class="member-avatar"
-                id="memberAvatar"
-                type="button"
-                title="會員選單">
-          <i class="fa-regular fa-user"></i>
-        </button>
-
-        <div class="member-dropdown" id="memberDropdown">
-          <div class="member-greeting" id="memberGreeting">
-            貴賓，會員
-          </div>
-
-          <a href="/profile.html">
-            我的會員資料
-          </a>
-
-          <a href="/roombooking.html?tab=orders">
-            我的訂房預訂
-          </a>
-
-          <a href="#"
-             class="js-coming-soon"
-             data-message="我的餐廳預訂頁尚未完成">
-            我的餐廳預訂
-          </a>
-
-          <a href="#"
-             class="js-coming-soon"
-             data-message="我的購物訂單頁尚未完成">
-            我的購物訂單
-          </a>
-
-          <a href="#"
-             class="js-coming-soon"
-             data-message="我的優惠券頁尚未完成">
-            我的優惠券
-          </a>
-
-          <button type="button" id="logoutBtn">
-            登出
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+<nav class="navbar">
+	<a href="/" class="navbar-brand">
+		<span class="brand-zh">東方之星</span>
+		<span class="brand-en">The Star</span>
+	</a>
+		<div class="navbar-links">
+			<a href="/">首頁</a>
+			<a href="/roombooking.html">訂房</a>
+			<a href="/restaurant">餐廳</a>
+			<a href="/shop" class="active">購物</a>
+			<a href="/shop/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+			<button th:if="${session.loginMember != null}"
+				onclick="logout()"
+				class="navbar-login"
+				style="cursor:pointer; font-size:14px; letter-spacing:1px; border:0;">
+				<i class="fa-regular fa-user me-1"></i>
+				<span th:text="${session.loginMember.memberName}">會員</span>
+			</button>
+			<a th:if="${session.loginMember == null}"
+				href="/login.html" class="navbar-login">
+				<i class="fa-regular fa-user me-1"></i>登入
+			</a>
+		</div>
 </nav>
 
 <div class="breadcrumb-bar">
@@ -339,6 +273,6 @@ function checkStock(input) {
 	warning.style.display = (qty > stock) ? 'block' : 'none';
 }
 </script>
-<script src="/js/header-auth.js"></script>
+
 </body>
 </html>
