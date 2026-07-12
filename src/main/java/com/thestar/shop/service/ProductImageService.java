@@ -76,4 +76,10 @@ public class ProductImageService {
 
 		return image;
 	}
+	
+	@Transactional
+	public void setCover(Integer productImageId, Integer productId) {
+	    repository.clearCoverByProductId(productId);
+	    repository.updateCover(productImageId);
+	}
 }
