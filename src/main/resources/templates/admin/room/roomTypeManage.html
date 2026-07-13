@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>房務管理 | THE STAR</title>
+<link rel="stylesheet" th:href="@{/css/roomTypeManage.css}">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+	--serif: 'Cormorant Garamond', 'Noto Serif TC', serif;
+	--sans: 'Jost', 'Noto Serif TC', system-ui, sans-serif;
+	--cream: #f6f2ea;
+	--paper: #fbf9f4;
+	--ink: #23211c;
+	--soft: #5b564c;
+	--muted: #9b9486;
+	--gold: #9c7c4f;
+	--gold-d: #80623a;
+	--line: #e4ddd0;
+	--hero:
+		url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80');
+}
+
+* {
+	box-sizing: border-box
+}
+
+html, body {
+	margin: 0
+}
+
+body {
+	font-family: var(--sans);
+	background: var(--cream);
+	color: var(--ink);
+	font-weight: 300;
+	font-size: 15px;
+	line-height: 1.7
+}
+
+h1, h2, h3 {
+	font-family: var(--serif);
+	font-weight: 500;
+	margin: 0;
+	letter-spacing: .5px
+}
+
+.ser {
+	font-family: var(--serif)
+}
+
+.up {
+	text-transform: uppercase;
+	letter-spacing: 3px;
+	font-size: 11px;
+	font-weight: 400
+}
+
+a {
+	color: inherit;
+	text-decoration: none
+}
+</style>
+
+</head>
+<body>
+	<header>
+		<div class="hbar">
+			<div class="logo">
+				<span class="star">✦</span><b>THE STAR</b><small>Hotel &amp;
+					Residences</small>
+			</div>
+			<nav class="menu">
+				<button>後台訂單</button>
+				<button>房務管理</button>
+				<button>房型管理</button>
+			</nav>
+			<div class="hright">
+				<div class="ident">
+					<div>員工</div>
+				</div>
+				<button class="btn line">登出</button>
+			</div>
+		</div>
+	</header>
+	<div class="container">
+		<header class="admin-header">
+			<p class="section-label">HOUSEKEEPING</p>
+			<h1>房型管理</h1>
+			<p class="section-desc">管理房型資訊 · 新增 · 修改 · 刪除</p>
+		</header>
+
+		<main class="admin-content">
+			<div class="toolbar">
+				<div class="admin-stats">
+					目前共有 <span th:text="${totalCount}">0</span> 種房型，總庫存 <span
+						th:text="${totalAmount}">0</span> 間
+				</div>
+				<a th:href="@{/roomtype/add}" class="btn btn-primary"> <i
+					class="fa-solid fa-plus"></i> 新增房型
+				</a>
+			</div>
+
+			<table class="room-table">
+				<thead>
+					<tr>
+						<th>圖片</th>
+						<th>房型名稱</th>
+						<th>數量</th>
+						<th>價格</th>
+						<th>狀態</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="room : ${rooms}">
+						<td><img th:src="@{/roomtypephoto/display/{id}(id=${room.roomTypeId})}" 
+     						class="table-img" alt="房型圖片"></td>
+						<td th:text="${room.roomTypeName}"></td>
+						<td th:text="${room.roomTypeAmount} + ' 間'"></td>
+						<td th:text="'NT$ ' + ${room.roomTypePrice}"></td>
+						<td><span class="status-badge"
+							th:text="${room.roomTypeStatus} ? '已啟用' : '未啟用'"></span></td>
+						<td class="actions"><a
+							th:href="@{'/roomtype/edit/' + ${room.roomTypeId}}"
+							class="btn-icon"><i class="fa-solid fa-pen"></i></a>
+							<form
+								th:action="@{'/roomtype/delete/' + ${room.roomTypeId}}"
+								method="post" style="display: inline;">
+								<button type="submit" class="btn-icon"
+									onclick="return confirm('確定刪除？')">
+									<i class="fa-solid fa-trash"></i>
+								</button>
+							</form></td>
+					</tr>
+				</tbody>
+			</table>
+		</main>
+	</div>
+
+	<script th:src="@{/js/roomTypeManage.js}"></script>
+</body>
+</html>

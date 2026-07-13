@@ -1,87 +1,101 @@
 package com.thestar.room.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-@Entity
-@Table(name = "ROOM_TYPE")
+@Entity // 標記身份，Hibernate可執行裡面內容
+@Table(name = "ROOM_TYPE") // 讀取對應Table
 public class RoomTypeVO {
 
-    // 主鍵:房型編號。IDENTITY = 交給 MySQL 的 AUTO_INCREMENT 產生。
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ROOM_TYPE_ID", updatable = false)
-    private Integer roomTypeId;
+	@Id // 標記為主鍵
+	@GeneratedValue(strategy = GenerationType.IDENTITY) // Auto Increment屬性
+	@Column(name = "ROOM_TYPE_ID", updatable = false) // 對應欄位，主鍵不可修改
+	private Integer roomTypeId;
 
-    // 房型名稱,例如「雙人房」。
-    @Column(name = "ROOM_TYPE_NAME")
-    private String roomTypeName;
+	@NotBlank(message = "房型名稱不能為空") // 驗證輸入
+	@Column(name = "ROOM_TYPE_NAME")
+	private String roomTypeName;
 
-    // 這個房型「總共有幾間」(雙人房 30 / 四人房 15 / 總統套房 5)。
-    // initInventory 建某一天的庫存列時,TOTAL_AMOUNT 就從這欄帶。
-    @Column(name = "ROOM_TYPE_AMOUNT")
-    private Integer roomTypeAmount;
+	@NotNull(message = "數量不能為空")
+	@Min(value = 0, message = "數量不能小於 0") // 禁止負數
+	@Digits(integer = 2, fraction = 0, message = "數量必須是整數") // 限制只能是整數，且不超過設定的2位數
+	@Column(name = "ROOM_TYPE_AMOUNT")
+	private Integer roomTypeAmount;
 
-    // 房型說明文字。
-    @Column(name = "ROOM_TYPE_CONTENT")
-    private String roomTypeContent;
+	@NotBlank(message = "房型說明不能為空")
+	@Size(max = 1000, message = "房型說明不能超過設定的字數")
+	@Column(name = "ROOM_TYPE_CONTENT")
+	private String roomTypeContent;
 
-    // 房型狀態(1 = 啟用之類),型別用 Byte 對應 DB 的 TINYINT。
-    @Column(name = "ROOM_TYPE_STATUS")
-    private Boolean roomTypeStatus;
+	@Column(name = "ROOM_TYPE_STATUS", columnDefinition = "BIT(1)") //房型狀態設定
+	private Boolean roomTypeStatus = false; // 預設為未啟用;
 
-    // 每晚單價。createOrder 算錢就是查這欄。
-    @Column(name = "ROOM_TYPE_PRICE")
-    private Integer roomTypePrice;
+	@NotNull(message = "價格不能為空")
+	@Min(value = 0, message = "價格不能為負數")
+	@Column(name = "ROOM_TYPE_PRICE")
+	private Integer roomTypePrice;
+	
+	
 
-    public RoomTypeVO() {
-        super();
-    }
+	public RoomTypeVO() {
+		super();
+	}
 
-    public Integer getRoomTypeId() {
-        return roomTypeId;
-    }
+	public Integer getRoomTypeId() {
+		return roomTypeId;
+	}
 
-    public void setRoomTypeId(Integer roomTypeId) {
-        this.roomTypeId = roomTypeId;
-    }
+	public void setRoomTypeId(Integer roomTypeId) {
+		this.roomTypeId = roomTypeId;
+	}
 
-    public String getRoomTypeName() {
-        return roomTypeName;
-    }
+	public String getRoomTypeName() {
+		return roomTypeName;
+	}
 
-    public void setRoomTypeName(String roomTypeName) {
-        this.roomTypeName = roomTypeName;
-    }
+	public void setRoomTypeName(String roomTypeName) {
+		this.roomTypeName = roomTypeName;
+	}
 
-    public Integer getRoomTypeAmount() {
-        return roomTypeAmount;
-    }
+	public Integer getRoomTypeAmount() {
+		return roomTypeAmount;
+	}
 
-    public void setRoomTypeAmount(Integer roomTypeAmount) {
-        this.roomTypeAmount = roomTypeAmount;
-    }
+	public void setRoomTypeAmount(Integer roomTypeAmount) {
+		this.roomTypeAmount = roomTypeAmount;
+	}
 
-    public String getRoomTypeContent() {
-        return roomTypeContent;
-    }
+	public String getRoomTypeContent() {
+		return roomTypeContent;
+	}
 
-    public void setRoomTypeContent(String roomTypeContent) {
-        this.roomTypeContent = roomTypeContent;
-    }
+	public void setRoomTypeContent(String roomTypeContent) {
+		this.roomTypeContent = roomTypeContent;
+	}
 
-    public Boolean getRoomTypeStatus() {
-        return roomTypeStatus;
-    }
+	public Boolean getRoomTypeStatus() {
+		return roomTypeStatus;
+	}
 
-    public void setRoomTypeStatus(Boolean roomTypeStatus) {
-        this.roomTypeStatus = roomTypeStatus;
-    }
+	public void setRoomTypeStatus(Boolean roomTypeStatus) {
+		this.roomTypeStatus = roomTypeStatus;
+	}
 
-    public Integer getRoomTypePrice() {
-        return roomTypePrice;
-    }
+	public Integer getRoomTypePrice() {
+		return roomTypePrice;
+	}
 
-    public void setRoomTypePrice(Integer roomTypePrice) {
-        this.roomTypePrice = roomTypePrice;
-    }
+	public void setRoomTypePrice(Integer roomTypePrice) {
+		this.roomTypePrice = roomTypePrice;
+	}
+
 }
