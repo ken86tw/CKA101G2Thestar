@@ -36,7 +36,7 @@ public class UserReviewController {
     
     
 	
-    @GetMapping("/reviews")
+    @GetMapping("/review")
     public String reviews(Model model) {
         List<RestaurantReviewVO> reviewList = reviewService.getAll();
         Double averageStars = reviewService.getAverageStars();
@@ -45,7 +45,7 @@ public class UserReviewController {
         return "user/restaurant/review/list";
     }
     
-    @GetMapping("/reviews/add")
+    @GetMapping("/review/add")
     public String addReviewPage(
         @RequestParam(value = "resId", required = false) Integer reservationId, 
         HttpSession session, 
@@ -83,7 +83,7 @@ public class UserReviewController {
         }
 
         // 4. 回傳 Thymeleaf 頁面路徑
-        return "restaurant/user/review/add"; 
+        return "user/restaurant/review/add"; 
     }
     
     @PostMapping("/submitReview")
@@ -105,7 +105,7 @@ public class UserReviewController {
         reviewService.addReview(memberId, reservationId, reviewStars, reviewContent);
 
         // 評論成功後，重定向回評論列表
-        return "redirect:/restaurant/reviews";
+        return "redirect:/restaurant/review";
     }
     
     

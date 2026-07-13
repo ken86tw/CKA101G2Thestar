@@ -1,39 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Star 餐廳 - 我的訂位紀錄</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <th:block th:replace="~{user/restaurant/userNavBar :: front-head('The Star 餐廳 - 我的訂位紀錄')}"></th:block>
     <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f8f9fa; color: #333; }
-        .navbar { background-color: #1a1a1a; }
-        .navbar-brand, .nav-link { color: #fff !important; }
+        body { background-color: #f8f9fa; }
         .booking-box { background: #fff; border-radius: 8px; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 25px; border-left: 5px solid #1a1a1a; }
         .review-section { background-color: #f9f9f9; border-radius: 6px; padding: 15px; margin-top: 15px; border: 1px dashed #ddd; }
         .star-rating { color: #ffc107; font-size: 1rem; font-weight: bold; }
-        .footer { background-color: #1a1a1a; color: #aaa; padding: 20px 0; margin-top: 40px; }
     </style>
 </head>
 <body>
 
-	<nav class="navbar navbar-expand-lg sticky-top">
-		<div class="container">
-			<a class="navbar-brand" th:href="@{/index.html}">⭐ The Star</a>
-			<div class="collapse navbar-collapse justify-content-end">
-				<ul class="navbar-nav">
-					<li class="nav-item"><a class="nav-link"
-						th:href="@{/restaurant/index}">餐廳首頁介紹</a></li>
-					<li class="nav-item"><a class="nav-link"
-						th:href="@{/restaurant/menu}">美味菜單</a></li>
-					<li class="nav-item"><a class="nav-link"
-						th:href="@{/restaurant/booking/list}">我的訂位</a></li>
-					<li class="nav-item"><a class="nav-link"
-						th:href="@{/restaurant/reviews}">顧客評論</a></li>
-				</ul>
-			</div>
-		</div>
-	</nav>
+    <nav th:replace="~{user/restaurant/userNavBar :: front-navbar('booking')}"></nav>
 
 <div class="container my-5">
     <div class="text-center mb-5">
@@ -45,20 +23,16 @@
     <div class="row justify-content-center">
         <div class="col-md-9">
             
-            <!-- 查無訂位紀錄時顯示 -->
             <div th:if="${#lists.isEmpty(myReservations)}" class="text-center text-muted my-5">
                 <h4>目前尚無任何訂位紀錄，期待您的首次預約！</h4>
             </div>
 
-            <!-- 訂位紀錄卡片迴圈 -->
             <div class="booking-box" th:each="res : ${myReservations}">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <!-- 💡 使用實體現有的安全時間屬性 -->
                         <h4 class="fw-bold mb-1" th:text="${res.date} + '（' + ${res.businessHoursVO?.startTime} + ' ~ ' + ${res.businessHoursVO?.endTime} + '）'">2026-07-06（17:00 ~ 19:00）</h4>
                         <p class="text-muted mb-0" style="font-size: 0.9rem;" th:text="'預約編號：#' + ${res.reservationId}">預約編號：#123</p>
                     </div>
-                    <!-- 訂位狀態標籤 -->
                     <span class="badge bg-dark px-3 py-2" th:text="${res.reservationStatus}">已確認</span>
                 </div>
 
@@ -73,7 +47,6 @@
                     </div>
                 </div>
 
-                <!-- 💡 情況 A：如果 reviewMap 裡面存在這筆訂位 ID 的評論紀錄，直接顯示評論內容 -->
                 <div class="review-section" th:if="${reviewMap.containsKey(res.reservationId)}">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="small fw-bold text-secondary">您的歷史評價：</span>
@@ -82,9 +55,8 @@
                     <p class="mb-0 text-dark" style="font-size: 0.95rem;" th:text="${reviewMap.get(res.reservationId).reviewContent}">這家餐廳服務太棒了，餐點非常精緻！</p>
                 </div>
 
-                <!-- 💡 情況 B：如果沒有評論紀錄，顯示引導評論按鈕並正確帶入 resId 參數 -->
                 <div class="text-end mt-3" th:if="${!reviewMap.containsKey(res.reservationId)}">
-                    <a th:href="@{/restaurant/reviews/add(resId=${res.reservationId})}" class="btn btn-outline-warning btn-sm fw-bold">
+                    <a th:href="@{/restaurant/review/add(resId=${res.reservationId})}" class="btn btn-outline-warning btn-sm fw-bold">
                         ⭐ 撰寫五星好評
                     </a>
                 </div>
@@ -94,9 +66,7 @@
     </div>
 </div>
 
-<footer class="footer text-center">
-    <p>© 2026 The Star user. All Rights Reserved.</p>
-</footer>
+    <footer th:replace="~{user/restaurant/userNavBar :: front-footer}"></footer>
 
 </body>
 </html>
