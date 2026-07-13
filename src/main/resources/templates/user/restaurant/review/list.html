@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- 1. 替換為共用 Head -->
+    <th:block th:replace="~{user/restaurant/userNavBar :: front-head('The Star 餐廳 - 顧客評論')}"></th:block>
+    
+    <!-- 保留「顧客評論」分頁自己特有的樣式 -->
+    <style>
+        body { background-color: #f8f9fa; }
+        .review-box { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .star-rating { color: #ffc107; font-size: 1.2rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- 2. 替換為共用 Navbar，傳入 'review' -->
+    <nav th:replace="~{user/restaurant/userNavBar :: front-navbar('review')}"></nav>
+
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">饕客好評真實見證</h1>
+        <p class="text-muted">當前總平均星等：<span class="text-warning fw-bold" th:text="${#numbers.formatDecimal(averageStars, 1, 1)} + ' ★'">0.0 ★</span></p>
+        <a th:href="@{/restaurant/review/add}" class="btn btn-dark btn-lg mt-2 shadow-sm">我要發表評論</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            
+            <div th:if="${#lists.isEmpty(reviewList)}" class="text-center text-muted my-5">
+                <h4>目前尚無顧客評論，期待您的光臨與回饋！</h4>
+            </div>
+
+            <div class="review-box" th:each="review : ${reviewList}">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0 fw-bold">
+                        顧客匿名評論 
+                        <span class="badge bg-secondary ms-2" style="font-size:0.75rem;" th:text="'會員ID: ' + ${review.memberVO?.memberId}">會員ID</span>
+                    </h5>
+                    <span class="star-rating" th:text="${review.reviewStars} + ' / 5.0 分'">5.0 分</span>
+                </div>
+                <p class="text-muted mb-2" style="font-size: 0.85rem;" th:text="'相關預約紀錄編號: #' + ${review.RestaurantReservationVO?.reservationId}">預約編號</p>
+                <p class="mb-0" th:text="${review.reviewContent}">評論內文...</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+    <!-- 3. 替換為共用 Footer -->
+    <footer th:replace="~{user/restaurant/userNavBar :: front-footer}"></footer>
+
+</body>
+</html>

@@ -1,126 +1,132 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>會員註冊｜東方之星 The Star</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>會員註冊｜東方之星 The Star</title>
 
-  <link rel="stylesheet" href="/css/common.css">
-  <link rel="stylesheet" href="/css/register.css">
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<link rel="stylesheet" href="/css/common.css">
+<link rel="stylesheet" href="/css/register.css">
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 </head>
 <body>
-  <main id="app" class="auth-page" v-cloak>
-    <section class="auth-card">
-      <div class="auth-title">
-        <h1>會員註冊</h1>
-        <p>加入東方之星 The Star，完成信箱驗證後即可登入。</p>
-      </div>
+	<main id="app" class="auth-page" v-cloak>
+		<section class="auth-card">
+			<div class="auth-title">
+				<h1>會員註冊</h1>
+				<p>加入東方之星 The Star，完成信箱驗證後即可登入。</p>
+			</div>
 
-      <form v-if="!registered" @submit.prevent="submitRegister" enctype="multipart/form-data">
-        <div class="form-grid">
-          <div class="field">
-            <label for="memberName">會員姓名 <span>*</span></label>
-            <input id="memberName" type="text" maxlength="50" v-model.trim="form.memberName" autocomplete="name">
-          </div>
+			<form v-if="!registered" @submit.prevent="submitRegister"
+				enctype="multipart/form-data">
+				<div class="form-grid">
+					<div class="field">
+						<label for="memberName">會員姓名 <span>*</span></label> <input
+							id="memberName" type="text" maxlength="50"
+							v-model.trim="form.memberName" autocomplete="name">
+					</div>
 
-          <div class="field">
-            <label for="memberEmail">會員信箱 <span>*</span></label>
-            <input id="memberEmail" type="email" maxlength="100" v-model.trim="form.memberEmail" autocomplete="email">
-          </div>
+					<div class="field">
+						<label for="memberEmail">會員信箱 <span>*</span></label> <input
+							id="memberEmail" type="email" maxlength="100"
+							v-model.trim="form.memberEmail" autocomplete="email">
+					</div>
 
-          <div class="field">
-            <label for="memberPassword">會員密碼 <span>*</span></label>
-            <input id="memberPassword" type="password" maxlength="50" v-model="form.memberPassword" autocomplete="new-password">
-          </div>
+					<div class="field">
+						<label for="memberPassword">會員密碼 <span>*</span></label> <input
+							id="memberPassword" type="password" maxlength="50"
+							v-model="form.memberPassword" autocomplete="new-password">
+					</div>
 
-          <div class="field">
-            <label for="confirmPassword">確認密碼</label>
-            <input id="confirmPassword" type="password" maxlength="50" v-model="form.confirmPassword" autocomplete="new-password">
-            <small>這是 Vue 版額外確認用，後端仍保留你原本的密碼必填判斷。</small>
-          </div>
+					<div class="field">
+					  <label for="confirmPassword">
+					    確認密碼 <span>*</span>
+					  </label>
+					
+					  <input
+					    id="confirmPassword"
+					    type="password"
+					    maxlength="50"
+					    v-model="form.confirmPassword"
+					    autocomplete="new-password"
+					    required>
+					</div>
 
-          <div class="field">
-            <label for="memberPhone">會員手機 <span>*</span></label>
-            <input id="memberPhone" type="tel" maxlength="10" placeholder="0912345678" v-model.trim="form.memberPhone" autocomplete="tel">
-          </div>
+					<div class="field">
+						<label for="memberPhone">會員手機 <span>*</span></label> <input
+							id="memberPhone" type="tel" maxlength="10"
+							placeholder="0912345678" v-model.trim="form.memberPhone"
+							autocomplete="tel">
+					</div>
 
-          <div class="field">
-            <label for="memberBirthday">會員生日</label>
-            <input id="memberBirthday" type="date" v-model="form.memberBirthday">
-          </div>
+					<div class="field">
+						<label for="memberBirthday">會員生日 <span>*</span></label> 
+						<input id="memberBirthday" type="date" v-model="form.memberBirthday" required> 
+						<small>生日註冊後不可更改，並會影響生日優惠券發放。</small>
+					</div>
 
-          <div class="field full">
-            <label for="memberAddress">會員地址 <span>*</span></label>
-            <input id="memberAddress" type="text" maxlength="255" v-model.trim="form.memberAddress" autocomplete="street-address">
-          </div>
+					<div class="field full">
+						<label for="memberAddress">會員地址 <span>*</span></label> <input
+							id="memberAddress" type="text" maxlength="255"
+							v-model.trim="form.memberAddress" autocomplete="street-address">
+					</div>
 
-          <div class="field full">
-            <label for="memberGender">會員性別</label>
-            <select id="memberGender" v-model.number="form.memberGender">
-              <option :value="2">不填寫</option>
-              <option :value="0">女</option>
-              <option :value="1">男</option>
-            </select>
-          </div>
+					<div class="field full">
+						<label for="memberGender">會員性別</label> <select id="memberGender"
+							v-model.number="form.memberGender">
+							<option :value="2">不填寫</option>
+							<option :value="0">女</option>
+							<option :value="1">男</option>
+						</select>
+					</div>
 
-          <div class="field full photo-field">
-            <label for="memberPicture">會員照片</label>
-            <div class="photo-upload-row">
-              <div class="photo-preview-box">
-                <img v-if="previewPictureUrl" class="photo-preview" :src="previewPictureUrl" alt="會員照片預覽">
-                <div v-else class="photo-placeholder">尚未選擇照片</div>
-              </div>
+					<div class="field full photo-field">
+						<label for="memberPicture">會員照片</label>
+						<div class="photo-upload-row">
+							<div class="photo-preview-box">
+								<img v-if="previewPictureUrl" class="photo-preview"
+									:src="previewPictureUrl" alt="會員照片預覽">
+								<div v-else class="photo-placeholder">尚未選擇照片</div>
+							</div>
 
-              <div class="photo-tools">
-                <label class="file-btn" for="memberPicture">選擇照片</label>
-                <input
-                  id="memberPicture"
-                  class="file-input"
-                  type="file"
-                  accept="image/png, image/jpeg, image/gif, image/webp"
-                  @change="handlePictureChange"
-                >
-                <button v-if="selectedPictureFile" class="clear-file-btn" type="button" @click="clearPicture">
-                  取消照片
-                </button>
-                <small>請上傳 5MB 以下的圖片。</small>
-              </div>
-            </div>
-          </div>
-        </div>
+							<div class="photo-tools">
+								<label class="file-btn" for="memberPicture">選擇照片</label> <input
+									id="memberPicture" class="file-input" type="file"
+									accept="image/png, image/jpeg, image/gif, image/webp"
+									@change="handlePictureChange">
+								<button v-if="selectedPictureFile" class="clear-file-btn"
+									type="button" @click="clearPicture">取消照片</button>
+								<small>請上傳 5MB 以下的圖片。</small>
+							</div>
+						</div>
+					</div>
+				</div>
 
-        <div class="error">{{ errorMsg }}</div>
-        <div class="success">{{ successMsg }}</div>
+				<div class="error">{{ errorMsg }}</div>
+				<div class="success">{{ successMsg }}</div>
 
-        <button class="submit-btn" type="submit" :disabled="submitting">
-          {{ submitting ? '註冊中...' : '新增會員' }}
-        </button>
-      </form>
+				<button class="submit-btn" type="submit" :disabled="submitting">
+					{{ submitting ? '註冊中...' : '新增會員' }}</button>
+			</form>
 
-      <div v-else class="result-box">
-        <h2>註冊成功</h2>
-        <p>{{ successMsg }}</p>
-        <p v-if="mailSent">請到信箱收信，點擊驗證連結後就可以登入會員。</p>
-        <div v-else class="dev-box">
-          <p>目前驗證信寄送失敗，先提供開發測試連結：</p>
-          <a :href="devVerifyUrl">點我完成信箱驗證</a>
-        </div>
-      </div>
+			<div v-else class="result-box">
+				<h2>註冊成功</h2>
+				<p>{{ successMsg }}</p>
+				<p v-if="mailSent">請到信箱收信，點擊驗證連結後就可以登入會員。</p>
+				<div v-else class="dev-box">
+					<p>目前驗證信寄送失敗，先提供開發測試連結：</p>
+					<a :href="devVerifyUrl">點我完成信箱驗證</a>
+				</div>
+			</div>
 
-      <div class="auth-links">
-        <a href="/login.html">
-          <span>已經有帳號</span>
-          <strong>前往登入</strong>
-        </a>
-        <a href="/index.html">
-          <span>回到網站</span>
-          <strong>回首頁</strong>
-        </a>
-      </div>
-    </section>
-  </main>
+			<div class="auth-links">
+				<a href="/login.html"> <span>已經有帳號</span> <strong>前往登入</strong>
+				</a> <a href="/index.html"> <span>回到網站</span> <strong>回首頁</strong>
+				</a>
+			</div>
+		</section>
+	</main>
 
-  <script src="/js/register.js"></script>
+	<script src="/js/register.js"></script>
 </body>
 </html>

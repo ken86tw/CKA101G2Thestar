@@ -11,7 +11,6 @@ createApp({
         memberName: '',
         memberPhone: '',
         memberAddress: '',
-        memberBirthday: null,
         memberGender: 2
       },
       pictureVersion: Date.now(),
@@ -117,7 +116,6 @@ createApp({
         memberName: this.profile.memberName || '',
         memberPhone: this.profile.memberPhone || '',
         memberAddress: this.profile.memberAddress || '',
-        memberBirthday: this.profile.memberBirthday || null,
         memberGender: this.profile.memberGender ?? 2
       };
 
@@ -242,7 +240,6 @@ createApp({
         memberName: this.form.memberName,
         memberPhone: this.form.memberPhone,
         memberAddress: this.form.memberAddress,
-        memberBirthday: this.form.memberBirthday || null,
         memberGender: Number(this.form.memberGender)
       };
 

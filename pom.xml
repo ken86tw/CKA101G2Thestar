@@ -9,11 +9,11 @@
 		<version>4.0.6</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>thestar1</artifactId>
+	<groupId>com.thestar</groupId>
+	<artifactId>thestar</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>thestar1</name>
-	<description>thestar1</description>
+	<name>TheStar</name>
+	<description>The Star Hotel System</description>
 	<url />
 	<licenses>
 		<license />
@@ -45,6 +45,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
@@ -66,6 +70,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 	</dependencies>
 

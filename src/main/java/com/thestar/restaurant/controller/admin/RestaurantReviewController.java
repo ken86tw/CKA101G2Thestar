@@ -20,7 +20,7 @@ public class RestaurantReviewController {
     public String list(Model model) {
         List<RestaurantReviewVO> list = reviewService.getAll();
         model.addAttribute("reviewList", list);
-        return "admin/review/list";
+        return "admin/restaurant/review/list";
     }
 
     // 刪除評論

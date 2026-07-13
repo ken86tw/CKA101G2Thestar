@@ -7,37 +7,34 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/common.css">
   <link rel="stylesheet" href="/css/facilities.css">
 </head>
 <body>
   <header class="page-header">
     <nav class="navbar">
-      <a href="/index.html" class="brand">
-        <div class="brand-icon" aria-hidden="true">
-          <svg viewBox="0 0 64 64">
-            <path d="M32 4 L37 23 L56 12 L45 31 L60 38 L41 40 L48 60 L32 46 L16 60 L23 40 L4 38 L19 31 L8 12 L27 23 Z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linejoin="round"/>
-            <circle cx="32" cy="32" r="7" fill="currentColor" opacity="0.28"/>
-            <path d="M32 9 V55 M9 32 H55" stroke="currentColor" stroke-width="1.6" opacity="0.75"/>
-          </svg>
-        </div>
-        <h1>東方之星<span>The Star</span></h1>
-      </a>
+        <a href="/index.html" class="navbar-brand">
+		  <span class="brand-zh">東方之星</span>
+		  <span class="brand-en">The Star</span>
+		</a>
 
       <div class="nav-links">
         <a href="/index.html">首頁</a>
         <a href="/index.html#about-preview">關於我們</a>
         <a href="/articles.html">文章</a>
-        <a href="/booking.html">訂房</a>
-        <a href="/restaurant">餐廳</a>
-        <a href="/shop.html">購物</a>
-        <a href="/facilities.html" class="active">設施</a>
+		<a href="/roombooking.html">訂房</a>
+		<a href="/restaurant">餐廳</a>
+		<a href="/facilities.html" class="active">設施</a>
         <a href="/index.html#faq">FAQ</a>
+        
+		<a href="/shop">購物</a>
+		<a href="/shop/cart"
+		   class="cart-link"
+		   title="購物車"
+		   aria-label="購物車">
+		  <i class="fa-solid fa-cart-shopping"></i>
+		</a>
 
         <div class="nav-actions">
           <button class="notify-btn" id="notifyBtn" type="button" title="通知">
@@ -45,7 +42,7 @@
             <span class="notify-dot" id="notifyDot"></span>
           </button>
 
-          <a href="/login.html" class="login-btn" id="loginLink">登入</a>
+          <a href="/login.html" class="login-btn" id="loginLink" style="display: none;">登入</a>
 
           <div class="member-menu" id="memberMenu" style="display:none;">
             <button class="member-avatar" id="memberAvatar" type="button">
@@ -53,12 +50,24 @@
             </button>
 
             <div class="member-dropdown" id="memberDropdown">
-              <div class="member-greeting" id="memberGreeting">貴賓，會員</div>
-              <a href="#" class="js-coming-soon" data-message="會員資料管理頁尚未完成">會員資料管理</a>
-              <a href="/booking.html">訂房訂單管理</a>
-              <a href="#" class="js-coming-soon" data-message="餐廳訂單管理頁尚未完成">餐廳訂單管理</a>
-              <button type="button" id="logoutBtn">登出</button>
-            </div>
+			  <div class="member-greeting" id="memberGreeting">貴賓，會員</div>
+			
+			  <a href="/profile.html">我的會員資料</a>
+			  <a href="/roombooking.html?tab=orders">我的訂房預訂</a>
+			  <a href="#"
+			     class="js-coming-soon"
+			     data-message="我的餐廳預訂頁尚未完成">我的餐廳預訂</a>
+			
+			  <a href="#"
+			     class="js-coming-soon"
+			     data-message="我的購物訂單頁尚未完成">我的購物訂單</a>
+			
+			  <a href="#"
+			     class="js-coming-soon"
+			     data-message="我的優惠券頁尚未完成">我的優惠券</a>
+			
+			  <button type="button" id="logoutBtn">登出</button>
+			</div>
           </div>
         </div>
       </div>
@@ -159,7 +168,7 @@
       <div>
         <h2>開啟您的度假旅程</h2>
         <p>立即預訂，體驗東方之星的美好時光</p>
-        <a href="/booking.html" class="btn">立即訂房</a>
+        <a href="/roombooking.html" class="btn">立即訂房</a>
       </div>
     </section>
   </main>

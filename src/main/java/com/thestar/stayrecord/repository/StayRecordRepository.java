@@ -1,6 +1,7 @@
 package com.thestar.stayrecord.repository;
 
 import com.thestar.order.entity.OrderListVO;
+import com.thestar.order.entity.OrderVO;
 import com.thestar.stayrecord.entity.StayRecordVO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -34,8 +35,14 @@ public interface StayRecordRepository extends JpaRepository<StayRecordVO, Intege
                                                @Param("checkInTime") LocalDateTime checkInTime,
                                                @Param("checkOutTime")LocalDateTime checkOutTime);
 
-
+    //退房時使用列出所有還沒退房的房間
     List<StayRecordVO> findByCheckOutTimeIsNullOrderByOrderListvoOrdervoOrderIdDesc();
+
+
+    //查詢詳情時查詢訂單
+    @Query("SELECT o FROM StayRecordVO s JOIN s.orderListvo ol JOIN ol.ordervo o WHERE s.stayId = :stayId")
+    OrderVO findOrderByStayId(@Param("stayId") Integer stayId);
+
 }
 
 

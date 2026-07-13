@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -52,6 +53,7 @@ public class MemberAuthService {
                 confirmPassword,
                 memberPhone,
                 memberAddress,
+                request.getMemberBirthday(),
                 memberGender,
                 memberPictureFile
         );
@@ -220,7 +222,6 @@ public class MemberAuthService {
         member.setMemberName(name);
         member.setMemberPhone(phone);
         member.setMemberAddress(address);
-        member.setMemberBirthday(request.getMemberBirthday());
         member.setMemberGender(request.getMemberGender());
 
         return memberRepository.save(member);
@@ -252,6 +253,7 @@ public class MemberAuthService {
                                       String confirmPassword,
                                       String memberPhone,
                                       String memberAddress,
+                                      LocalDate memberBirthday,
                                       Byte memberGender,
                                       MultipartFile memberPicture) {
         if (memberName.isEmpty()) {
@@ -269,9 +271,13 @@ public class MemberAuthService {
         if (memberPassword.isBlank()) {
             throw new IllegalArgumentException("會員密碼請勿空白");
         }
+        
+        if (confirmPassword.isBlank()) {
+            throw new IllegalArgumentException("確認密碼請勿空白");
+        }
 
         // confirmPassword 是 Vue 版多加的前端保護，不會改掉你原本密碼必填判斷。
-        if (!confirmPassword.isBlank() && !memberPassword.equals(confirmPassword)) {
+        if (!memberPassword.equals(confirmPassword)) {
             throw new IllegalArgumentException("兩次輸入的密碼不一致");
         }
 
@@ -285,6 +291,10 @@ public class MemberAuthService {
 
         if (memberAddress.isEmpty()) {
             throw new IllegalArgumentException("會員地址請勿空白");
+        }
+        
+        if (memberBirthday == null) {
+            throw new IllegalArgumentException("會員生日請勿空白");
         }
 
         if (!isValidChoice(memberGender)) {

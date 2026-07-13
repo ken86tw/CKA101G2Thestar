@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/restaurant/common_sidebar :: common-head('The Star 後台管理主頁')}"></head>
+<body>
+    <div th:replace="~{admin/restaurant/common_sidebar :: sidebar('home')}"></div>
+    
+    <div class="main-content">
+        <div th:replace="~{admin/restaurant/common_sidebar :: topbar('後台控制台首頁')}"></div>
+        
+        <div class="page-body">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card p-4 bg-primary text-white">
+                        <h5><i class="fa-solid fa-calendar-check me-2"></i> 快速處理預約</h5>
+                        <p class="fs-6 opacity-75">查看與審核今日顧客訂位</p>
+                        <a href="/admin/restaurant/reservation/list" class="btn btn-light btn-sm mt-2 text-primary fw-bold">前往管理</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 bg-success text-white">
+                        <h5><i class="fa-solid fa-utensils me-2"></i> 菜單品項調整</h5>
+                        <p class="fs-6 opacity-75">上架新菜色、調整餐點價格</p>
+                        <a href="/admin/restaurant/menu/list" class="btn btn-light btn-sm mt-2 text-success fw-bold">前往管理</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 bg-dark text-white">
+                        <h5><i class="fa-solid fa-comment-dots me-2"></i> 最新顧客評價</h5>
+                        <p class="fs-6 opacity-75">控管、維護餐廳商譽評論</p>
+                        <a href="/admin/restaurant/review/list" class="btn btn-light btn-sm mt-2 text-dark fw-bold">前往管理</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4 p-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-bullhorn text-warning me-2"></i>系統說明</h5>
+                <p>歡迎登入 **The Star 餐廳後台管理系統**。請點選左側導航欄位，對餐廳的基礎硬體（桌型、營業時間）、前台展示（菜單）以及營運數據（預約、評論）進行即時管理與維護。</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/restaurant/common_sidebar :: common-head('桌型管理設定')}"></head>
+<body>
+    <div th:replace="~{admin/restaurant/common_sidebar :: sidebar('table')}"></div>
+    <div class="main-content">
+        <div th:replace="~{admin/restaurant/common_sidebar :: topbar('桌型分佈與數量設定')}"></div>
+        <div class="page-body">
+            <div class="card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="m-0 fw-bold"><i class="fa-solid fa-list me-2"></i>現有桌型列表</h5>
+                    <a href="/admin/restaurant/table/addPage" class="btn btn-primary"><i class="fa-solid fa-plus me-1"></i>定義新規格</a>
+                </div>
+                <table class="table table-hover table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>桌型流水號 (ID)</th>
+                            <th>桌型名稱 (Table Type Name)</th>
+                            <th>該規格總桌數 (Table Count)</th>
+                            <th width="180">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="table : ${tableList}">
+                            <td th:text="${table.tableTypeId}">1</td>
+                            
+                            <td class="fw-bold text-primary" th:text="${table.tableTypeName}">LARGE_TABLE</td>
+                            
+                            <td th:text="${table.tableTypeCount} + ' 桌'">2 桌</td>
+                            
+                            <td>
+                                <a th:href="@{/admin/restaurant/table/editPage(tableType=${table.tableTypeId})}" class="btn btn-warning btn-sm">
+                                    <i class="fa-solid fa-pen"></i> 修改
+                                </a>
+                                
+                                <form th:action="@{/admin/restaurant/table/delete}" method="post" style="display:inline;" onsubmit="return confirm('確定要刪除嗎？');">
+                                    <input type="hidden" name="tableType" th:value="${table.tableTypeId}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fa-solid fa-trash"></i> 刪除
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

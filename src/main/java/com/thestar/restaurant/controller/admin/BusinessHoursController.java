@@ -22,21 +22,21 @@ public class BusinessHoursController {
     public String list(Model model) {
         List<BusinessHoursVO> list = bhService.getAll();
         model.addAttribute("bhList", list);
-        return "admin/businesshours/list";
+        return "admin/restaurant/businesshours/list";
     }
 
     // 前往新增
     @GetMapping("/addPage")
     public String addPage(Model model) {
         model.addAttribute("businessHoursVO", new BusinessHoursVO());
-        return "admin/businesshours/add";
+        return "admin/restaurant/businesshours/add";
     }
 
     // 儲存時段
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("businessHoursVO") BusinessHoursVO bhVO, BindingResult result) {
         if (result.hasErrors()) {
-            return "admin/businesshours/add";
+            return "admin/restaurant/businesshours/add";
         }
         bhService.addBusinessHours(bhVO);
         return "redirect:/admin/restaurant/businesshours/list";
@@ -47,7 +47,7 @@ public class BusinessHoursController {
     public String editPage(@RequestParam("sessionId") Integer sessionId, Model model) {
         BusinessHoursVO bhVO = bhService.getOneBusinessHours(sessionId);
         model.addAttribute("businessHoursVO", bhVO);
-        return "admin/businesshours/edit";
+        return "admin/restaurant/businesshours/edit";
     }
 
     // 刪除時段

@@ -22,21 +22,21 @@ public class RestaurantTableController {
     public String list(Model model) {
         List<RestaurantTableVO> list = tableService.getAll();
         model.addAttribute("tableList", list);
-        return "admin/table/list";
+        return "admin/restaurant/table/list";
     }
 
     // 前往新增頁面
     @GetMapping("/addPage")
     public String addPage(Model model) {
         model.addAttribute("restaurantTableVO", new RestaurantTableVO());
-        return "admin/table/add";
+        return "admin/restaurant/table/add";
     }
 
     // 處理新增或修改
     @PostMapping("/save")
     public String save(@Valid @ModelAttribute("restaurantTableVO") RestaurantTableVO tableVO, BindingResult result) {
         if (result.hasErrors()) {
-            return "admin/table/add";
+            return "admin/restaurant/table/add";
         }
         tableService.addRestaurantTable(tableVO); // save方法兼具新增與修改
         return "redirect:/admin/restaurant/table/list";
@@ -47,7 +47,7 @@ public class RestaurantTableController {
     public String editPage(@RequestParam("tableType") Integer tableType, Model model) {
         RestaurantTableVO tableVO = tableService.getOneRestaurantTable(tableType);
         model.addAttribute("restaurantTableVO", tableVO);
-        return "admin/table/edit";
+        return "admin/restaurant/table/edit";
     }
 
     // 刪除桌型

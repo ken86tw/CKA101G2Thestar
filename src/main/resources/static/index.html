@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/common.css">
   <link rel="stylesheet" href="/css/index.css">
   <link rel="stylesheet" href="/css/facilities.css">
@@ -202,20 +202,12 @@
 <div id="app" v-cloak>
   <header :class="currentPage === 'home' ? 'hero' : 'page-header'" id="home">
     <nav class="navbar">
-      <a href="#" class="brand" @click.prevent="goPage('home')">
-<!--         <div class="brand-icon" aria-hidden="true"> -->
-<!--           <svg viewBox="0 0 64 64"> -->
-<!--             <path d="M32 4 L37 23 L56 12 L45 31 L60 38 L41 40 L48 60 L32 46 L16 60 L23 40 L4 38 L19 31 L8 12 L27 23 Z" -->
-<!--                   fill="none" -->
-<!--                   stroke="currentColor" -->
-<!--                   stroke-width="2" -->
-<!--                   stroke-linejoin="round"/> -->
-<!--             <circle cx="32" cy="32" r="7" fill="currentColor" opacity="0.28"/> -->
-<!--             <path d="M32 9 V55 M9 32 H55" stroke="currentColor" stroke-width="1.6" opacity="0.75"/> -->
-<!--           </svg> -->
-<!--         </div> -->
-        <h1>東方之星<span>The Star</span></h1>
-      </a>
+        <a href="#"
+		   class="navbar-brand"
+		   @click.prevent="goPage('home')">
+		  <span class="brand-zh">東方之星</span>
+		  <span class="brand-en">The Star</span>
+		</a>
 
       <div class="nav-links">
         <a href="#" :class="{ active: currentPage === 'home' }" @click.prevent="goPage('home')">首頁</a>
@@ -223,9 +215,15 @@
         <a href="/articles.html">文章</a>
         <a href="/roombooking.html">訂房</a>
         <a href="/restaurant">餐廳</a>
-        <a href="/shop.html">購物</a>
         <a href="#" :class="{ active: currentPage === 'facilities' }" @click.prevent="goPage('facilities')">設施</a>
         <a href="#" @click.prevent="goHomeAnchor('faq')">FAQ</a>
+        <a href="/shop">購物</a>
+        <a href="/shop/cart"
+		   class="cart-link"
+		   title="購物車"
+		   aria-label="購物車">
+		  <i class="fa-solid fa-cart-shopping"></i>
+		</a>
 
         <div class="nav-actions">
           <button class="notify-btn" type="button" title="通知" @click="notifyComingSoon">
@@ -233,20 +231,22 @@
             <span class="notify-dot" v-show="hasNotify"></span>
           </button>
 
-          <button v-if="!loggedIn" type="button" class="login-btn login-btn-as-button" @click="openLoginModal">登入</button>
+          <button v-if="authReady && !loggedIn" type="button" class="login-btn login-btn-as-button" @click="openLoginModal">登入</button>
 
-          <div v-else class="member-menu">
+          <div v-else-if="authReady" class="member-menu">
             <button class="member-avatar" type="button" :title="displayName" @click.stop="toggleMemberMenu">
               <i class="fa-regular fa-user"></i>
             </button>
 
             <div class="member-dropdown" :class="{ show: memberDropdownOpen }" @click.stop>
-              <div class="member-greeting">貴賓，{{ displayName }}</div>
-			  <a href="/profile.html">會員資料管理</a>
-              <a href="/roombooking.html?tab=orders">訂房訂單管理</a>
-              <a href="#" @click.prevent="featureComingSoon('餐廳訂單管理')">餐廳訂單管理</a>
-              <button type="button" @click="logoutMember">登出</button>
-            </div>
+			  <div class="member-greeting">貴賓，{{ displayName }}</div>
+			  <a href="/profile.html">我的會員資料</a>
+			  <a href="/roombooking.html?tab=orders">我的訂房預訂 </a>
+			  <a href="#" @click.prevent="featureComingSoon('我的餐廳預訂')">我的餐廳預訂</a>
+			  <a href="#" @click.prevent="featureComingSoon('我的購物訂單')">我的購物訂單</a>
+			  <a href="#" @click.prevent="featureComingSoon('我的優惠券')">我的優惠券</a>
+			  <button type="button" @click="logoutMember">登出</button>
+			</div>
           </div>
         </div>
       </div>
@@ -305,7 +305,7 @@
               <i class="fa-solid fa-bag-shopping"></i>
               <h3>購物服務</h3>
               <p>旅客可瀏覽飯店精選商品，包含伴手禮、旅遊用品與住宿相關服務。</p>
-              <a href="/shop.html" class="text-link">前往購物</a>
+              <a href="/shop" class="text-link">前往購物</a>
             </div>
           </article>
 
@@ -520,6 +520,7 @@
       return {
         currentPage: 'home',
         loggedIn: false,
+        authReady: false,
         memberId: null,
         memberName: '',
         memberEmail: '',
@@ -637,6 +638,8 @@
 
         } catch (e) {
           this.clearMemberState();
+        } finally {
+          this.authReady = true;
         }
       },
 
@@ -721,19 +724,18 @@
       },
 
       async logoutMember() {
-        try {
-          await fetch('/api/member/logout', {
-            method: 'POST',
-            credentials: 'same-origin'
-          });
-        } catch (e) {
-        }
+    	  try {
+    	    await fetch('/api/member/logout', {
+    	      method: 'POST',
+    	      credentials: 'same-origin'
+    	    });
+    	  } catch (e) {
+    	  }
 
-        this.clearMemberState();
-        this.currentPage = 'home';
-        this.loadRememberedLogin();
-        this.keepRootUrl();
-      },
+    	  this.clearMemberState();
+    	  this.memberDropdownOpen = false;
+    	  this.loadRememberedLogin();
+    	},
 
       async resendVerification() {
         this.loginMessage = '';

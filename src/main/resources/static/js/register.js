@@ -51,10 +51,14 @@ createApp({
       if (!this.form.memberPassword) {
         return '會員密碼請勿空白';
       }
+	  
+	  if (!this.form.confirmPassword) {
+	    return '確認密碼請勿空白';
+	  }
 
-      if (this.form.confirmPassword && this.form.memberPassword !== this.form.confirmPassword) {
-        return '兩次輸入的密碼不一致';
-      }
+	  if (this.form.memberPassword !== this.form.confirmPassword) {
+	    return '兩次輸入的密碼不一致';
+	  }
 
       if (!this.form.memberPhone) {
         return '會員手機請勿空白';
@@ -63,6 +67,10 @@ createApp({
       if (!/^09\d{8}$/.test(this.form.memberPhone)) {
         return '手機格式錯誤，請輸入 09 開頭的 10 碼手機號碼';
       }
+	  
+	  if (!this.form.memberBirthday) {
+	    return '會員生日請勿空白';
+	  }
 
       if (!this.form.memberAddress) {
         return '會員地址請勿空白';
@@ -134,15 +142,11 @@ createApp({
       formData.append('memberName', this.form.memberName);
       formData.append('memberEmail', this.form.memberEmail);
       formData.append('memberPassword', this.form.memberPassword);
-      formData.append('confirmPassword', this.form.confirmPassword || '');
+	  formData.append('confirmPassword',this.form.confirmPassword);
       formData.append('memberPhone', this.form.memberPhone);
       formData.append('memberAddress', this.form.memberAddress);
       formData.append('memberGender', String(Number(this.form.memberGender)));
-
-      if (this.form.memberBirthday) {
-        formData.append('memberBirthday', this.form.memberBirthday);
-      }
-
+	  formData.append('memberBirthday', this.form.memberBirthday);
       if (this.selectedPictureFile) {
         formData.append('memberPicture', this.selectedPictureFile);
       }

@@ -26,7 +26,7 @@ public class RestaurantMenuController {
     public String list(Model model) {
         List<RestaurantMenuVO> list = menuService.getAll();
         model.addAttribute("menuList", list);
-        return "admin/menu/list";
+        return "admin/restaurant/menu/list";
     }
 
     // 前往新增餐點
@@ -34,7 +34,7 @@ public class RestaurantMenuController {
     public String addPage(Model model) {
         model.addAttribute("restaurantMenuVO", new RestaurantMenuVO());
         model.addAttribute("categoryList", categoryService.getAll()); // 下拉選單供選擇分類
-        return "admin/menu/add";
+        return "admin/restaurant/menu/add";
     }
 
     // 儲存餐點
@@ -43,7 +43,7 @@ public class RestaurantMenuController {
                        BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("categoryList", categoryService.getAll());
-            return "admin/menu/add";
+            return "admin/restaurant/menu/add";
         }
         menuService.addRestaurantMenu(menuVO);
         return "redirect:/admin/restaurant/menu/list";
@@ -55,7 +55,7 @@ public class RestaurantMenuController {
         RestaurantMenuVO menuVO = menuService.getOneRestaurantMenu(itemId);
         model.addAttribute("restaurantMenuVO", menuVO);
         model.addAttribute("categoryList", categoryService.getAll());
-        return "admin/menu/edit";
+        return "admin/restaurant/menu/edit";
     }
 
     // 刪除餐點

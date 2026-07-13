@@ -39,7 +39,8 @@ public interface OrderRepository extends JpaRepository<OrderVO, Integer> {
 
     //會員取消訂單
     @Modifying
-    @Query(value = "UPDATE ROOM_ORDER  SET ORDER_STATUS = 3 WHERE ORDER_ID = :orderId AND ORDER_STATUS = 1  ", nativeQuery = true)
+    @Query(value = "UPDATE ROOM_ORDER  SET ORDER_STATUS = 3 WHERE ORDER_ID = :orderId AND ORDER_STATUS = 1 AND " +
+            "NOT EXISTS(SELECT 1 FROM STAY_RECORD SR JOIN ROOM_ORDER_LIST OL ON SR.ORDER_LIST_ID = OL.ORDER_LIST_ID WHERE OL.ORDER_ID = :orderId)", nativeQuery = true)
     int customerCancelOrder(@Param("orderId") Integer orderId);
 
     //供會員查詢並利用訂單狀態區分會員的訂單

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/restaurant/common_sidebar :: common-head('顧客評論管理')}"></head>
+<body>
+    <div th:replace="~{admin/restaurant/common_sidebar :: sidebar('review')}"></div>
+    <div class="main-content">
+        <div th:replace="~{admin/restaurant/common_sidebar :: topbar('顧客用餐評論維護')}"></div>
+        <div class="page-body">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-comments me-2"></i>顧客評分與反饋</h5>
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>評論 ID</th>
+                            <th>會員ID</th>
+                            <th>對應預約ID</th>
+                            <th>星級評分</th>
+                            <th>反饋評論內容</th>
+                            <th width="100">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="review : ${reviewList}">
+                            <td th:text="${review.reviewId}">1</td>
+                            <td th:text="${review.memberVO.memberId}">會員</td>
+                            <td th:text="${review.restaurantReservationVO.reservationId}">1001</td>
+                            <td>
+                                <span th:each="i : ${#numbers.sequence(1, review.reviewStars)}" class="text-warning">★</span>
+                            </td>
+                            <td th:text="${review.reviewContent}" class="text-dark small">內容...</td>
+                            <td>
+                                <form th:action="@{/admin/restaurant/review/delete}" method="post" onsubmit="return confirm('確定要審查並刪除這則評論嗎？');">
+                                    <input type="hidden" name="reviewId" th:value="${review.reviewId}">
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> 刪除</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

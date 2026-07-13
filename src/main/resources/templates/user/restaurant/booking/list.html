@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{user/restaurant/userNavBar :: front-head('The Star 餐廳 - 我的訂位紀錄')}"></th:block>
+    <style>
+        body { background-color: #f8f9fa; }
+        .booking-box { background: #fff; border-radius: 8px; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 25px; border-left: 5px solid #1a1a1a; }
+        .review-section { background-color: #f9f9f9; border-radius: 6px; padding: 15px; margin-top: 15px; border: 1px dashed #ddd; }
+        .star-rating { color: #ffc107; font-size: 1rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <nav th:replace="~{user/restaurant/userNavBar :: front-navbar('booking')}"></nav>
+
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">我的訂位紀錄</h1>
+        <p class="text-muted">專屬於您的美食足跡與預約管理</p>
+        <a th:href="@{/restaurant/booking/add}" class="btn btn-dark btn-lg mt-2 shadow-sm">新增餐廳訂位</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            
+            <div th:if="${#lists.isEmpty(myReservations)}" class="text-center text-muted my-5">
+                <h4>目前尚無任何訂位紀錄，期待您的首次預約！</h4>
+            </div>
+
+            <div class="booking-box" th:each="res : ${myReservations}">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h4 class="fw-bold mb-1" th:text="${res.date} + '（' + ${res.businessHoursVO?.startTime} + ' ~ ' + ${res.businessHoursVO?.endTime} + '）'">2026-07-06（17:00 ~ 19:00）</h4>
+                        <p class="text-muted mb-0" style="font-size: 0.9rem;" th:text="'預約編號：#' + ${res.reservationId}">預約編號：#123</p>
+                    </div>
+                    <span class="badge bg-dark px-3 py-2" th:text="${res.reservationStatus}">已確認</span>
+                </div>
+
+                <div class="row text-center bg-light py-2 rounded mb-2 g-0">
+                    <div class="col-6 border-end">
+                        <small class="text-muted d-block">用餐人數</small>
+                        <span class="fw-bold" th:text="${res.restaurantTableVO?.tableTypeId == 2} ? '1 - 4 人' : '5 - 10 人'">2人</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">審核狀態</small>
+                        <span class="fw-bold" th:text="${res.reviewStatus} ? '已審核' : '審核中'">審核中</span>
+                    </div>
+                </div>
+
+                <div class="review-section" th:if="${reviewMap.containsKey(res.reservationId)}">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small fw-bold text-secondary">您的歷史評價：</span>
+                        <span class="star-rating" th:text="${reviewMap.get(res.reservationId).reviewStars} + ' / 5.0 分'">5.0 分</span>
+                    </div>
+                    <p class="mb-0 text-dark" style="font-size: 0.95rem;" th:text="${reviewMap.get(res.reservationId).reviewContent}">這家餐廳服務太棒了，餐點非常精緻！</p>
+                </div>
+
+                <div class="text-end mt-3" th:if="${!reviewMap.containsKey(res.reservationId)}">
+                    <a th:href="@{/restaurant/review/add(resId=${res.reservationId})}" class="btn btn-outline-warning btn-sm fw-bold">
+                        ⭐ 撰寫五星好評
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+    <footer th:replace="~{user/restaurant/userNavBar :: front-footer}"></footer>
+
+</body>
+</html>
