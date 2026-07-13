@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>東方之星 The Star｜結帳</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3e50; }
+.navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); padding: 0 48px; height: 68px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(201,168,76,0.2); }
+.navbar-brand { text-decoration: none; display: flex; flex-direction: column; }
+.navbar-brand .brand-zh { font-family: 'Noto Serif TC', serif; font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+.navbar-brand .brand-en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: #c9a84c; letter-spacing: 1px; }
+.navbar-links { display: flex; align-items: center; gap: 8px; }
+.navbar-links a { color: #c9d8e0; text-decoration: none; font-size: 14px; padding: 8px 14px; border-radius: 4px; transition: all 0.2s; letter-spacing: 1px; }
+.navbar-links a:hover { color: #fff; background: rgba(201,168,76,0.15); }
+.navbar-links a.active { color: #c9a84c; border-bottom: 2px solid #c9a84c; }
+.navbar-login { background: #c9a84c; color: #fff !important; padding: 8px 20px !important; border-radius: 4px !important; border: 0; cursor: pointer; font-size: 14px; letter-spacing: 1px; }
+.page-header { background: linear-gradient(135deg, #1e3a4a 0%, #2d5a6b 50%, #1a2f3a 100%); padding: 120px 0 60px; text-align: center; }
+.page-header h1 { font-family: 'Noto Serif TC', serif; font-size: 2rem; color: #fff; letter-spacing: 6px; }
+.gold-line { width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #c9a84c, transparent); margin: 16px auto; }
+.checkout-container { max-width: 960px; margin: 48px auto; padding: 0 32px; display: grid; grid-template-columns: 1fr 380px; gap: 32px; }
+.card { background: #fff; border: 1px solid #dce8ed; border-radius: 8px; padding: 28px 32px; margin-bottom: 24px; }
+.card-title { font-family: 'Noto Serif TC', serif; font-size: 1.1rem; color: #1e3a4a; letter-spacing: 2px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #eef4f7; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; color: #5a7a8a; margin-bottom: 6px; letter-spacing: 1px; }
+.form-label .required { color: #e05a5a; margin-left: 2px; }
+.form-control { width: 100%; padding: 10px 14px; border: 1px solid #dce8ed; border-radius: 4px; font-size: 14px; color: #2c3e50; outline: none; transition: border-color 0.2s; }
+.form-control:focus { border-color: #2d5a6b; }
+/* 配送方式 */
+.pickup-options { display: flex; gap: 12px; margin-bottom: 16px; }
+.pickup-option { flex: 1; border: 2px solid #dce8ed; border-radius: 6px; padding: 14px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.pickup-option.selected { border-color: #c9a84c; background: #fffbf0; }
+.pickup-option input { display: none; }
+.pickup-option i { font-size: 24px; color: #c9a84c; display: block; margin-bottom: 8px; }
+.pickup-option span { font-size: 14px; color: #1e3a4a; font-weight: 600; }
+/* 自取日曆 */
+.pickup-section { display: none; }
+.pickup-section.show { display: block; }
+/* 訂單摘要 */
+.summary-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f6f8; font-size: 14px; }
+.summary-item:last-child { border-bottom: 0; }
+.summary-name { color: #5a7a8a; }
+.summary-price { color: #1e3a4a; font-weight: 600; }
+.summary-total { display: flex; justify-content: space-between; padding-top: 16px; margin-top: 8px; border-top: 2px solid #dce8ed; }
+.summary-total-label { font-size: 15px; color: #1e3a4a; font-weight: 700; }
+.summary-total-value { font-size: 1.5rem; font-weight: 700; color: #c9a84c; }
+.btn-submit { width: 100%; background: #2d5a6b; color: #fff; border: 0; padding: 14px; font-size: 15px; cursor: pointer; letter-spacing: 2px; border-radius: 4px; transition: background 0.2s; margin-top: 16px; }
+.btn-submit:hover { background: #1e3a4a; }
+.btn-back { display: inline-flex; align-items: center; gap: 8px; color: #2d5a6b; text-decoration: none; font-size: 13px; margin-bottom: 24px; }
+.btn-back:hover { color: #c9a84c; }
+footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 32px; font-size: 13px; margin-top: 80px; }
+.footer-brand { font-family: 'Noto Serif TC', serif; font-size: 16px; color: #c9a84c; letter-spacing: 4px; margin-bottom: 8px; }
+.footer-en { font-family: 'Cormorant Garamond', serif; font-style: italic; color: #5a8a9a; font-size: 14px; margin-bottom: 16px; }
+.footer-divider { width: 40px; height: 1px; background: #c9a84c; margin: 12px auto; opacity: 0.4; }
+@media (max-width: 768px) {
+  .checkout-container { grid-template-columns: 1fr; }
+  .navbar { padding: 0 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <span class="brand-zh">東方之星</span>
+    <span class="brand-en">The Star</span>
+  </a>
+  <div class="navbar-links">
+    <a href="/">首頁</a>
+    <a href="/roombooking.html">訂房</a>
+    <a href="/restaurant">餐廳</a>
+    <a href="/shop" class="active">購物</a>
+    <a href="/shop/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+    <button th:if="${session.loginMember != null}"
+      onclick="logout()"
+      class="navbar-login">
+      <i class="fa-regular fa-user me-1"></i>
+      <span th:text="${session.loginMember.memberName}">會員</span>
+    </button>
+    <a th:if="${session.loginMember == null}" href="/login.html" class="navbar-login">
+      <i class="fa-regular fa-user me-1"></i>登入
+    </a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>結帳</h1>
+  <div class="gold-line"></div>
+</div>
+
+<div style="max-width:960px; margin:32px auto; padding:0 32px;">
+  <a href="/shop/cart" class="btn-back">
+    <i class="fa-solid fa-arrow-left"></i> 返回購物車
+  </a>
+</div>
+
+<form th:action="@{/shop/order/placeOrder}" method="post">
+<div class="checkout-container">
+
+  <!-- 左側：填寫資料 -->
+  <div>
+    <!-- 收件人資料 -->
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-user me-2"></i>收件人資料</div>
+      <div class="form-group">
+        <label class="form-label">姓名 <span class="required">*</span></label>
+        <input type="text" name="shopOrderName" class="form-control" required
+          th:value="${loginMember.memberName}" placeholder="請輸入收件人姓名">
+      </div>
+      <div class="form-group">
+        <label class="form-label">電話 <span class="required">*</span></label>
+        <input type="tel" name="shopOrderPhone" class="form-control" required
+          th:value="${loginMember.memberPhone}" placeholder="請輸入聯絡電話">
+      </div>
+      <div class="form-group">
+        <label class="form-label">備註</label>
+        <textarea name="shopOrderNote" class="form-control" rows="2" placeholder="如有特殊需求請填寫"></textarea>
+      </div>
+    </div>
+
+    <!-- 配送方式 -->
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-truck me-2"></i>配送方式</div>
+      <div class="pickup-options">
+        <label class="pickup-option selected" id="opt-delivery" onclick="selectPickup(0)">
+          <input type="radio" name="shopOrderPickup" value="0" checked>
+          <i class="fa-solid fa-truck"></i>
+          <span>宅配到府</span>
+        </label>
+        <label class="pickup-option" id="opt-pickup" onclick="selectPickup(1)">
+          <input type="radio" name="shopOrderPickup" value="1">
+          <i class="fa-solid fa-store"></i>
+          <span>自取</span>
+        </label>
+      </div>
+
+      <!-- 宅配地址 -->
+      <div class="pickup-section show" id="section-delivery">
+        <div class="form-group">
+          <label class="form-label">收件地址 <span class="required">*</span></label>
+          <input type="text" name="shopOrderAddress" id="addressInput" class="form-control"
+            th:value="${loginMember.memberAddress}" placeholder="請輸入收件地址">
+        </div>
+      </div>
+
+      <!-- 自取日期時間 -->
+      <div class="pickup-section" id="section-pickup">
+        <div class="form-group">
+          <label class="form-label">取貨日期與時間 <span class="required">*</span></label>
+          <input type="datetime-local" name="shopOrderPickupTime" id="pickupTimeInput"
+            class="form-control"
+            th:attr="min=${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd') + 'T09:00'}">
+        </div>
+        <div style="font-size:12px; color:#7a9aaa; margin-top:4px;">
+          <i class="fa-solid fa-circle-info me-1"></i>取貨時間為每日 09:00 ~ 18:00
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右側：訂單摘要 -->
+  <div>
+    <div class="card" style="position:sticky; top:88px;">
+      <div class="card-title"><i class="fa-solid fa-receipt me-2"></i>訂單明細</div>
+      <div th:each="item : ${cartListData}" class="summary-item">
+        <span class="summary-name"
+          th:text="${item.product != null ? item.product.productName : '商品已下架'} + ' × ' + ${item.cartItemProdQty}">
+        </span>
+        <span class="summary-price" th:if="${item.product != null}"
+          th:text="'NT$ ' + ${item.product.productPrice * item.cartItemProdQty}">
+        </span>
+        <span class="summary-price" th:if="${item.product == null}">-</span>
+      </div>
+      <div class="summary-total">
+        <span class="summary-total-label">總計</span>
+        <span class="summary-total-value">NT$ <span th:text="${cartTotal}">0</span></span>
+      </div>
+      <button type="submit" class="btn-submit">
+        <i class="fa-solid fa-credit-card me-2"></i>確認結帳
+      </button>
+    </div>
+  </div>
+
+</div>
+</form>
+
+<footer>
+  <div class="footer-brand">東方之星</div>
+  <div class="footer-en">The Star Resort Hotel</div>
+  <div class="footer-divider"></div>
+  <div>© 2026 東方之星 The Star．All Rights Reserved</div>
+</footer>
+
+<script>
+function selectPickup(val) {
+  const delivery = document.getElementById('section-delivery');
+  const pickup = document.getElementById('section-pickup');
+  const optDelivery = document.getElementById('opt-delivery');
+  const optPickup = document.getElementById('opt-pickup');
+  const addressInput = document.getElementById('addressInput');
+  const pickupTimeInput = document.getElementById('pickupTimeInput');
+
+  if (val === 0) {
+    delivery.classList.add('show');
+    pickup.classList.remove('show');
+    optDelivery.classList.add('selected');
+    optPickup.classList.remove('selected');
+    addressInput.required = true;
+    pickupTimeInput.required = false;
+    document.querySelector('input[value="0"]').checked = true;
+  } else {
+    delivery.classList.remove('show');
+    pickup.classList.add('show');
+    optDelivery.classList.remove('selected');
+    optPickup.classList.add('selected');
+    addressInput.required = false;
+    pickupTimeInput.required = true;
+    document.querySelector('input[value="1"]').checked = true;
+  }
+}
+
+function logout() {
+  fetch('/api/member/logout', { method: 'POST' })
+    .then(() => window.location.href = '/shop');
+}
+</script>
+
+</body>
+</html>

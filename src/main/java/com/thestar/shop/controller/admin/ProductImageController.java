@@ -119,6 +119,14 @@ public class ProductImageController {
 		return "redirect:/admin/shop/image/manage/" + productId;
 	}
 
+	// 設定封面圖片
+	@PostMapping("setCover")
+	public String setCover(@RequestParam("productImageId") Integer productImageId,
+			@RequestParam("productId") Integer productId) {
+		productImageSvc.setCover(productImageId, productId);
+		return "redirect:/admin/shop/image/manage/" + productId;
+	}
+
 	// 刪除圖片
 	// 注意：封面重新指定的邏輯已經在 ProductImageService.deleteProductImage 內處理
 	// （刪除封面圖後，會透過 repository.updateCover 自動指定新的封面），

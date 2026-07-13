@@ -9,6 +9,6 @@ public class adminMainController {
     // 讓訪問 http://localhost:8080/admin/restaurant 時導向總首頁
     @GetMapping("/admin/restaurant")
     public String adminIndex() {
-        return "admin/index";
+        return "admin/restaurant/index";
     }
 }

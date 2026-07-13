@@ -36,14 +36,14 @@ public class RestaurantUserController {
 
     @GetMapping({"", "/", "/index"})
     public String index() {
-        return "user/index";
+        return "user/restaurant/index";
     }
 
     @GetMapping("/menu")
     public String menu(Model model) {
         List<RestaurantMenuVO> menuList = menuService.getAll();
         model.addAttribute("menuList", menuList);
-        return "user/menu";
+        return "user/restaurant/menu";
     }
 
 

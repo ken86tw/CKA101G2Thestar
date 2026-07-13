@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/shop_sidebar :: common-head('後台控制台')}"></head>
+<body>
+	<div th:replace="~{admin/shop_sidebar :: sidebar('home')}"></div>
+	<div class="main-content">
+		<div th:replace="~{admin/shop_sidebar :: topbar('後台控制台')}"></div>
+		<div class="page-body">
+
+			<!-- 歡迎標題 -->
+			<div class="mb-4">
+				<h5 class="fw-bold" style="color:#5c3d1e; font-family:'Noto Serif TC',serif; letter-spacing:2px;">
+					<i class="fa-solid fa-gauge me-2" style="color:#c9a84c;"></i>購物後台總覽
+				</h5>
+				<p style="color:#9a7a50; font-size:13px;">歡迎回來，以下是目前商店的最新狀態。</p>
+			</div>
+
+			<!-- 統計卡片 -->
+			<div class="row g-3 mb-4 align-items-stretch">
+
+				<!-- 商品總數 -->
+				<div class="col-md-3">
+					<div class="card p-3 h-100">
+						<div class="d-flex justify-content-between align-items-center">
+							<div>
+								<div style="font-size:12px; color:#9a7a50; letter-spacing:1px;">商品總數</div>
+								<div style="font-size:2rem; font-weight:700; color:#5c3d1e;"
+									th:text="${totalProducts}">0</div>
+								<div style="font-size:12px; color:#7a9aaa;">
+									上架中：<span th:text="${activeProducts}" style="color:#2d7a4a; font-weight:600;">0</span> 件
+								</div>
+							</div>
+							<div style="font-size:2.2rem; color:#c9a84c; opacity:0.5;">
+								<i class="fa-solid fa-bag-shopping"></i>
+							</div>
+						</div>
+						<a href="/admin/shop/listAllProducts"
+							class="btn btn-outline-gold btn-sm mt-3">查看商品列表</a>
+					</div>
+				</div>
+
+				<!-- 訂單統計 -->
+				<div class="col-md-3">
+					<div class="card p-3 h-100">
+						<div class="d-flex justify-content-between align-items-center">
+							<div>
+								<div style="font-size:12px; color:#9a7a50; letter-spacing:1px;">訂單總數</div>
+								<div style="font-size:2rem; font-weight:700; color:#5c3d1e;"
+									th:text="${totalOrders}">0</div>
+								<div style="font-size:12px; color:#7a9aaa;">
+									待處理：<span th:text="${pendingOrders}"
+										th:style="${pendingOrders > 0} ? 'color:#c0392b; font-weight:600;' : 'color:#2d7a4a; font-weight:600;'">0</span> 筆
+								</div>
+							</div>
+							<div style="font-size:2.2rem; color:#c9a84c; opacity:0.5;">
+								<i class="fa-solid fa-cart-shopping"></i>
+							</div>
+						</div>
+						<a href="/admin/shop/order/listAllOrders"
+							class="btn btn-outline-gold btn-sm mt-3">查看訂單列表</a>
+					</div>
+				</div>
+
+				<!-- 待付款 -->
+				<div class="col-md-3">
+					<div class="card p-3 h-100">
+						<div class="d-flex justify-content-between align-items-center">
+							<div>
+								<div style="font-size:12px; color:#9a7a50; letter-spacing:1px;">待付款訂單</div>
+								<div style="font-size:2rem; font-weight:700; color:#c0392b;"
+									th:if="${unpaidOrders > 0}"
+									th:text="${unpaidOrders}">0</div>
+								<div style="font-size:2rem; font-weight:700; color:#5c3d1e;"
+									th:if="${unpaidOrders == 0}"
+									th:text="${unpaidOrders}">0</div>
+								<div style="font-size:12px; color:#7a9aaa;">尚未完成付款</div>
+							</div>
+							<div style="font-size:2.2rem; color:#c9a84c; opacity:0.5;">
+								<i class="fa-solid fa-credit-card"></i>
+							</div>
+						</div>
+						<a href="/admin/shop/order/listAllOrders"
+							class="btn btn-outline-gold btn-sm mt-3">查看待付款訂單</a>
+					</div>
+				</div>
+
+				<!-- 評論總數 -->
+				<div class="col-md-3">
+					<div class="card p-3 h-100">
+						<div class="d-flex justify-content-between align-items-center">
+							<div>
+								<div style="font-size:12px; color:#9a7a50; letter-spacing:1px;">評論總數</div>
+								<div style="font-size:2rem; font-weight:700; color:#5c3d1e;"
+									th:text="${totalReviews}">0</div>
+								<div style="font-size:12px; color:#7a9aaa;">顧客評價數量</div>
+							</div>
+							<div style="font-size:2.2rem; color:#c9a84c; opacity:0.5;">
+								<i class="fa-solid fa-comment-dots"></i>
+							</div>
+						</div>
+						<a href="/admin/shop/review/listAllReviews"
+							class="btn btn-outline-gold btn-sm mt-3">查看評論列表</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 庫存不足警示 -->
+			<div class="card p-4">
+				<h6 class="fw-bold mb-3" style="color:#5c3d1e;">
+					<i class="fa-solid fa-triangle-exclamation me-2" style="color:#e67e22;"></i>
+					庫存不足商品
+					<span class="badge ms-2"
+						th:style="${#lists.size(lowStockProducts) > 0} ? 'background:#c0392b;' : 'background:#2d7a4a;'"
+						th:text="${#lists.size(lowStockProducts)} + ' 件'">0 件</span>
+				</h6>
+
+				<!-- 沒有庫存不足 -->
+				<div th:if="${#lists.isEmpty(lowStockProducts)}"
+					style="text-align:center; padding:32px 0; color:#9a7a50; font-size:14px;">
+					<i class="fa-solid fa-circle-check fa-2x mb-2" style="color:#2d7a4a; display:block;"></i>
+					所有商品庫存充足
+				</div>
+
+				<!-- 庫存不足列表 -->
+				<div th:if="${!#lists.isEmpty(lowStockProducts)}">
+					<table class="table table-hover mb-0">
+						<thead>
+							<tr>
+								<th>商品編號</th>
+								<th>商品名稱</th>
+								<th>剩餘庫存</th>
+								<th>狀態</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="product : ${lowStockProducts}">
+								<td th:text="${product.productId}"></td>
+								<td th:text="${product.productName}"></td>
+								<td>
+									<span th:text="${product.productQuantity}"
+										th:style="${product.productQuantity == 0} ? 'color:#c0392b; font-weight:700;' : 'color:#e67e22; font-weight:700;'"></span>
+									<span th:if="${product.productQuantity == 0}"
+										class="badge ms-1" style="background:#c0392b;">已售完</span>
+									<span th:if="${product.productQuantity > 0}"
+										class="badge ms-1" style="background:#e67e22;">庫存低</span>
+								</td>
+								<td>
+									<span th:if="${product.productStatus == 1}"
+										style="color:#2d7a4a; font-size:13px;">● 上架中</span>
+									<span th:if="${product.productStatus == 0}"
+										style="color:#9a7a50; font-size:13px;">● 已下架</span>
+								</td>
+								<td>
+									<a th:href="@{/admin/shop/toUpdate/{id}(id=${product.productId})}"
+										class="btn btn-gold btn-sm">
+										<i class="fa-solid fa-pen me-1"></i>補貨
+									</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>東方之星 The Star｜訂單完成</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3e50; }
+.navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); padding: 0 48px; height: 68px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(201,168,76,0.2); }
+.navbar-brand { text-decoration: none; display: flex; flex-direction: column; }
+.navbar-brand .brand-zh { font-family: 'Noto Serif TC', serif; font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+.navbar-brand .brand-en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: #c9a84c; letter-spacing: 1px; }
+.navbar-links { display: flex; align-items: center; gap: 8px; }
+.navbar-links a { color: #c9d8e0; text-decoration: none; font-size: 14px; padding: 8px 14px; border-radius: 4px; transition: all 0.2s; letter-spacing: 1px; }
+.navbar-links a:hover { color: #fff; background: rgba(201,168,76,0.15); }
+.navbar-links a.active { color: #c9a84c; border-bottom: 2px solid #c9a84c; }
+.navbar-login { background: #c9a84c; color: #fff !important; padding: 8px 20px !important; border-radius: 4px !important; border: 0; cursor: pointer; font-size: 14px; letter-spacing: 1px; }
+.success-container { max-width: 680px; margin: 120px auto 80px; padding: 0 32px; text-align: center; }
+.success-icon { font-size: 72px; color: #2d7a4a; margin-bottom: 24px; }
+.success-title { font-family: 'Noto Serif TC', serif; font-size: 1.8rem; color: #1e3a4a; letter-spacing: 4px; margin-bottom: 12px; }
+.gold-line { width: 60px; height: 2px; background: #c9a84c; margin: 16px auto 24px; }
+.success-subtitle { font-size: 14px; color: #7a9aaa; margin-bottom: 40px; line-height: 1.8; }
+.order-card { background: #fff; border: 1px solid #dce8ed; border-radius: 8px; padding: 28px 32px; text-align: left; margin-bottom: 24px; }
+.order-card-title { font-family: 'Noto Serif TC', serif; font-size: 1rem; color: #1e3a4a; letter-spacing: 2px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #eef4f7; }
+.order-info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f5f8fa; }
+.order-info-label { color: #7a9aaa; }
+.order-info-value { color: #1e3a4a; font-weight: 600; }
+.order-item-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; border-bottom: 1px solid #f0f6f8; }
+.order-item-row:last-child { border-bottom: 0; }
+.order-total-row { display: flex; justify-content: space-between; padding-top: 16px; margin-top: 8px; border-top: 2px solid #dce8ed; }
+.order-total-label { font-size: 15px; font-weight: 700; color: #1e3a4a; }
+.order-total-value { font-size: 1.4rem; font-weight: 700; color: #c9a84c; }
+.btn-row { display: flex; gap: 12px; justify-content: center; margin-top: 32px; }
+.btn-primary { background: #2d5a6b; color: #fff; border: 0; padding: 12px 32px; font-size: 14px; border-radius: 4px; cursor: pointer; letter-spacing: 1px; text-decoration: none; transition: background 0.2s; }
+.btn-primary:hover { background: #1e3a4a; color: #fff; }
+.btn-outline { background: transparent; color: #2d5a6b; border: 1px solid #2d5a6b; padding: 12px 32px; font-size: 14px; border-radius: 4px; cursor: pointer; letter-spacing: 1px; text-decoration: none; transition: all 0.2s; }
+.btn-outline:hover { background: #2d5a6b; color: #fff; }
+footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 32px; font-size: 13px; }
+.footer-brand { font-family: 'Noto Serif TC', serif; font-size: 16px; color: #c9a84c; letter-spacing: 4px; margin-bottom: 8px; }
+.footer-en { font-family: 'Cormorant Garamond', serif; font-style: italic; color: #5a8a9a; font-size: 14px; margin-bottom: 16px; }
+.footer-divider { width: 40px; height: 1px; background: #c9a84c; margin: 12px auto; opacity: 0.4; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <span class="brand-zh">東方之星</span>
+    <span class="brand-en">The Star</span>
+  </a>
+  <div class="navbar-links">
+    <a href="/">首頁</a>
+    <a href="/roombooking.html">訂房</a>
+    <a href="/restaurant">餐廳</a>
+    <a href="/shop" class="active">購物</a>
+    <a href="/shop/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+    <button th:if="${session.loginMember != null}"
+      onclick="logout()"
+      class="navbar-login">
+      <i class="fa-regular fa-user me-1"></i>
+      <span th:text="${session.loginMember.memberName}">會員</span>
+    </button>
+    <a th:if="${session.loginMember == null}" href="/login.html" class="navbar-login">
+      <i class="fa-regular fa-user me-1"></i>登入
+    </a>
+  </div>
+</nav>
+
+<div class="success-container">
+
+  <!-- 成功圖示 -->
+  <div class="success-icon">
+    <i class="fa-solid fa-circle-check"></i>
+  </div>
+  <div class="success-title">訂單建立成功</div>
+  <div class="gold-line"></div>
+  <div class="success-subtitle">
+    感謝您的購買！我們已收到您的訂單，<br>
+    請等待付款確認後，我們將盡快為您處理。
+  </div>
+
+  <!-- 訂單資訊 -->
+  <div class="order-card">
+    <div class="order-card-title"><i class="fa-solid fa-receipt me-2"></i>訂單資訊</div>
+    <div class="order-info-row">
+      <span class="order-info-label">訂單編號</span>
+      <span class="order-info-value" th:text="'#' + ${shopOrderVO.shopOrderId}"></span>
+    </div>
+    <div class="order-info-row">
+      <span class="order-info-label">訂單時間</span>
+      <span class="order-info-value"
+        th:text="${#temporals.format(shopOrderVO.shopOrderTime, 'yyyy-MM-dd HH:mm')}"></span>
+    </div>
+    <div class="order-info-row">
+      <span class="order-info-label">收件人</span>
+      <span class="order-info-value" th:text="${shopOrderVO.shopOrderName}"></span>
+    </div>
+    <div class="order-info-row">
+      <span class="order-info-label">聯絡電話</span>
+      <span class="order-info-value" th:text="${shopOrderVO.shopOrderPhone}"></span>
+    </div>
+    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 0}">
+      <span class="order-info-label">配送方式</span>
+      <span class="order-info-value">宅配到府</span>
+    </div>
+    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 0 and shopOrderVO.shopOrderAddress != null}">
+      <span class="order-info-label">收件地址</span>
+      <span class="order-info-value" th:text="${shopOrderVO.shopOrderAddress}"></span>
+    </div>
+    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 1}">
+      <span class="order-info-label">配送方式</span>
+      <span class="order-info-value">門市自取</span>
+    </div>
+    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 1 and shopOrderVO.shopOrderPickupTime != null}">
+      <span class="order-info-label">取貨時間</span>
+      <span class="order-info-value"
+        th:text="${#temporals.format(shopOrderVO.shopOrderPickupTime, 'yyyy-MM-dd HH:mm')}"></span>
+    </div>
+    <div class="order-info-row" th:if="${shopOrderVO.shopOrderNote != null and !#strings.isEmpty(shopOrderVO.shopOrderNote)}">
+      <span class="order-info-label">備註</span>
+      <span class="order-info-value" th:text="${shopOrderVO.shopOrderNote}"></span>
+    </div>
+    <div class="order-info-row">
+      <span class="order-info-label">付款狀態</span>
+      <span class="order-info-value" style="color:#e67e22;">待付款</span>
+    </div>
+  </div>
+
+  <!-- 訂單明細 -->
+  <div class="order-card">
+    <div class="order-card-title"><i class="fa-solid fa-bag-shopping me-2"></i>訂購商品</div>
+    <div th:each="item : ${itemListData}" class="order-item-row">
+      <span th:text="${item.product != null ? item.product.productName : '商品'} + ' × ' + ${item.prodOrderItemQty}"></span>
+      <span style="color:#c9a84c; font-weight:600;"
+        th:text="'NT$ ' + ${item.prodOrderItemPrice * item.prodOrderItemQty}"></span>
+    </div>
+    <div class="order-total-row">
+      <span class="order-total-label">訂單總計</span>
+      <span class="order-total-value">NT$ <span th:text="${shopOrderVO.shopOrderTotal}"></span></span>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <a href="/shop/order/myOrders" class="btn-primary">
+      <i class="fa-solid fa-list me-1"></i>查看我的訂單
+    </a>
+    <a href="/shop" class="btn-outline">
+      <i class="fa-solid fa-bag-shopping me-1"></i>繼續購物
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">東方之星</div>
+  <div class="footer-en">The Star Resort Hotel</div>
+  <div class="footer-divider"></div>
+  <div>© 2026 東方之星 The Star．All Rights Reserved</div>
+</footer>
+
+<script>
+function logout() {
+  fetch('/api/member/logout', { method: 'POST' })
+    .then(() => window.location.href = '/shop');
+}
+</script>
+
+</body>
+</html>

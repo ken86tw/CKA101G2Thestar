@@ -72,6 +72,43 @@ a {
   letter-spacing: 1px;
 }
 
+/* 導覽列左上角飯店品牌 */
+.navbar-brand {
+  min-width: 110px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.navbar-brand .brand-zh {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 2px;
+}
+
+.navbar-brand .brand-en {
+  margin-top: 3px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 400;
+  color: #c9a84c;
+  letter-spacing: 1px;
+}
+
+.member-greeting {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5dccd;
+  color: #8a6b40;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .nav-links {
   display: flex;
   align-items: center;
@@ -195,6 +232,7 @@ a {
   }
 }
 .nav-actions {
+  min-width: 130px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -276,4 +314,154 @@ a {
 .member-dropdown button:hover {
   background: #f5efe5;
   color: #9c7c4f;
+}
+
+/* ==========購物模組導覽列補充樣式========== */
+.shop-navbar .navbar-brand {
+  flex-shrink: 0;
+}
+
+/* 購物頁的連結較多，縮小間距 */
+.shop-navbar .navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.shop-navbar .navbar-links > a {
+  padding: 8px 9px;
+  white-space: nowrap;
+}
+
+/* 通知、登入、會員頭像區域 */
+.shop-navbar .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 4px;
+  position: relative;
+}
+
+/* 購物車圖示 */
+.shop-navbar .cart-link {
+  min-width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 購物車頁亮起 */
+.shop-navbar .cart-link.active {
+  color: #c9a84c;
+  background: rgba(201, 168, 76, 0.15);
+  border-bottom: 2px solid #c9a84c;
+}
+
+/* 會員下拉選單位置 */
+.shop-navbar .member-menu {
+  position: relative;
+}
+
+.shop-navbar .member-dropdown {
+  top: 46px;
+  min-width: 200px;
+}
+
+/*
+ * 購物頁原本有 .navbar-links a，
+ * 所以這裡提高選擇器優先度，
+ * 避免會員下拉選單的文字變成導覽列顏色。
+ */
+.shop-navbar .member-dropdown a,
+.shop-navbar .member-dropdown button {
+  width: 100%;
+  display: block;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #3a3329;
+  text-align: left;
+  text-decoration: none;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.shop-navbar .member-dropdown a:hover,
+.shop-navbar .member-dropdown button:hover {
+  color: #9c7c4f;
+  background: #f5efe5;
+  border-bottom-color: transparent;
+}
+
+.shop-navbar .member-dropdown button {
+  border-top: 1px solid #e5dccd;
+}
+
+.shop-navbar .member-greeting {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5dccd;
+  color: #8a6b40;
+  background: #fffdf8;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 畫面較窄時允許導覽列換行 */
+@media (max-width: 1250px) {
+  .shop-navbar {
+    position: relative;
+    height: auto;
+    min-height: 68px;
+    padding: 12px 24px;
+    align-items: flex-start;
+  }
+
+  .shop-navbar .navbar-links {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+/* 固定通知及會員區域，避免載入會員狀態時導覽列位移 */
+.nav-actions,
+.shop-navbar .nav-actions {
+  min-width: 130px;
+  display: grid;
+  grid-template-columns: 38px 80px;
+  grid-template-rows: 38px;
+  column-gap: 12px;
+  align-items: center;
+  margin-left: 4px;
+  position: relative;
+}
+
+/* 通知固定在第一格 */
+.nav-actions > .notify-btn {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* 登入按鈕與會員選單共用第二格 */
+.nav-actions > .login-btn,
+.nav-actions > .navbar-login,
+.nav-actions > .member-menu {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+}
+
+/* 會員選單預留和登入按鈕相同寬度 */
+.nav-actions > .member-menu {
+  width: 80px;
+}
+
+/* 會員頭像靠右，與登入按鈕位置一致 */
+.nav-actions > .member-menu > .member-avatar {
+  margin-left: auto;
 }

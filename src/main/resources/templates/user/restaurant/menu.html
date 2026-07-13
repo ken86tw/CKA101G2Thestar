@@ -1,35 +1,21 @@
 <!DOCTYPE html>
 <html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Star 餐廳 - 美味菜單</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 1. 替換為你新路徑的共用 Head -->
+    <th:block th:replace="~{user/restaurant/userNavBar :: front-head('The Star 餐廳 - 美味菜單')}"></th:block>
+    
+    <!-- 保留「美味菜單」分頁自己特有的樣式 -->
     <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #fdfbf7; color: #333; }
-        .navbar { background-color: #1a1a1a; }
-        .navbar-brand, .nav-link { color: #fff !important; }
+        body { background-color: #fdfbf7; }
         .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s; }
         .card:hover { transform: translateY(-5px); }
         .menu-price { color: #d9534f; font-weight: bold; font-size: 1.2rem; }
-        .footer { background-color: #1a1a1a; color: #aaa; padding: 20px 0; margin-top: 40px; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg sticky-top">
-    <div class="container">
-        <a class="navbar-brand" th:href="@{/restaurant/index}">⭐ The Star</a>
-        <div class="collapse navbar-collapse justify-content-end">
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" th:href="@{/restaurant/index}">首頁介紹</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/restaurant/menu}">美味菜單</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/restaurant/booking}">線上訂位</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/restaurant/reviews}">顧客評論</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+    <!-- 2. 替換為你新路徑的共用 Navbar -->
+    <nav th:replace="~{user/restaurant/userNavBar :: front-navbar('menu')}"></nav>
 
 <div class="container my-5">
     <h1 class="text-center mb-5 fw-bold">⭐ 璀璨精選菜單 ⭐</h1>
@@ -57,9 +43,8 @@
     </div>
 </div>
 
-<footer class="footer text-center">
-    <p>© 2026 The Star user. All Rights Reserved.</p>
-</footer>
+    <!-- 3. 替換為你新路徑的共用 Footer -->
+    <footer th:replace="~{user/restaurant/userNavBar :: front-footer}"></footer>
 
 </body>
 </html>

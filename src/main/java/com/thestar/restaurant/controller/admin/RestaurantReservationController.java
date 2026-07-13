@@ -21,7 +21,7 @@ public class RestaurantReservationController {
     public String list(Model model) {
         List<RestaurantReservationVO> list = reservationService.getAll();
         model.addAttribute("reservationList", list);
-        return "admin/reservation/list";
+        return "admin/restaurant/reservation/list";
     }
 
     // 變更預約狀態 (例如取消或完成)

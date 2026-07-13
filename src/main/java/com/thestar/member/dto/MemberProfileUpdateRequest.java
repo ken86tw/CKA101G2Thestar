@@ -1,13 +1,10 @@
 package com.thestar.member.dto;
 
-import java.time.LocalDate;
-
 public class MemberProfileUpdateRequest {
 
     private String memberName;
     private String memberPhone;
     private String memberAddress;
-    private LocalDate memberBirthday;
     private Byte memberGender;
 
     public String getMemberName() {
@@ -32,14 +29,6 @@ public class MemberProfileUpdateRequest {
 
     public void setMemberAddress(String memberAddress) {
         this.memberAddress = memberAddress;
-    }
-
-    public LocalDate getMemberBirthday() {
-        return memberBirthday;
-    }
-
-    public void setMemberBirthday(LocalDate memberBirthday) {
-        this.memberBirthday = memberBirthday;
     }
 
     public Byte getMemberGender() {

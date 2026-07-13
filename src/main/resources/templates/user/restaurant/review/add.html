@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{user/restaurant/userNavBar :: front-head('The Star 餐廳 - 發表新評論')}"></th:block>
+    <style>
+        body { background-color: #f8f9fa; }
+        .review-card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <nav th:replace="~{user/restaurant/userNavBar :: front-navbar('review')}"></nav>
+
+<div class="container my-5" style="max-width: 600px; min-height: 60vh;">
+    <div class="card shadow review-card">
+        <div class="card-header bg-dark text-white py-3">
+            <h4 class="mb-0 fs-5"><i class="fa-solid fa-pen-to-square me-2"></i>發表餐廳評論</h4>
+        </div>
+        <div class="card-body p-4">
+            <p class="text-muted">親愛的會員 <strong th:text="${member.memberName}">顧客</strong> 您好：</p>
+
+            <div th:if="${#lists.isEmpty(reservations)}" class="alert alert-warning border-0 shadow-sm">
+                <i class="fa-solid fa-circle-exclamation me-2"></i>您目前沒有尚未評論的訂位紀錄！每一筆訂位只能評論一次。
+                <a th:href="@{/restaurant/review}" class="alert-link d-block mt-2">返回評論列表</a>
+            </div>
+
+            <form th:if="${!#lists.isEmpty(reservations)}" th:action="@{/restaurant/submitReview}" method="post">
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">請選擇要評論的訂位：</label>
+                    <select id="reservationSelect" name="reservationId" class="form-select" th:disabled="${isLocked}" required>
+                        <option th:if="${!isLocked}" value="" disabled selected>-- 請選擇訂位日期與編號 --</option>
+                        <option th:each="res : ${reservations}" 
+                                th:value="${res.reservationId}" 
+                                th:text="'訂位日期: ' + ${res.date} + ' (編號: #' + ${res.reservationId} + ')'"
+                                th:selected="${isLocked}"> </option>
+                    </select>
+                </div>
+
+                <input type="hidden" name="reservationId" th:if="${isLocked}" th:value="${reservations[0].reservationId}" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">給予星等 (1~5 星)：</label>
+                    <select name="reviewStars" class="form-select" required>
+                        <option value="5">5 ★ (非常好)</option>
+                        <option value="4">4 ★ (滿意)</option>
+                        <option value="3">3 ★ (普通)</option>
+                        <option value="2">2 ★ (待改善)</option>
+                        <option value="1">1 ★ (不滿意)</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">評論內容：</label>
+                    <textarea name="reviewContent" class="form-control" rows="4" maxlength="1000" placeholder="分享您的美味體驗..." required></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-dark py-2"><i class="fa-solid fa-paper-plane me-2"></i>送出評論</button>
+                    <a th:href="@{/restaurant/review}" class="btn btn-outline-secondary py-2">取消</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <footer th:replace="~{user/restaurant/userNavBar :: front-footer}"></footer>
+
+</body>
+</html>

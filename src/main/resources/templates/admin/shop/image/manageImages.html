@@ -46,19 +46,40 @@
                 <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:16px;"
                      th:if="${!#lists.isEmpty(imageListData)}">
                     <div th:each="image : ${imageListData}"
-                         style="background:#fff; border:1px solid #dce8ed; border-radius:8px; overflow:hidden;">
+                         th:style="${image.isCover == 1} ? 'background:#fff; border:2px solid #c9a84c; border-radius:8px; overflow:hidden; position:relative;' : 'background:#fff; border:1px solid #dce8ed; border-radius:8px; overflow:hidden; position:relative;'">
+
+                        <!-- 封面標籤 -->
+                        <div th:if="${image.isCover == 1}"
+                             style="position:absolute; top:8px; left:8px; background:#c9a84c; color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; letter-spacing:1px; z-index:1;">
+                            <i class="fa-solid fa-star me-1"></i>封面
+                        </div>
+
                         <img th:src="@{/admin/shop/image/show/{id}(id=${image.productImageId})}"
                              style="width:100%; height:180px; object-fit:cover;">
-                        <div style="padding:10px; display:flex; justify-content:space-between; align-items:center;">
+
+                        <div style="padding:10px; display:flex; justify-content:space-between; align-items:center; gap:6px;">
                             <span style="font-size:12px; color:#7a9aaa;">ID: <span th:text="${image.productImageId}"></span></span>
-                            <form th:action="@{/admin/shop/image/delete}" method="post"
-                                  onsubmit="return confirm('確定刪除此圖片？')">
-                                <input type="hidden" name="productImageId" th:value="${image.productImageId}">
-                                <input type="hidden" name="productId" th:value="${productsVO.productId}">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
+                            <div class="d-flex gap-1">
+                                <!-- 設為封面按鈕（非封面才顯示） -->
+                                <form th:if="${image.isCover != 1}"
+                                      th:action="@{/admin/shop/image/setCover}" method="post">
+                                    <input type="hidden" name="productImageId" th:value="${image.productImageId}">
+                                    <input type="hidden" name="productId" th:value="${productsVO.productId}">
+                                    <button type="submit" class="btn btn-warning btn-sm"
+                                            title="設為封面">
+                                        <i class="fa-solid fa-star"></i>
+                                    </button>
+                                </form>
+                                <!-- 刪除按鈕 -->
+                                <form th:action="@{/admin/shop/image/delete}" method="post"
+                                      onsubmit="return confirm('確定刪除此圖片？')">
+                                    <input type="hidden" name="productImageId" th:value="${image.productImageId}">
+                                    <input type="hidden" name="productId" th:value="${productsVO.productId}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>

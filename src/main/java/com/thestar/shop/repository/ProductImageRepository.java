@@ -24,5 +24,11 @@ public interface ProductImageRepository extends JpaRepository<ProductImageVO, In
 			WHERE PRODUCT_IMAGE_ID = ?1
 			""", nativeQuery = true)
 	void updateCover(Integer productImageId);
+	
+	// 清除某商品的所有封面設定
+	@Transactional
+	@Modifying
+	@Query(value = "UPDATE PRODUCT_IMAGE SET IS_COVER = 0 WHERE PRODUCT_ID = ?1", nativeQuery = true)
+	void clearCoverByProductId(Integer productId);
 
 }
