@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>圖片編輯 - THE STAR</title>
+    <link rel="stylesheet" th:href="@{/css/photoManage.css}">
+</head>
+<body>
+    <div class="main-container">
+        <h2 class="page-title" th:text="${photoVO.roomTypePhotoId == null ? '新增房型圖片' : '修改房型圖片'}"></h2>
+
+        <form th:action="@{/roomtypephoto/save}" th:object="${photoVO}" method="post" enctype="multipart/form-data">
+            
+            <!-- 確保新增時 ID 為空 -->
+            <input type="hidden" id="roomTypePhotoId" name="roomTypePhotoId" 
+                   th:value="${photoVO.roomTypePhotoId != null ? photoVO.roomTypePhotoId : ''}">
+            
+            <input type="hidden" id="roomTypeId" name="roomTypeId" th:value="${photoVO.roomTypeId}">
+
+            <div class="form-group">
+                <label>房型:</label>
+                <select disabled>
+                    <option th:each="room : ${roomTypeList}"
+                            th:value="${room.roomTypeId}" 
+                            th:text="${room.roomTypeName}"
+                            th:selected="${room.roomTypeId == photoVO.roomTypeId}">
+                    </option>
+                </select>
+            </div>
+
+            <!-- 【新增區塊】顯示該房型所有已上傳的圖片 -->
+            <div class="form-group" th:if="${photoList != null and !photoList.isEmpty()}">
+                <label>該房型已上傳的圖片：</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+                    <div th:each="p : ${photoList}" style="text-align: center;">
+                        <img th:src="@{/roomtypephoto/display/photo/{id}(id=${p.roomTypePhotoId})}" 
+                             style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ccc; display: block;">
+                        <span style="font-size: 12px; color: #666;" th:text="'ID: ' + ${p.roomTypePhotoId}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>上傳圖片:</label> 
+                <input type="file" id="photoInput" name="file" accept="image/*">
+                <div id="previewContainer" style="margin-top: 15px;">
+                    <img id="previewImage" style="max-width: 300px; border: 1px solid #ddd; display: none;">
+                </div>
+            </div>
+
+            <div class="button-group" style="margin-top: 20px;">
+                <button type="submit" class="btn-primary">確認儲存</button>
+                <a th:href="@{/roomtypephoto/manage}" class="btn-secondary" 
+                   style="padding: 10px 20px; background-color: #ccc; text-decoration: none; color: black; border-radius: 4px; display: inline-block;">
+                   返回列表
+                </a>
+            </div>
+        </form>
+    </div>
+    <script th:src="@{/js/photoManage.js}"></script>
+</body>
+</html>

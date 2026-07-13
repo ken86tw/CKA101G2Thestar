@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>房間管理 | THE STAR</title>
+<link rel="stylesheet" th:href="@{/css/roomManage.css}">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+	<header>
+		<div class="hbar">
+			<div class="logo">
+				<span class="star">✦</span><b>THE STAR</b><small>Hotel &amp;
+					Residences</small>
+			</div>
+			<nav class="menu">
+				<button>後台訂單</button>
+				<button class="on">房間管理</button>
+				<button>房型管理</button>
+			</nav>
+			<div class="hright">
+				<button class="btn line">登出</button>
+			</div>
+		</div>
+	</header>
+
+	<div class="container">
+		<header class="admin-header">
+			<p class="section-label">ROOM MANAGEMENT</p>
+			<h1>房間管理</h1>
+			<p class="section-desc">房間列表 · 狀態管理 · 房間維護</p>
+		</header>
+
+		<main class="admin-content">
+			<div class="toolbar">
+				<div class="admin-stats">
+					目前共有 <span th:text="${#lists.size(roomList)}">0</span> 間客房
+				</div>
+				<a th:href="@{/room/add}" class="btn"> <i
+					class="fa-solid fa-plus"></i> 新增房間
+				</a>
+			</div>
+
+			<table class="room-table">
+
+				<thead>
+					<tr>
+						<th>編號</th>
+						<th>房型</th>
+						<th>房間狀態</th>
+						<th>啟用情況</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="room : ${roomList}">
+						<td th:text="${room.roomId}"></td>
+						<td
+							th:text="${room.roomTypeVO != null ? room.roomTypeVO.roomTypeName : '無房型'}"></td>
+						<td><span class="status-badge"
+							th:text="${room.roomStatus == 1 ? '空房' : (room.roomStatus == 2 ? '入住中' : '維修中')}"></span>
+						</td>
+						<td><span th:text="${room.roomSwitchStatus ? '已上架' : '已下架'}"></span>
+						</td>
+						<td class="actions"><a
+							th:href="@{'/room/edit/' + ${room.roomId}}" class="btn-icon">
+								<i class="fa-solid fa-pen"></i>
+						</a>
+							<form th:action="@{/room/delete}" method="post"
+								style="display: inline;">
+								<input type="hidden" name="roomId" th:value="${room.roomId}" />
+								<button type="submit" class="btn-icon"
+									onclick="return confirm('確定刪除？')">
+									<i class="fa-solid fa-trash"></i>
+								</button>
+							</form></td>
+					</tr>
+				</tbody>
+			</table>
+		</main>
+	</div>
+	<script th:src="@{/js/roomManage.js}"></script>
+</body>
+</html>

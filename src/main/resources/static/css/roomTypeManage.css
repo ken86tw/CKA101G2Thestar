@@ -1,0 +1,325 @@
+/* --- THE STAR 品牌基調 --- */
+:root {
+	--brand-bg: #f7f3ed; /* 頁面底色 */
+	--brand-panel: #fcfbf9; /* 面板/卡片底色 */
+	--brand-text: #4a4a4a; /* 主要文字 */
+	--brand-accent: #9c8a77; /* 輔助色(金褐色) */
+	--border-color: #e0dcd5; /* 分隔線 */
+}
+
+body {
+	background-color: var(--brand-bg);
+	color: var(--brand-text);
+	font-family: 'Helvetica Neue', 'Arial', sans-serif;
+	margin: 0;
+}
+
+/* --- 導覽列風格 (對應圖片) --- */
+.top-nav {
+	display: flex;
+	align-items: center;
+	padding: 20px 50px;
+	background: white;
+	border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+	font-size: 18px;
+	letter-spacing: 4px;
+	font-weight: bold;
+	margin-right: 60px;
+}
+
+.nav-links a {
+	margin: 0 20px;
+	color: #888;
+	text-decoration: none;
+	transition: color 0.3s;
+	font-size: 14px;
+}
+
+.nav-links a.active {
+	color: #333;
+	border-bottom: 1px solid #333;
+	padding-bottom: 5px;
+}
+
+/* --- 頁面內容區 --- */
+.container {
+	max-width: 1000px;
+	margin: 50px auto;
+	padding: 20px;
+}
+
+.admin-header {
+	text-align: center;
+	margin-bottom: 60px;
+}
+
+.section-label {
+	color: var(--brand-accent);
+	letter-spacing: 4px;
+	font-size: 11px;
+	margin-bottom: 10px;
+}
+
+h1 {
+	font-size: 32px;
+	font-weight: 300;
+	margin: 0;
+	color: #222;
+}
+
+/* --- 查詢區域樣式 (新增！對應圖片中的搜尋盒) --- */
+.search-panel {
+	background: white;
+	border: 1px solid var(--border-color);
+	padding: 30px;
+	margin-bottom: 40px;
+	display: flex;
+	align-items: center;
+}
+
+.search-panel input {
+	border: none;
+	border-bottom: 1px solid var(--border-color);
+	padding: 10px;
+	width: 250px;
+	background: transparent;
+}
+
+.btn-search {
+	background: var(--brand-accent);
+	color: white;
+	border: none;
+	padding: 10px 25px;
+	margin-left: 20px;
+	cursor: pointer;
+}
+
+/* --- 表格區塊優化 --- */
+.admin-content {
+	background: white;
+	padding: 30px;
+	border: 1px solid var(--border-color);
+}
+
+.room-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 20px;
+}
+
+.room-table th {
+	text-align: left;
+	padding: 15px;
+	color: #999;
+	font-size: 12px;
+	font-weight: normal;
+	border-bottom: 1px solid #eee;
+}
+
+.room-table td {
+	padding: 20px 15px;
+	border-bottom: 1px solid #f9f9f9;
+}
+
+/* --- 按鈕與圖示 --- */
+.btn-icon {
+	color: #9c8a77;
+	border: none;
+	background: none;
+	cursor: pointer;
+	padding: 5px;
+}
+
+.btn-primary {
+	background: #333;
+	color: white;
+	padding: 10px 20px;
+	text-decoration: none;
+	font-size: 13px;
+	letter-spacing: 1px;
+}
+
+.table-img {
+	width: 100px;
+	height: 60px;
+	object-fit: cover;
+	border-radius: 2px;
+}
+
+/* ===== buttons ===== */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	border: 0;
+	cursor: pointer;
+	background: var(--gold);
+	color: #fff;
+	font-family: var(--sans);
+	font-size: 11.5px;
+	letter-spacing: 2.5px;
+	text-transform: uppercase;
+	padding: 14px 30px;
+	transition: .3s
+}
+
+.btn:hover {
+	background: var(--gold-d)
+}
+
+.btn:disabled {
+	opacity: .4;
+	cursor: not-allowed
+}
+
+.btn.ghost {
+	background: transparent;
+	border: 1px solid var(--ink);
+	color: var(--ink)
+}
+
+.btn.ghost:hover {
+	background: var(--ink);
+	color: #fff
+}
+
+.btn.line {
+	background: transparent;
+	border: 1px solid var(--gold);
+	color: var(--gold);
+	padding: 9px 18px
+}
+
+.btn.line:hover {
+	background: var(--gold);
+	color: #fff
+}
+
+.btn.sm {
+	padding: 9px 18px;
+	font-size: 10.5px;
+	letter-spacing: 2px
+}
+
+.btn.danger {
+	background: transparent;
+	border: 1px solid #a85b50;
+	color: #a85b50
+}
+
+.btn.danger:hover {
+	background: #a85b50;
+	color: #fff
+}
+
+.btn.block {
+	width: 100%
+}
+
+/* ===== header ===== */
+header {
+	position: sticky;
+	top: 0;
+	z-index: 30;
+	background: rgba(251, 249, 244, .92);
+	backdrop-filter: blur(8px);
+	border-bottom: 1px solid var(--line)
+}
+
+.hbar {
+	max-width: 1180px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	padding: 18px 30px
+}
+
+.logo {
+	display: flex;
+	flex-direction: column;
+	line-height: 1
+}
+
+.logo .star {
+	font-size: 15px;
+	color: var(--gold);
+	letter-spacing: 6px
+}
+
+.logo b {
+	font-family: var(--serif);
+	font-size: 22px;
+	letter-spacing: 5px;
+	font-weight: 500
+}
+
+.logo small {
+	font-size: 9px;
+	letter-spacing: 4px;
+	color: var(--muted);
+	text-transform: uppercase;
+	margin-top: 3px
+}
+
+nav.menu {
+	display: flex;
+	gap: 30px;
+	margin-left: 30px;
+	flex: 1
+}
+
+nav.menu button {
+	background: 0;
+	border: 0;
+	cursor: pointer;
+	font-family: var(--sans);
+	font-size: 12px;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	color: var(--soft);
+	padding: 6px 0;
+	position: relative;
+	transition: .25s
+}
+
+nav.menu button:hover {
+	color: var(--ink)
+}
+
+nav.menu button.on {
+	color: var(--ink)
+}
+
+nav.menu button.on::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -2px;
+	height: 1px;
+	background: var(--gold)
+}
+
+.hright {
+	display: flex;
+	align-items: center;
+	gap: 16px
+}
+
+.ident {
+	font-size: 10.5px;
+	letter-spacing: 1.5px;
+	color: var(--muted);
+	text-transform: uppercase;
+	text-align: right
+}
+
+.ident b {
+	color: var(--gold);
+	font-weight: 400
+}

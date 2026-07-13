@@ -1,0 +1,198 @@
+/* 1. 全域變數定義 (這是 THE STAR 高級感的來源) */
+:root {
+	--serif: 'Cormorant Garamond', 'Noto Serif TC', serif;
+	--sans: 'Jost', 'Noto Serif TC', system-ui, sans-serif;
+	--cream: #f6f2ea;
+	--paper: #fbf9f4;
+	--ink: #23211c;
+	--soft: #5b564c;
+	--muted: #9b9486;
+	--gold: #9c7c4f;
+	--gold-d: #80623a;
+	--line: #e4ddd0;
+}
+
+/* 2. 基礎底色與字型 */
+body {
+	background-color: var(--cream);
+	color: var(--ink);
+	font-family: var(--sans);
+	margin: 0;
+	font-weight: 300;
+}
+
+/* 3. Header 區域 (確保與圖片一致) */
+header {
+	position: sticky;
+	top: 0;
+	z-index: 30;
+	background: rgba(251, 249, 244, .92);
+	backdrop-filter: blur(8px);
+	border-bottom: 1px solid var(--line)
+}
+
+.hbar {
+	max-width: 1180px;
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	padding: 18px 30px
+}
+
+.logo {
+	display: flex;
+	flex-direction: column;
+	line-height: 1
+}
+
+.logo .star {
+	font-size: 15px;
+	color: var(--gold);
+	letter-spacing: 6px
+}
+
+.logo b {
+	font-family: var(--serif);
+	font-size: 22px;
+	letter-spacing: 5px;
+	font-weight: 500
+}
+
+.logo small {
+	font-size: 9px;
+	letter-spacing: 4px;
+	color: var(--muted);
+	text-transform: uppercase;
+	margin-top: 3px
+}
+
+nav.menu {
+	display: flex;
+	gap: 30px;
+	margin-left: 30px;
+	flex: 1
+}
+
+nav.menu button {
+	background: 0;
+	border: 0;
+	cursor: pointer;
+	font-family: var(--sans);
+	font-size: 12px;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	color: var(--soft);
+	padding: 6px 0;
+	position: relative;
+	transition: .25s
+}
+
+nav.menu button:hover {
+	color: var(--ink)
+}
+
+nav.menu button.on {
+	color: var(--ink)
+}
+
+nav.menu button.on::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -2px;
+	height: 1px;
+	background: var(--gold)
+}
+
+.hright {
+	display: flex;
+	align-items: center;
+	gap: 16px
+}
+
+.ident {
+	font-size: 10.5px;
+	letter-spacing: 1.5px;
+	color: var(--muted);
+	text-transform: uppercase;
+	text-align: right
+}
+
+.ident b {
+	color: var(--gold);
+	font-weight: 400
+}
+
+
+/* 4. 頁面標題與層次 */
+.admin-header {
+	text-align: center;
+	margin: 60px 0 40px;
+}
+
+.admin-header h1 {
+	font-family: var(--serif);
+	font-size: 32px;
+	letter-spacing: 2px;
+	margin: 10px 0;
+}
+
+.section-label {
+	font-size: 11px;
+	letter-spacing: 4px;
+	color: var(--muted);
+	text-transform: uppercase;
+}
+
+/* 5. 表格區域風格 */
+.admin-content {
+	max-width: 1000px;
+	margin: 0 auto;
+	background: var(--paper);
+	padding: 40px;
+	border: 1px solid var(--line);
+}
+
+.room-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 20px;
+}
+
+.room-table th {
+	font-family: var(--serif);
+	color: var(--soft);
+	border-bottom: 1px solid var(--ink);
+	padding: 15px;
+	text-align: left;
+}
+
+.room-table td {
+	padding: 15px;
+	border-bottom: 1px solid var(--line);
+}
+
+/* ===== buttons ===== */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;
+      background:var(--gold);color:#fff;font-family:var(--sans);font-size:11.5px;letter-spacing:2.5px;
+      text-transform:uppercase;padding:14px 30px;transition:.3s}
+    .btn:hover{background:var(--gold-d)}
+    .btn:disabled{opacity:.4;cursor:not-allowed}
+    .btn.ghost{background:transparent;border:1px solid var(--ink);color:var(--ink)}
+    .btn.ghost:hover{background:var(--ink);color:#fff}
+    .btn.line{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:9px 18px}
+    .btn.line:hover{background:var(--gold);color:#fff}
+    .btn.sm{padding:9px 18px;font-size:10.5px;letter-spacing:2px}
+    .btn.danger{background:transparent;border:1px solid #a85b50;color:#a85b50}
+    .btn.danger:hover{background:#a85b50;color:#fff}
+    .btn.block{width:100%}
+
+.status-badge {
+	font-size: 11px;
+	color: var(--gold-d);
+	border: 1px solid var(--gold);
+	padding: 2px 8px;
+	border-radius: 4px;
+}

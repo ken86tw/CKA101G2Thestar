@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>房型圖片管理 - THE STAR</title>
+<link rel="stylesheet" th:href="@{/css/photoManage.css}">
+</head>
+<body>
+	<div class="main-container">
+		<h2 class="page-title">房型圖片管理</h2>
+
+		<div class="action-bar">
+			<a th:href="@{/roomtypephoto/addPage}" class="btn-primary">+ 新增圖片</a>
+		</div>
+
+		<table class="data-table">
+			<thead>
+				<tr>
+					<th>圖片預覽</th>
+					<th>房型名稱</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- 改為遍歷 roomTypeList -->
+				<tr th:each="room : ${roomTypeList}">
+					<td>
+						<!-- 呼叫您 Controller 中現有的 display/room/{roomTypeId} 方法 --> <!-- 該方法會自動撈該房型的第一張圖 -->
+						<img
+						th:src="@{/roomtypephoto/display/room/{id}(id=${room.roomTypeId})}"
+						width="100px">
+					</td>
+					<td th:text="${room.roomTypeName}">房型名稱</td>
+					<td>
+						<!-- 點擊進入時帶入 roomTypeId，方便您進行新增或編輯 --> <a
+						th:href="@{/roomtypephoto/addPage(roomTypeId=${room.roomTypeId})}"
+						class="btn-primary">管理圖片</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

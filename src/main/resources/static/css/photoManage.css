@@ -1,0 +1,30 @@
+/* THE STAR Hotel 後台配色與樣式 */
+:root {
+    --primary-color: #a89475; /* 參考圖片中的質感金色/大地色 */
+    --bg-color: #f9f7f2;      /* 頁面背景色 */
+    --text-color: #4a4a4a;
+    --white: #ffffff;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.main-container { width: 90%; margin: 50px auto; }
+
+.page-title { text-align: center; color: var(--primary-color); margin-bottom: 30px; }
+
+.data-table { width: 100%; border-collapse: collapse; background: var(--white); }
+
+.data-table th, .data-table td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; }
+
+/* 按鈕樣式 */
+.btn-primary { background-color: var(--primary-color); color: white; padding: 10px 20px; text-decoration: none; }
+.btn-edit { color: var(--primary-color); margin-right: 10px; }
+.btn-delete { border: none; background: none; color: #d9534f; cursor: pointer; }
+
+.form-group { margin-bottom: 20px; }
+label { display: block; margin-bottom: 5px; }
+input, select { width: 100%; padding: 8px; border: 1px solid #ccc; }

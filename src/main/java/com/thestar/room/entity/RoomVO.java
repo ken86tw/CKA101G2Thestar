@@ -3,54 +3,85 @@ package com.thestar.room.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "ROOM")
 public class RoomVO {
 
-    @Id
-    @Column(name = "ROOM_ID")
-    private Integer roomId;                 // 房號，後台人為指定，不自增
+	@Id
+	@Column(name = "ROOM_ID", updatable = false)
+	@NotNull(message = "房間編號不能為空")
+	@Digits(integer = 4, fraction = 0, message = "房間編號必須是數字，且長度不可超過 4 位")
+	@Min(value = 100, message = "房間編號至少需為 100")
+	@Max(value = 9999, message = "房間編號不得大於 9999")
+	private Integer roomId;
 
-    @Column(name = "ROOM_TYPE_ID", nullable = false)
-    private Integer roomTypeId;             // 房型 ID，純欄位，配房時比對用
+	@ManyToOne // FK，多個房型對應一間房間
+	@JoinColumn(name = "ROOM_TYPE_ID", insertable = false, updatable = false)
+	private RoomTypeVO roomTypeVO;
+	
+	@Column(name = "ROOM_TYPE_ID")
+	private Integer roomTypeId;
 
-    @Column(name = "ROOM_STATUS")
-    private Byte roomStatus = (byte) 0;     // 0 空閒、1 入住中
+	@Column(name = "ROOM_STATUS", columnDefinition = "TINYINT")
+	private Byte roomStatus;
 
-    @Column(name = "ROOM_SWITCH_STATUS")
-    private Boolean roomSwitchStatus = true; // true 啟用、false 停用
+	public static final int STATUS_AVAILABLE = 0; // 未入住
+	public static final int STATUS_OCCUPIED = 1; // 已入住
+	public static final int STATUS_CLEANING = 2; // 待清潔
 
-    public Integer getRoomId() {
-        return roomId;
-    }
+	@Column(name = "ROOM_SWITCH_STATUS", columnDefinition = "BIT(1)")
+	private Boolean roomSwitchStatus = false; // 預設為未啟用
 
-    public void setRoomId(Integer roomId) {
-        this.roomId = roomId;
-    }
+	public RoomVO() {
+		super();
+	}
 
-    public Integer getRoomTypeId() {
-        return roomTypeId;
-    }
+	public Integer getRoomTypeId() {
+	    return roomTypeId;
+	}
 
-    public void setRoomTypeId(Integer roomTypeId) {
-        this.roomTypeId = roomTypeId;
-    }
+	public void setRoomTypeId(Integer roomTypeId) {
+	    this.roomTypeId = roomTypeId;
+	}
+	
+	public Integer getRoomId() {
+		return roomId;
+	}
 
-    public Byte getRoomStatus() {
-        return roomStatus;
-    }
+	public void setRoomId(Integer roomId) {
+		this.roomId = roomId;
+	}
 
-    public void setRoomStatus(Byte roomStatus) {
-        this.roomStatus = roomStatus;
-    }
+	public RoomTypeVO getRoomTypeVO() {
+		return roomTypeVO;
+	}
 
-    public Boolean getRoomSwitchStatus() {
-        return roomSwitchStatus;
-    }
+	public void setRoomTypeVO(RoomTypeVO roomTypeVO) {
+		this.roomTypeVO = roomTypeVO;
+	}
 
-    public void setRoomSwitchStatus(Boolean roomSwitchStatus) {
-        this.roomSwitchStatus = roomSwitchStatus;
-    }
+	public Byte getRoomStatus() {
+		return roomStatus;
+	}
+
+	public void setRoomStatus(Byte roomStatus) {
+		this.roomStatus = roomStatus;
+	}
+
+	public Boolean getRoomSwitchStatus() {
+		return roomSwitchStatus;
+	}
+
+	public void setRoomSwitchStatus(Boolean roomSwitchStatus) {
+		this.roomSwitchStatus = roomSwitchStatus;
+	}
+
 }
