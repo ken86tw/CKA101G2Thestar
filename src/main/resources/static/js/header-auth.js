@@ -16,6 +16,25 @@
   }
 
   async function logoutMember() {
+    const currentPage =
+      location.pathname + location.search + location.hash;
+
+    let logoutTarget = currentPage;
+
+    if (
+      location.pathname === '/shop/cart' ||
+      location.pathname.startsWith('/shop/cart/')
+    ) {
+      logoutTarget = '/shop';
+    } else if (location.pathname === '/profile.html') {
+      logoutTarget = '/index.html';
+    } else if (
+      location.pathname === '/roombooking.html' &&
+      new URLSearchParams(location.search).get('tab') === 'orders'
+    ) {
+      logoutTarget = '/roombooking.html';
+    }
+
     try {
       await fetch('/api/member/logout', {
         method: 'POST',
@@ -24,7 +43,11 @@
     } catch (e) {
     }
 
-    location.href = '/index.html';
+    if (logoutTarget === currentPage) {
+      location.reload();
+    } else {
+      location.href = logoutTarget;
+    }
   }
 
   function bindComingSoonLinks() {

@@ -18,8 +18,8 @@ createApp({
   },
 
   mounted() {
-    const params = new URLSearchParams(location.search);
-    this.redirect = params.get('redirect') || '/index.html';
+	const params = new URLSearchParams(location.search);
+	this.redirect = this.normalizeRedirect(params.get('redirect'));
 
     const rememberedEmail = localStorage.getItem('theStarRememberEmail') || '';
     const rememberedPassword = localStorage.getItem('theStarRememberPassword') || '';
@@ -33,6 +33,24 @@ createApp({
   },
 
   methods: {
+    normalizeRedirect(value) {
+      if (!value || !value.startsWith('/') || value.startsWith('//')) {
+        return '/index.html';
+      }
+
+      try {
+        const target = new URL(value, location.origin);
+
+        if (target.origin !== location.origin) {
+          return '/index.html';
+        }
+
+        return target.pathname + target.search + target.hash;
+      } catch (e) {
+        return '/index.html';
+      }
+    },
+
     clearMessage() {
       this.errorMsg = '';
       this.successMsg = '';

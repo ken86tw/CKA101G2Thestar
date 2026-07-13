@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/content/parts :: head('文章管理 - The Star Hotel')}"></head>
+<body class="admin-body">
+<div class="admin-frame">
+    <div th:replace="~{admin/content/parts :: topbar}"></div>
+    <aside th:replace="~{admin/content/parts :: sidebar('article')}"></aside>
+    <main class="admin-main">
+        <div class="admin-heading">
+            <div>
+                <h1>文章管理</h1>
+                <p>管理旅遊攻略、美食推薦與住宿體驗文章。</p>
+            </div>
+            <a th:href="@{/thestar/admin/content/article/add}" class="admin-button">+ 新增文章</a>
+        </div>
+        <p class="admin-message" th:if="${message}" th:text="${message}"></p>
+        <p class="admin-message error" th:if="${error}" th:text="${error}"></p>
+        <div class="admin-card">
+            <table class="admin-table">
+                <thead><tr><th>#</th><th>標題</th><th>分類</th><th>作者</th><th>瀏覽</th><th>狀態</th><th>更新時間</th><th>操作</th></tr></thead>
+                <tbody>
+                <tr th:each="article : ${articles}">
+                    <td><span class="oid" th:text="${article.articleId}"></span></td>
+                    <td th:text="${article.title}"></td>
+                    <td th:text="${article.category}"></td>
+                    <td th:text="'#' + ${article.employeeId}"></td>
+                    <td th:text="${article.viewCount}"></td>
+                    <td>
+                        <span th:if="${article.status == 1}" class="admin-badge on">發布</span>
+                        <span th:unless="${article.status == 1}" class="admin-badge off">下架</span>
+                    </td>
+                    <td th:text="${#temporals.format(article.updateAt, 'yyyy/MM/dd HH:mm')}"></td>
+                    <td class="admin-actions">
+                        <a class="admin-button line sm" th:href="@{'/'(article=${article.articleId})}" target="_blank">查看</a>
+                        <a class="admin-button line sm" th:href="@{'/thestar/admin/content/article/edit/' + ${article.articleId}}">編輯</a>
+                        <form th:action="@{'/thestar/admin/content/article/' + ${article.articleId} + '/toggle-status'}" method="post">
+                            <input type="hidden" name="published" th:value="${article.status == 1} ? 'false' : 'true'">
+                            <button class="admin-button line sm" type="submit" th:text="${article.status == 1} ? '下架' : '發布'"></button>
+                        </form>
+                        <form th:action="@{'/thestar/admin/content/article/' + ${article.articleId} + '/delete'}" method="post"
+                              onsubmit="return confirm('確定要刪除這篇文章嗎？')">
+                            <button class="admin-button danger sm" type="submit">刪除</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>

@@ -41,6 +41,19 @@
     .product-price { font-size: 20px; font-weight: 700; color: #c9a84c; }
     .btn-detail { background: #2d5a6b; color: #fff; border: 0; padding: 9px 20px; font-size: 13px; cursor: pointer; letter-spacing: 1px; text-decoration: none; border-radius: 4px; transition: background 0.2s; }
     .btn-detail:hover { background: #1e3a4a; color: #fff; }
+    /* 搜尋框 */
+    .search-bar { display: flex; gap: 8px; margin-bottom: 24px; }
+    .search-bar input { flex: 1; padding: 10px 16px; border: 1px solid #dce8ed; border-radius: 4px; font-size: 14px; color: #2c3e50; outline: none; transition: border-color 0.2s; }
+    .search-bar input:focus { border-color: #2d5a6b; }
+    .search-bar button { background: #2d5a6b; color: #fff; border: 0; padding: 10px 20px; border-radius: 4px; font-size: 14px; cursor: pointer; transition: background 0.2s; letter-spacing: 1px; }
+    .search-bar button:hover { background: #1e3a4a; }
+    .search-clear { background: transparent; color: #7a9aaa; border: 1px solid #dce8ed; padding: 10px 16px; border-radius: 4px; font-size: 13px; cursor: pointer; text-decoration: none; transition: all 0.2s; white-space: nowrap; }
+    .search-clear:hover { border-color: #2d5a6b; color: #2d5a6b; }
+    /* 搜尋結果提示 */
+    .search-info { background: #f0f7fa; border: 1px solid #dce8ed; border-radius: 4px; padding: 10px 16px; margin-bottom: 24px; font-size: 13px; color: #5a7a8a; }
+    /* 無結果 */
+    .no-result { text-align: center; padding: 80px 0; color: #a0b8c0; }
+    .no-result i { font-size: 48px; display: block; margin-bottom: 16px; opacity: 0.4; }
     footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 32px; font-size: 13px; margin-top: 80px; }
     .footer-brand { font-family: 'Noto Serif TC', serif; font-size: 16px; color: #c9a84c; letter-spacing: 4px; margin-bottom: 8px; }
     .footer-en { font-family: 'Cormorant Garamond', serif; font-style: italic; color: #5a8a9a; font-size: 14px; margin-bottom: 16px; }
@@ -60,7 +73,17 @@
     <a href="/restaurant">餐廳</a>
     <a href="/shop" class="active">購物</a>
     <a href="/shop/cart"><i class="fa-solid fa-cart-shopping"></i></a>
-    <a href="/login.html" class="navbar-login"><i class="fa-regular fa-user me-1"></i>登入</a>
+    <button th:if="${session.loginMember != null}"
+      onclick="logout()"
+      class="navbar-login"
+      style="cursor:pointer; font-size:14px; letter-spacing:1px; border:0;">
+      <i class="fa-regular fa-user me-1"></i>
+      <span th:text="${session.loginMember.memberName}">會員</span>
+    </button>
+    <a th:if="${session.loginMember == null}"
+      href="/login.html" class="navbar-login">
+      <i class="fa-regular fa-user me-1"></i>登入
+    </a>
   </div>
 </nav>
 
@@ -75,12 +98,33 @@
 
 <div class="shop-container">
   <div class="section-header">
-    <div class="section-title" th:text="${selectedCategoryId == null} ? '全部商品' : '篩選結果'">全部商品</div>
+    <div class="section-title"
+      th:text="${keyword != null and !#strings.isEmpty(keyword)} ? '搜尋結果：' + keyword : (${selectedCategoryId == null} ? '全部商品' : '篩選結果')">
+      全部商品
+    </div>
     <div style="font-size:13px; color:#7a9aaa;" th:text="${#lists.size(productsListData)} + ' 件商品'"></div>
   </div>
 
-  <!-- 類別篩選 -->
-  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:40px; padding-bottom:24px; border-bottom:1px solid #dce8ed;">
+  <!-- 搜尋框 -->
+  <form action="/shop" method="get" class="search-bar">
+    <input type="text" name="keyword" placeholder="搜尋商品名稱或介紹..."
+      th:value="${keyword}">
+    <button type="submit"><i class="fa-solid fa-magnifying-glass me-1"></i>搜尋</button>
+    <a href="/shop" class="search-clear"
+      th:if="${keyword != null and !#strings.isEmpty(keyword)}">
+      <i class="fa-solid fa-xmark me-1"></i>清除
+    </a>
+  </form>
+
+  <!-- 搜尋結果提示 -->
+  <div class="search-info"
+    th:if="${keyword != null and !#strings.isEmpty(keyword)}"
+    th:text="'搜尋「' + ${keyword} + '」，共找到 ' + ${#lists.size(productsListData)} + ' 件商品'">
+  </div>
+
+  <!-- 類別篩選（搜尋時隱藏） -->
+  <div th:if="${keyword == null or #strings.isEmpty(keyword)}"
+    style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:40px; padding-bottom:24px; border-bottom:1px solid #dce8ed;">
     <a href="/shop"
        style="padding:9px 22px; border-radius:4px; font-size:13px; text-decoration:none; letter-spacing:2px; transition:all 0.2s;"
        th:style="${selectedCategoryId == null} ? 'background:#2d5a6b; color:#fff; border:1px solid #2d5a6b;' : 'background:transparent; color:#5a7a8a; border:1px solid #c8dae0;'">
@@ -96,9 +140,15 @@
     </a>
   </div>
 
-  <div class="shop-grid">
+  <!-- 無搜尋結果 -->
+  <div class="no-result" th:if="${#lists.isEmpty(productsListData)}">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    找不到符合「<span th:text="${keyword}"></span>」的商品，請試試其他關鍵字。
+  </div>
+
+  <!-- 商品列表 -->
+  <div class="shop-grid" th:if="${!#lists.isEmpty(productsListData)}">
     <div class="product-card" th:each="product : ${productsListData}">
-      <!-- 圖片 -->
       <th:block th:with="firstImg=${firstImageMap.get(product.productId)}">
         <div class="product-img-placeholder" th:if="${firstImg == null}">
           <i class="fa-solid fa-bag-shopping"></i>
@@ -127,6 +177,13 @@
   <div class="footer-divider"></div>
   <div>© 2026 東方之星 The Star．All Rights Reserved</div>
 </footer>
+
+<script>
+function logout() {
+	fetch('/api/member/logout', { method: 'POST' })
+		.then(() => window.location.href = '/shop');
+}
+</script>
 
 </body>
 </html>

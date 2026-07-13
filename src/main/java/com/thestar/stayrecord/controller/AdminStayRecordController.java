@@ -1,36 +1,53 @@
 package com.thestar.stayrecord.controller;
 
 
+import com.thestar.order.entity.OrderVO;
 import com.thestar.stayrecord.dto.CheckInDTO;
 import com.thestar.room.entity.RoomVO;
 import com.thestar.stayrecord.dto.FindCheckInRoomDTO;
 import com.thestar.stayrecord.entity.StayRecordVO;
 import com.thestar.stayrecord.service.StayRecordService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/thestar/admin/stayrecord")
 public class AdminStayRecordController {
 
     private final StayRecordService stayRecordService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public AdminStayRecordController(StayRecordService stayRecordService) {
+    public AdminStayRecordController(StayRecordService stayRecordService, SimpMessagingTemplate simpMessagingTemplate) {
         this.stayRecordService = stayRecordService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @PostMapping("/checkin")
-    public ResponseEntity<String> checkIn(@RequestBody CheckInDTO dto, HttpSession session) {
+    public ResponseEntity<String> checkIn(@RequestPart("dto") CheckInDTO dto, HttpSession session,
+                                          @RequestPart(value = "stayCustomerPhoto", required = false) MultipartFile file) {
         Integer employeeId = (Integer) session.getAttribute("loginEmployee");
         if (employeeId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        stayRecordService.checkIn(employeeId, dto);
+        try {
+            byte[] photo = (file != null && !file.isEmpty() ? file.getBytes() : null);
+            stayRecordService.checkIn(employeeId, dto, photo);
+        } catch (IOException e) {
+            throw new IllegalStateException("照片錯誤");
+        }
+        //廣播要放在service之後 交易commit完才通知 其他員工的房間格子即時變紅
+        simpMessagingTemplate.convertAndSend("/topic/rooms", (Object) Map.of("roomId", dto.getRoomId(), "roomStatus", 1));
+
         return ResponseEntity.status(HttpStatus.CREATED).body("check in OK");
     }
 
@@ -43,17 +60,24 @@ public class AdminStayRecordController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        stayRecordService.checkOut(roomId, employeeId);
-
+        Integer memberId = stayRecordService.checkOut(roomId, employeeId);
+        //交易commit後才廣播 房況變動所有員工即時看到
+        simpMessagingTemplate.convertAndSend("/topic/rooms", (Object) Map.of("roomId", roomId, "roomStatus", 0));
+        //整單全退完訂單才真的變已完成 部分退房不用吵大家
+        if (memberId != null) {
+            simpMessagingTemplate.convertAndSend("/topic/orders", (Object) Map.of("event", "completed"));
+            simpMessagingTemplate.convertAndSend("/topic/member/" + memberId, (Object) Map.of("event", "completed"));
+        }
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("房號" + roomId + "退房成功");
+
     }
 
     @GetMapping("/find")
     public ResponseEntity<List<StayRecordVO>> searchStayRecord(@RequestParam(required = false) Integer roomId,
-                                                 @RequestParam(required = false) String stayCustomer,
-                                                 @RequestParam(required = false) LocalDate checkInTime,
-                                                 @RequestParam(required = false) LocalDate checkOutTime,
-                                                 HttpSession session) {
+                                                               @RequestParam(required = false) String stayCustomer,
+                                                               @RequestParam(required = false) LocalDate checkInTime,
+                                                               @RequestParam(required = false) LocalDate checkOutTime,
+                                                               HttpSession session) {
         Integer empolyeeId = (Integer) session.getAttribute("loginEmployee");
 
         if (empolyeeId == null) {
@@ -85,8 +109,9 @@ public class AdminStayRecordController {
         return ResponseEntity.ok(stayRecordService.findRoomsByOrderList(orderListId));
     }
 
+    //退房時使用列出所有還沒退房的房間
     @GetMapping("/find/all")
-    public ResponseEntity<List<StayRecordVO>> searchAllNotCheckOutRoom(HttpSession session){
+    public ResponseEntity<List<StayRecordVO>> searchAllNotCheckOutRoom(HttpSession session) {
         Integer employeeId = (Integer) session.getAttribute("loginEmployee");
 
         if (employeeId == null) {
@@ -94,5 +119,31 @@ public class AdminStayRecordController {
         }
         return ResponseEntity.ok(stayRecordService.findAllNotCheckOutRoom());
     }
+
+
+    //查詢顧客照片
+    @GetMapping("/find/photo/{stayId}")
+    public ResponseEntity<byte[]> stayPhoto(@PathVariable Integer stayId, HttpSession session) {
+        Integer employeeId = (Integer) session.getAttribute("loginEmployee");
+        if (employeeId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        byte[] photo = stayRecordService.findStayCustomerPhoto(stayId);
+        if (photo == null || photo.length == 0) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(photo);
+    }
+
+    //查詢住宿紀錄時查看訂單詳情
+    @GetMapping("/find/order/{stayId}")
+    public ResponseEntity<OrderVO> orderOfStay(@PathVariable Integer stayId, HttpSession session) {
+        Integer employeeId = (Integer) session.getAttribute("loginEmployee");
+        if (employeeId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(stayRecordService.findOrderByStay(stayId));
+    }
+
 }
 

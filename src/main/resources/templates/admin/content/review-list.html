@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/content/parts :: head('文章評論管理 - The Star Hotel')}"></head>
+<body class="admin-body">
+<div class="admin-frame">
+    <div th:replace="~{admin/content/parts :: topbar}"></div>
+    <aside th:replace="~{admin/content/parts :: sidebar('review')}"></aside>
+    <main class="admin-main">
+        <div class="admin-heading">
+            <div>
+                <h1>文章評論管理</h1>
+                <p>查看會員留言並移除不適當內容。</p>
+            </div>
+        </div>
+        <p class="admin-message" th:if="${message}" th:text="${message}"></p>
+        <p class="admin-message error" th:if="${error}" th:text="${error}"></p>
+        <div class="admin-card">
+            <table class="admin-table">
+                <thead><tr><th>#</th><th>文章</th><th>會員</th><th>內容</th><th>按讚</th><th>建立時間</th><th>操作</th></tr></thead>
+                <tbody>
+                <tr th:each="review : ${reviews}">
+                    <td><span class="oid" th:text="${review.reviewId}"></span></td>
+                    <td th:text="'#' + ${review.articleId}"></td>
+                    <td th:text="'#' + ${review.memberId}"></td>
+                    <td th:text="${review.content}"></td>
+                    <td th:text="${review.likeCount}"></td>
+                    <td th:text="${#temporals.format(review.createdAt, 'yyyy/MM/dd HH:mm')}"></td>
+                    <td class="admin-actions">
+                        <form th:action="@{'/thestar/admin/content/review/' + ${review.reviewId} + '/delete'}" method="post">
+                            <button class="admin-button danger sm" type="submit">刪除</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+</body>
+</html>
