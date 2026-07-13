@@ -3,8 +3,6 @@ package com.thestar.room.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
@@ -23,10 +21,6 @@ public class RoomVO {
 	@Max(value = 9999, message = "房間編號不得大於 9999")
 	private Integer roomId;
 
-	@ManyToOne // FK，多個房型對應一間房間
-	@JoinColumn(name = "ROOM_TYPE_ID", insertable = false, updatable = false)
-	private RoomTypeVO roomTypeVO;
-	
 	@Column(name = "ROOM_TYPE_ID")
 	private Integer roomTypeId;
 
@@ -60,13 +54,13 @@ public class RoomVO {
 		this.roomId = roomId;
 	}
 
-	public RoomTypeVO getRoomTypeVO() {
-		return roomTypeVO;
-	}
-
-	public void setRoomTypeVO(RoomTypeVO roomTypeVO) {
-		this.roomTypeVO = roomTypeVO;
-	}
+//	public RoomTypeVO getRoomTypeVO() {
+//		return roomTypeVO;
+//	}
+//
+//	public void setRoomTypeVO(RoomTypeVO roomTypeVO) {
+//		this.roomTypeVO = roomTypeVO;
+//	}
 
 	public Byte getRoomStatus() {
 		return roomStatus;

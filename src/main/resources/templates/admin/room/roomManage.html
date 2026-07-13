@@ -56,8 +56,7 @@
 				<tbody>
 					<tr th:each="room : ${roomList}">
 						<td th:text="${room.roomId}"></td>
-						<td
-							th:text="${room.roomTypeVO != null ? room.roomTypeVO.roomTypeName : '無房型'}"></td>
+						<td th:text="${room.roomTypeId}"></td>
 						<td><span class="status-badge"
 							th:text="${room.roomStatus == 1 ? '空房' : (room.roomStatus == 2 ? '入住中' : '維修中')}"></span>
 						</td>

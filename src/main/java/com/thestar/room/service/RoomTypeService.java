@@ -29,7 +29,7 @@ public class RoomTypeService {
 
 	// 查詢單一房型
 	public RoomTypeVO getOneRoomType(Integer id) {
-		return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到對應的房型")); // 找不到對應id時，回傳錯誤訊息
+		return repository.findById(id).orElseThrow(); // 找不到對應id時，回傳錯誤訊息
 	}
 
 	// 新增房型

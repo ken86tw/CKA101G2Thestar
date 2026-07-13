@@ -50,33 +50,41 @@ public class RoomController {
 	@PostMapping("/insert")
 	public String insert(RoomVO roomVO, @RequestParam("roomTypeId") Integer typeId) {
 		// 手動將 ID 轉成物件
-		RoomTypeVO typeVO = roomTypeService.getOneRoomType(typeId);
-		roomVO.setRoomTypeVO(typeVO);
+		RoomTypeVO roomTypeVO = roomTypeService.getOneRoomType(typeId);
+//		roomVO.setRoomTypeVO(typeVO);
 
+		roomVO.setRoomTypeId(typeId);
 		roomService.save(roomVO);
 		return "redirect:/room/manage";
 	}
 
-	// 進入修改頁面
-	@GetMapping("/edit/{roomId}")
-	public String editInput(@PathVariable("roomId") Integer roomId, Model model) {
-		model.addAttribute("roomVO", roomService.findById(roomId));
-		model.addAttribute("roomTypeList", roomTypeService.getAllRoomTypes());
-		return "admin/room/roomForm";
-	}
+	// 進入修改頁面 (回填資料)
+    @GetMapping("/edit/{roomId}")
+    public String editInput(@PathVariable("roomId") Integer roomId, Model model) {
+        // 1. 根據 ID 查詢現有的房間資料
+        RoomVO roomVO = roomService.findById(roomId);
+        model.addAttribute("roomVO", roomVO);
+        
+        // 2. 帶入房型列表，讓頁面上的下拉選單可以選擇
+        model.addAttribute("roomTypeList", roomTypeService.getAllRoomTypes());
+        
+        // 3. 導向到同一個表單頁面 (roomForm.html)
+        return "admin/room/roomForm";
+    }
 
-	// 執行修改
-	@PostMapping("/save") // 將 insert 和 update 合併
-	public String save(RoomVO roomVO) {
-		// 1. 從前端傳來的 roomVO 中取出 roomTypeVO 的 ID
-		if (roomVO.getRoomTypeVO() != null && roomVO.getRoomTypeVO().getRoomTypeId() != null) {
-			RoomTypeVO typeVO = roomTypeService.getOneRoomType(roomVO.getRoomTypeVO().getRoomTypeId());
-			// 2. 將完整的物件塞回 roomVO
-			roomVO.setRoomTypeVO(typeVO);
-		}
-		roomService.save(roomVO);
-		return "redirect:/room/manage";
-	}
+    // 執行修改
+    @PostMapping("/update")
+    public String update(RoomVO roomVO, @RequestParam("roomTypeId") Integer typeId) {
+        // 1. 設定關聯的房型 ID
+        roomVO.setRoomTypeId(typeId);
+        
+        // 2. 呼叫 Service 的更新方法
+        // 注意：這裡假設你的 service 有 update 方法，若沒有，通常也是呼叫 save
+        roomService.save(roomVO);
+        
+        return "redirect:/room/manage";
+    }
+	
 
 	// 執行刪除
 	@PostMapping("/delete")
