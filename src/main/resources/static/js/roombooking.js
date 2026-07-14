@@ -2,20 +2,21 @@ const {createApp} = Vue;
 const STATUS = [
     {v: 0, label: '待付款'}, {v: 1, label: '已付款'}, {v: 2, label: '已完成'}, {v: 3, label: '已取消'},
 ];
-// 房型固定三種（與 ROOM_TYPE 表一致），前端顯示中文、值仍送數字 ID
-const ROOM_TYPES = [
-    {id: 1, name: '雙人房', price: 4000},
-    {id: 2, name: '四人房', price: 7500},
-    {id: 3, name: '總統套房', price: 12600},
-];
+// 取本地日期字串yyyy-MM-dd(可加減天數)。不能用toISOString:那是UTC,台灣凌晨0點到早上8點會差一天
+const localDate = (offsetDays = 0) => {
+    const d = new Date(Date.now() + offsetDays * 864e5);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 createApp({
     data() {
-        const today = new Date();
-        const d = n => new Date(today.getTime() + n * 864e5).toISOString().slice(0, 10);
+        const d = localDate;
         return {
-            STATUS, ROOM_TYPES, nav: 'book', gateTab: 'member',
-			member: {id: 1,on: null,name: ''},employee: {id: 1,on: null,name: ''},
+            STATUS, nav: 'book', gateTab: 'member',
+            roomTypes: [],   // 房型清單(id/name/price),頁面載入時從查房API撈,新增房型自動跟上
+            member: {id: 1, on: null, name: ''}, employee: {id: 1, on: null, name: ''},
             form: {checkInDate: d(1), checkOutDate: d(2), couponId: null, rooms: [{roomTypeId: null, qty: 1}]},
+            book: {step: 'search', results: [], sel: {}, nights: 0},
+            browsing: true,   // 預設直接進查房頁不擋登入,到「確認預訂」才要求登入;設 false 會顯示登入閘門(員工入口用)
             confirmOrder: null,
             confirmDetail: [],
             orders: {status: 0, page: 0, size: 10, list: [], totalPages: 0, counts: {}, open: {}, detail: {}},
@@ -43,7 +44,7 @@ createApp({
                 detailRecord: null,
                 detailLines: []
             },
-            refund:{list:[]},
+            refund: {list: []},
             toasts: [], logLines: [], _tid: 0,
         };
     },
@@ -51,15 +52,30 @@ createApp({
         logText() {
             return this.logLines.join('\n') || '（尚無紀錄）';
         },
-        // 住宿紀錄過濾:勾了就把「有退房時間」的紀錄濾掉 只剩在住中
-        // computed的特性:records或勾選狀態一變 Vue就自動重算 不用手動呼叫
+
         stayRecordsFiltered() {
             const list = this.stay.records;
             return this.stay.find.hideCheckedOut ? list.filter(r => !r.checkOutTime) : list;
+        },
+        bookItems() {
+            return this.book.results
+                .filter(r => (this.book.sel[r.roomTypeId] || 0) > 0)
+                .map(r => {
+                    const qty = this.book.sel[r.roomTypeId];
+                    return {
+                        roomTypeId: r.roomTypeId, roomTypeName: r.roomTypeName,
+                        price: r.price, qty, subtotal: r.price * this.book.nights * qty
+                    };
+                });
+        },
+
+        bookTotal() {
+            return this.bookItems.reduce((sum, it) => sum + it.subtotal, 0);
         }
     },
     // 重整後問會員登入狀態(首頁的真登入);員工登入不跨頁記憶,重整需重登
     async mounted() {
+        this.loadRoomTypes();   // 首屏房型展示卡用,不需登入
         try {
             const me = await this.api('/api/member/status');
             if (me.loggedIn) {
@@ -67,13 +83,28 @@ createApp({
                 this.member.on = me.memberId;
                 this.connectWs();   // 會員身分確認後連線 訂閱自己專屬的通知頻道
             }
-			if (me.loggedIn) {
-			  this.member.id = me.memberId;
-			  this.member.on = me.memberId;
-			  this.member.name = me.memberName;
-			  this.connectWs();   // 會員身分確認後連線 訂閱自己專屬的通知頻道
-			}
+            if (me.loggedIn) {
+                this.member.id = me.memberId;
+                this.member.on = me.memberId;
+                this.member.name = me.memberName;
+                this.connectWs();   // 會員身分確認後連線 訂閱自己專屬的通知頻道
+            }
         } catch { /* 沒登入就停在登入頁 */
+        }
+        // 登入前有存下的訂房內容:重查空房(拿最新剩餘數)後還原選擇,直接跳回確認頁
+        if (this.member.on && sessionStorage.getItem('pendingBooking')) {
+            const p = JSON.parse(sessionStorage.getItem('pendingBooking'));
+            sessionStorage.removeItem('pendingBooking');
+            this.form.checkInDate = p.checkInDate;
+            this.form.checkOutDate = p.checkOutDate;
+            this.form.couponId = p.couponId;
+            await this.searchRooms();
+            for (const r of this.book.results) {
+                const want = (p.sel || {})[r.roomTypeId] || 0;
+                this.book.sel[r.roomTypeId] = Math.min(want, r.remaining); // 空房變少就自動下修
+            }
+            if (this.bookItems.length) this.goConfirm();
+            else this.toast('warn', '空房狀況已變動', '請重新選擇客房');
         }
     },
     methods: {
@@ -132,18 +163,105 @@ createApp({
                 } catch { /* 後端沒清成也照樣登出前端 */
                 }
             }
-            if(this._stomp){
-                this._stomp.deactivate(); this._stomp = null;
+            if (this._stomp) {
+                this._stomp.deactivate();
+                this._stomp = null;
             }
             this.member.on = null;
-			this.member.name = '';
+            this.member.name = '';
             this.employee.on = null;
             this.nav = 'book';
             this.orders.list = [];
             this.admin.list = [];
             this.toast('warn', '已登出');
         },
+        // 用「今天住到明天」查一次空房,拿到目前資料庫裡全部房型的名稱與價格
+        async loadRoomTypes() {
+            try {
+                const r = await this.api(`/find/room?checkInDate=${localDate()}&checkOutDate=${localDate(1)}`);
+                this.roomTypes = r.map(x => ({
+                    id: x.roomTypeId,
+                    name: x.roomTypeName || x.roomTypename,
+                    price: x.price || 0
+                }));
+            } catch {
+                this.roomTypes = [];
+            }
+        },
+
+        async searchRooms() {
+            const {checkInDate, checkOutDate} = this.form;
+            if (!checkInDate || !checkOutDate) {
+                this.toast('warn', '請選擇日期')
+                return;
+            }
+            if (checkOutDate <= checkInDate) {
+                this.toast('warn', '退房日必須晚於入住日');
+                return;
+            }
+            if (checkInDate < localDate()) {
+                this.toast('warn', '入住日不能早於今天');
+                return;
+            }
+            try {
+                const r = await this.api(`/find/room?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}`)
+                this.book.results = r.map(x => ({
+                    roomTypeId: x.roomTypeId,
+                    roomTypeName: x.roomTypeName || x.roomTypename,
+                    remaining: x.amount,
+                    price: x.price || 0
+                }));
+
+                this.book.nights = (new Date(checkOutDate) - new Date(checkInDate)) / 864e5;
+                this.book.sel = {};
+                this.book.results.forEach(x => this.book.sel[x.roomTypeId] = 0);
+                this.book.step = 'list';
+            } catch (e) {
+                this.toast('err', '查詢失敗', this.errMsg(e))
+            }
+        },
+
+        qtyOptions(r) {
+            const max = Math.min(r.remaining, 10);
+            const arr = [];
+            for (let n = 0; n <= max; n++) arr.push(n);
+            return arr;
+        },
+
+        goConfirm() {
+            if (this.bookItems.length === 0) {
+                this.toast('warn', '請至少選擇一間客房');
+                return;
+            }
+            this.form.rooms = this.bookItems.map(it => ({roomTypeId: it.roomTypeId, qty: it.qty}));
+            // 未登入:在「現在就預訂」就先去登入,回來由mounted還原並直接進確認頁
+            if (!this.member.on) {
+                sessionStorage.setItem('pendingBooking', JSON.stringify({
+                    checkInDate: this.form.checkInDate,
+                    checkOutDate: this.form.checkOutDate,
+                    couponId: this.form.couponId,
+                    sel: this.book.sel,
+                }));
+                this.toast('warn', '請先登入', '登入後將直接進入訂單確認');
+                setTimeout(() => location.href = '/login.html?redirect=/roombooking.html', 800);
+                return;
+            }
+            this.book.step = 'confirm';
+        },
+
         async createOrder() {
+            // 未登入:先把訂房內容存進sessionStorage再去登入,登入回來由mounted還原
+            if (!this.member.on) {
+                sessionStorage.setItem('pendingBooking', JSON.stringify({
+                    checkInDate: this.form.checkInDate,
+                    checkOutDate: this.form.checkOutDate,
+                    couponId: this.form.couponId,
+                    sel: this.book.sel,
+                }));
+                this.toast('warn', '請先登入', '登入後將自動回到您的訂單');
+                setTimeout(() => location.href = '/login.html?redirect=/roombooking.html', 800);
+                return;
+            }
             try {
                 const r = await this.api('/thestar/order/create', {
                     method: 'POST',
@@ -152,6 +270,9 @@ createApp({
                 });
                 this.log('✔ 下單', r);
                 this.confirmOrder = r;
+                this.book.step = 'search';
+                this.book.results = [];
+                this.book.sel = {};
                 try {
                     this.confirmDetail = await this.api(`/thestar/order/member/order/detail/${r.orderId}`);
                 } catch {
@@ -159,6 +280,9 @@ createApp({
                 }
             } catch (e) {
                 this.toast('err', '預訂失敗', this.errMsg(e));
+                // 可能是被搶訂造成庫存不足:回選房頁並重查空房,避免對著舊數字再選一次
+                this.book.step = 'list';
+                this.searchRooms();
             }
         },
         async loadOrders() {
@@ -414,34 +538,34 @@ createApp({
             }
         },
 
-        async loadRefunds(){
-            try{
+        async loadRefunds() {
+            try {
                 this.refund.list = await
                     this.api('/thestar/admin/refund/find');
-            }catch (e) {
+            } catch (e) {
                 this.refund.list = [];
-                this.toast('err','退款清單查詢失敗',this.errMsg(e));
+                this.toast('err', '退款清單查詢失敗', this.errMsg(e));
             }
         },
 
-        async doRefund(r){
-            if(!confirm(`退款單 #${r.refundId} · $${r.amount} 確認執行退款？`)) return;
-            try{
+        async doRefund(r) {
+            if (!confirm(`退款單 #${r.refundId} · $${r.amount} 確認執行退款？`)) return;
+            try {
                 const msg = await
-                    this.api(`/thestar/admin/refund/process/${r.refundId}`, {method:'POST'});
-                    this.toast('ok','退款完成',msg);
-                    this.loadRefunds();
-            }catch (e) {
-                this.toast('err','退款失敗',this.errMsg(e));
+                    this.api(`/thestar/admin/refund/process/${r.refundId}`, {method: 'POST'});
+                this.toast('ok', '退款完成', msg);
+                this.loadRefunds();
+            } catch (e) {
+                this.toast('err', '退款失敗', this.errMsg(e));
             }
         },
 
-        connectWs(){
-            if(this._stomp)return;
+        connectWs() {
+            if (this._stomp) return;
             const proto = location.protocol === 'https:' ? 'wss' : 'ws';
             const client = new StompJs.Client({
-               brokerURL: `${proto}://${location.host}/ws`,
-               reconnectDelay: 5000,
+                brokerURL: `${proto}://${location.host}/ws`,
+                reconnectDelay: 5000,
             });
             client.onConnect = () => {
                 this.log('✔ WS', '已連線');
@@ -453,16 +577,16 @@ createApp({
                             data.roomId);
                         if (room) room.roomStatus = data.roomStatus;
                     });
-                    client.subscribe('/topic/refunds',()=> {
+                    client.subscribe('/topic/refunds', () => {
                         this.log('WS refunds', '清單變動');
                         //取消訂單或退款完成都會敲這口鐘 人在哪個分頁就重查哪邊
-                        if(this.nav ==='refund')this.loadRefunds();
+                        if (this.nav === 'refund') this.loadRefunds();
                         //後台訂單的列表跟上面統計數字也會受影響 一起重查
-                        if(this.nav ==='admin')this.loadAdmin();
+                        if (this.nav === 'admin') this.loadAdmin();
                     });
-                    client.subscribe('/topic/orders',()=> {
-                        this.log('WS orders','訂單變動');
-                        if(this.nav ==='admin')this.loadAdmin();
+                    client.subscribe('/topic/orders', () => {
+                        this.log('WS orders', '訂單變動');
+                        if (this.nav === 'admin') this.loadAdmin();
                     });
                 }
                 if (this.member.on) {

@@ -16,7 +16,7 @@
 <div id="app">
 
     <!-- ============ 登入（入口，與其他頁分開） ============ -->
-    <div v-if="!member.on && !employee.on" class="gate">
+    <div v-if="!member.on && !employee.on && !browsing" class="gate">
         <div class="visual">
             <div class="cap">
                 <div class="up">The Star · Since 2026</div>
@@ -34,6 +34,7 @@
             <div v-if="gateTab==='member'">
                 <p class="hint" style="margin-bottom:26px">貴賓請先於登入頁面登入，完成後即自動進入專屬服務</p>
                 <a class="btn block" href="/login.html?redirect=/roombooking.html">前往登入頁面登入</a>
+                <button class="reslink" style="margin-top:16px" @click="browsing=true">‹ 返回查詢空房</button>
             </div>
             <div v-else>
                 <div class="field"><label>Employee ID</label><input type="number" v-model.number="employee.id"
@@ -51,7 +52,7 @@
                 <a class="logo" href="/index.html"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp;
                     Residences</small></a>
                 <nav class="menu">
-                    <button v-if="member.on" :class="{on:nav==='book'}" @click="nav='book'">預訂客房</button>
+                    <button v-if="member.on || browsing" :class="{on:nav==='book'}" @click="nav='book'">預訂客房</button>
                     <button v-if="member.on" :class="{on:nav==='orders'}" @click="nav='orders';loadOrders()">我的預訂
                     </button>
                     <button v-if="employee.on" :class="{on:nav==='admin'}" @click="nav='admin';loadAdmin()">後台訂單
@@ -63,31 +64,55 @@
                 </nav>
                 <div class="hright">
                     <div class="ident">
-                        <div v-if="member.on">貴賓， <b>{{ member.name? member.name + '（#' + member.on + '）': '#' + member.on }}</b></div>
+                        <div v-if="member.on">貴賓，
+                            <b>{{ member.name ? member.name + '（#' + member.on + '）' : '#' + member.on }}</b></div>
                         <div v-if="employee.on">員工， <b>#{{ employee.on }}</b></div>
                     </div>
-                    <button class="btn line" @click="logout">登出</button>
+                    <button class="btn line" v-if="member.on || employee.on" @click="logout">登出</button>
+                    <template v-else>
+                        <a class="btn line" href="/login.html?redirect=/roombooking.html">登入</a>
+                        <button class="reslink" style="margin-left:14px" @click="gateTab='staff';browsing=false">員工入口</button>
+                    </template>
                 </div>
             </div>
         </header>
 
         <!-- ===== 預訂客房 ===== -->
-        <section v-if="member.on && nav==='book'">
-            <div class="hero">
+        <section v-if="(member.on || browsing) && nav==='book'">
+            <!-- 首屏:滿版背景+置中搜尋(步驟一) -->
+            <div v-if="!confirmOrder && book.step==='search'" class="herofull">
                 <div class="inner">
                     <div class="up">Reservations</div>
-                    <h1>預訂您的停留</h1>
+                    <h1>BOOK NOW</h1>
                     <div class="rule"></div>
+                    <div class="searchbar">
+                        <div class="sfield"><label>入住日 · Arrival</label>
+                            <input type="date" v-model="form.checkInDate"></div>
+                        <div class="sdiv"></div>
+                        <div class="sfield"><label>退房日 · Departure</label>
+                            <input type="date" v-model="form.checkOutDate"></div>
+                        <button class="btn" @click="searchRooms">搜尋空房</button>
+                    </div>
+
+                    <!-- 房型展示:填滿首屏下方空間 -->
+                    <div class="showcase">
+                        <div class="show" v-for="t in roomTypes" :key="t.id">
+                            <img :src="'/roomtypephoto/display/room/' + t.id" :alt="t.name" loading="lazy">
+                            <div class="cap">
+                                <h3>{{ t.name }}</h3>
+                                <p>每晚 ${{ t.price.toLocaleString() }} 起</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="wrap">
+            <div v-else class="wrap">
                 <div class="sechead">
                     <div class="up">Booking</div>
-                    <h2>建立訂房</h2>
-                    <p>選擇日期與房型，為您保留專屬客房</p></div>
+                </div>
                 <div v-if="confirmOrder" class="panel" style="max-width: 760px;margin:0 auto;text-align: center"><h3
-                        style="font-size: 28px">預定完成</h3>
-                    <p class="oid" style="margin-top: 14px">訂單編號 No. {{confirmOrder.orderId}}</p>
+                        style="font-size: 28px">Your booking is confirmed!</h3>
+                    <p class="oid" style="margin-top: 14px">Reference No. {{confirmOrder.orderId}}</p>
                     <p>{{confirmOrder.checkInDate}} 入住 - {{confirmOrder.checkOutDate}} 退房</p>
                     <table style="margin-top:20px;text-align:left">
                         <thead>
@@ -117,38 +142,97 @@
                         </button>
                     </div>
                 </div>
-                <div v-else class="panel" style="max-width:760px;margin:0 auto">
-                    <div class="grid g3">
-                        <div class="field"><label>入住日 Arrival</label><input type="date" v-model="form.checkInDate">
+                <template v-else>
+
+                    <!-- 三步驟進度指示 -->
+                    <div class="steps">
+                        <div class="step" :class="{on: book.step==='search', done: book.step!=='search'}">
+                            <span class="no">1</span><span class="lb">選擇日期</span>
                         </div>
-                        <div class="field"><label>退房日 Departure</label><input type="date"
-                                                                                 v-model="form.checkOutDate"></div>
-                        <div class="field"><label>禮遇券 Coupon</label><input type="number"
-                                                                              v-model.number="form.couponId"
-                                                                              placeholder="選填"></div>
-                    </div>
-                    <div style="margin:34px 0 14px"><span class="up" style="color:var(--gold)">Room Types · 房型</span>
-                    </div>
-                    <div class="roomrow" v-for="(r,i) in form.rooms" :key="i">
-                        <div class="field" style="flex:1"><label>房型</label>
-                            <select v-model.number="r.roomTypeId">
-                                <option :value="null" disabled>請選擇房型</option>
-                                <option v-for="t in ROOM_TYPES" :key="t.id" :value="t.id">{{ t.name }}　$
-                                    {{ t.price.toLocaleString() }} / 晚
-                                </option>
-                            </select>
+                        <div class="bar"></div>
+                        <div class="step" :class="{on: book.step==='list', done: book.step==='confirm'}">
+                            <span class="no">2</span><span class="lb">挑選客房</span>
                         </div>
-                        <div class="field" style="width:120px"><label>數量</label><input type="number" min="1"
-                                                                                         v-model.number="r.qty"></div>
-                        <button class="reslink" style="padding-bottom:12px" @click="form.rooms.splice(i,1)"
-                                v-if="form.rooms.length>1">移除
-                        </button>
+                        <div class="bar"></div>
+                        <div class="step" :class="{on: book.step==='confirm'}">
+                            <span class="no">3</span><span class="lb">確認訂房</span>
+                        </div>
                     </div>
-                    <button class="reslink" @click="form.rooms.push({roomTypeId:null,qty:1})">＋ 新增房型</button>
-                    <div style="margin-top:36px;text-align:center">
-                        <button class="btn" @click="createOrder">確認預訂</button>
+
+                    <!-- 步驟二:房型列表 -->
+                    <div v-if="book.step==='list'" style="max-width:860px;margin:0 auto">
+                        <p class="staybrief">
+                            <span class="ser">{{ form.checkInDate }}</span> 入住 —
+                            <span class="ser">{{ form.checkOutDate }}</span> 退房 · 共 {{ book.nights }} 晚
+                        </p>
+                        <div class="roomcard" v-for="r in book.results" :key="r.roomTypeId"
+                             :class="{soldout: r.remaining<=0}">
+                            <img class="rc-photo" :src="'/roomtypephoto/display/room/' + r.roomTypeId"
+                                 :alt="r.roomTypeName" loading="lazy">
+                            <div class="rc-body">
+                                <div class="rc-info">
+                                    <h3>{{ r.roomTypeName }}</h3>
+                                    <span v-if="r.remaining<=0" class="rc-tag out">已售完</span>
+                                    <span v-else-if="r.remaining<=5" class="rc-tag few">僅剩 {{ r.remaining }} 間</span>
+                                    <span v-else class="rc-tag ok">尚有空房</span>
+                                </div>
+                                <div class="rc-price">
+                                    <div class="per">每晚 ${{ r.price.toLocaleString() }}</div>
+                                    <div class="total">${{ (r.price * book.nights).toLocaleString() }}</div>
+                                    <div class="per">{{ book.nights }} 晚房價</div>
+                                </div>
+                                <div class="rc-qty">
+                                    <label>數量</label>
+                                    <select v-model.number="book.sel[r.roomTypeId]" :disabled="r.remaining<=0">
+                                        <option v-for="n in qtyOptions(r)" :key="n" :value="n">{{ n }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rc-foot">
+                            <button class="btn ghost" @click="book.step='search'">‹ 更改日期</button>
+                            <div class="rc-foot-right">
+                                <span class="money" v-if="bookTotal>0">合計 ${{ bookTotal.toLocaleString() }}</span>
+                                <button class="btn" :disabled="bookTotal<=0" @click="goConfirm">現在就預訂</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <!-- 步驟三:確認訂單 -->
+                    <div v-if="book.step==='confirm'" class="panel" style="max-width:760px;margin:0 auto">
+                        <h3 style="font-size:24px;margin-bottom:6px">Reservation Details</h3>
+                        <p class="staybrief" style="text-align:left;margin-bottom:10px">
+                            <span class="ser">{{ form.checkInDate }}</span> 入住 —
+                            <span class="ser">{{ form.checkOutDate }}</span> 退房 · 共 {{ book.nights }} 晚
+                        </p>
+                        <table style="margin-top:20px">
+                            <thead>
+                            <tr>
+                                <th>房型</th>
+                                <th>每晚</th>
+                                <th>數量</th>
+                                <th>小計</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="it in bookItems" :key="it.roomTypeId">
+                                <td>{{ it.roomTypeName }}</td>
+                                <td>${{ it.price.toLocaleString() }}</td>
+                                <td>×{{ it.qty }}</td>
+                                <td class="money">${{ it.subtotal.toLocaleString() }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <p class="money" style="font-size:24px;text-align:right;margin-top:14px">
+                            預估合計 ${{ bookTotal.toLocaleString() }}</p>
+                        <div class="field" style="max-width:260px;margin-top:18px"><label>折價券 Coupon</label>
+                            <input type="number" v-model.number="form.couponId" placeholder="選填，輸入折價券編號"></div>
+                        <p class="hint" style="text-align:right">實際金額（含優惠折抵）以訂單成立後為準</p>
+                        <div style="margin-top:26px;display:flex;justify-content:space-between">
+                            <button class="btn ghost" @click="book.step='list'">‹ 返回修改</button>
+                            <button class="btn" @click="createOrder">確認預訂</button>
+                        </div>
+                    </div>
+                </template>
             </div>
         </section>
 
@@ -188,7 +272,7 @@
                                 </td>
                                 <td>
                                     <span v-if="o.orderStatus===3 && o.refundvo">
-                                        {{o.refundvo.refundStatus === 1 ?'已退款':'退款處理中'}}
+                                        {{o.refundvo.refundStatus === 1 ? '已退款' : '退款處理中'}}
                                     </span>
                                     <span v-else>-</span>
                                 </td>

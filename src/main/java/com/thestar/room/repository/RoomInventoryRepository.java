@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 // 泛型一 = 這個倉庫管哪個 entity（RoomInventoryVO）
@@ -58,5 +59,11 @@ public interface RoomInventoryRepository extends JpaRepository<RoomInventoryVO, 
             "WHERE INVENTORY_DATE = :date AND ROOM_TYPE_ID = :roomTypeId", nativeQuery = true)
     Integer checkInventory(@Param("roomTypeId") Integer roomTypeId,
                            @Param("date") LocalDate date);
+
+
+
+    List<RoomInventoryVO> findByIdInventoryDateGreaterThanEqualAndIdInventoryDateLessThan
+            (LocalDate checkInDate,LocalDate checkOutDate);
+
 }
 
