@@ -26,8 +26,8 @@ public class OrderVO {
     @Column(name = "EMPLOYEE_ID")
     private Integer employeeId;
 
-    @Column(name = "COUPON_ID")
-    private Integer couponId;
+    @Column(name = "MEMBER_COUPON_ID")
+    private Integer memberCouponId;
 
     @Column(name = "ORDER_STATUS")
     private Byte orderStatus;
@@ -100,12 +100,12 @@ public class OrderVO {
         this.employeeId = employeeId;
     }
 
-    public Integer getCouponId() {
-        return couponId;
+    public Integer getMemberCouponId() {
+        return memberCouponId;
     }
 
-    public void setCouponId(Integer couponId) {
-        this.couponId = couponId;
+    public void setMemberCouponId(Integer memberCouponId) {
+        this.memberCouponId = memberCouponId;
     }
 
     public Byte getOrderStatus() {

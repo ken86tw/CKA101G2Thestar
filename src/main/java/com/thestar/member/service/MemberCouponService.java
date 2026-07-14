@@ -123,8 +123,6 @@ public class MemberCouponService {
 		memberCoupon.setUsageEndTime(usageEndTime);
 		memberCoupon.setUsedTime(null);
 
-		memberCouponRepository.save(memberCoupon);
-
 		/*
 		 * 有設定數量時才扣除。 NULL 代表不限量，不需要扣除。
 		 */
@@ -376,6 +374,90 @@ public class MemberCouponService {
 		    couponRepository.save(birthdayCoupon);
 		}
 		return true;
+	}
+	
+	@Transactional
+	public int useCouponForRoomOrder(
+	        Integer memberId,
+	        Integer memberCouponId,
+	        int totalAmount
+	) {
+	    if (memberId == null || memberCouponId == null) {
+	        throw new IllegalArgumentException("會員與優惠券編號不可為空");
+	    }
+
+	    if (totalAmount <= 0) {
+	        throw new IllegalArgumentException("訂單金額不正確");
+	    }
+
+	    MemberCouponVO memberCoupon =
+	            memberCouponRepository
+	                    .findByIdForUpdate(memberCouponId)
+	                    .orElseThrow(() ->
+	                            new IllegalArgumentException("找不到指定的會員優惠券")
+	                    );
+
+	    if (!memberId.equals(memberCoupon.getMemberId())) {
+	        throw new IllegalArgumentException("這張優惠券不屬於目前登入會員");
+	    }
+
+	    if (memberCoupon.getUsedStatus() == null
+	            || memberCoupon.getUsedStatus() != NOT_USED) {
+
+	        throw new IllegalArgumentException("這張優惠券已使用或已被其他訂單占用");
+	    }
+
+	    LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+
+	    if (now.isBefore(memberCoupon.getUsageStartTime())) {
+	        throw new IllegalArgumentException("這張優惠券尚未開始使用");
+	    }
+
+	    if (now.isAfter(memberCoupon.getUsageEndTime())) {
+	        throw new IllegalArgumentException("這張優惠券已過期");
+	    }
+	    CouponVO coupon = memberCoupon.getCoupon();
+	    int discountAmount;
+	    if (coupon.getDiscountType() != null
+	            && coupon.getDiscountType() == 1) {
+	        Integer fixedAmount = coupon.getDiscountAmount();
+	        if (fixedAmount == null || fixedAmount <= 0) {
+	            throw new IllegalStateException("固定金額優惠券設定錯誤");
+	        }
+	        discountAmount = Math.min(totalAmount, fixedAmount);
+	    } else if (coupon.getDiscountType() != null
+	            && coupon.getDiscountType() == 2) {
+
+	        Integer payPercent = coupon.getDiscountPercent();
+
+	        if (payPercent == null
+	                || payPercent <= 0
+	                || payPercent > 100) {
+	            throw new IllegalStateException("百分比優惠券設定錯誤");
+	        }
+	        int paidAfterDiscount = (int) Math.round(totalAmount * (payPercent / 100.0));
+	        discountAmount = totalAmount - paidAfterDiscount;
+	    } else {
+	        throw new IllegalStateException("優惠券折扣類型錯誤");
+	    }
+	    memberCoupon.setUsedStatus(USED);
+	    memberCoupon.setUsedTime(now);
+	    memberCouponRepository.save(memberCoupon);
+	    return discountAmount;
+	}
+	
+	@Transactional
+	public void restoreCouponForUnpaidOrder(
+	        Integer memberCouponId
+	) {
+	    if (memberCouponId == null) { return; }
+
+	    MemberCouponVO memberCoupon = memberCouponRepository.findByIdForUpdate(memberCouponId).orElse(null);
+
+	    if (memberCoupon == null) { return; }
+	    memberCoupon.setUsedStatus(NOT_USED);
+	    memberCoupon.setUsedTime(null);
+	    memberCouponRepository.save(memberCoupon);
 	}
 
 	@Transactional(readOnly = true)
