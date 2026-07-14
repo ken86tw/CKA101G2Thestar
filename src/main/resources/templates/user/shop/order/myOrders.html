@@ -11,14 +11,19 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3e50; }
 /* 購物頁 navbar 樣式 */
-.shop-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); height: 68px; border-bottom: 1px solid rgba(201,168,76,0.2); }
+.shop-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); height: 88px; border-bottom: 1px solid rgba(201,168,76,0.2); }
+.shop-navbar .navbar-brand { display: flex; flex-direction: column; justify-content: center; align-self: center; height: 88px; padding-left: 8px; }
 .shop-navbar .navbar-links { flex: 1; justify-content: flex-end; }
+.shop-navbar { flex-direction: row !important; align-items: center !important; padding: 0 61px !important; }
+.shop-navbar .navbar-links { align-items: center; flex-direction: row !important; }
 .shop-navbar .navbar-links > a { color: #c9d8e0; }
 .shop-navbar .navbar-links > a:hover { color: #fff; }
 .shop-navbar .navbar-links > a.active { color: #c9a84c; }
 .shop-navbar .navbar-login { color: #fff; }
+.shop-navbar #loginLink { border: 1px solid #c9a84c !important; padding: 6px 16px !important; border-radius: 4px !important; color: #c9a84c !important; font-size: 14px; letter-spacing: 1px; }
+.shop-navbar #loginLink:hover { background: #c9a84c !important; color: #fff !important; }
 
-.page-header { background: linear-gradient(135deg, #1e3a4a 0%, #2d5a6b 50%, #1a2f3a 100%); padding: 120px 0 60px; text-align: center; }
+.page-header { background: linear-gradient(135deg, #1e3a4a 0%, #2d5a6b 50%, #1a2f3a 100%); padding: 140px 0 80px; text-align: center; }
 .page-header h1 { font-family: 'Noto Serif TC', serif; font-size: 2rem; color: #fff; letter-spacing: 6px; }
 .gold-line { width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #c9a84c, transparent); margin: 16px auto; }
 .orders-container { max-width: 900px; margin: 48px auto 80px; padding: 0 32px; }
@@ -190,8 +195,16 @@ footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 
         <i class="fa-solid fa-circle-info me-1"></i>
         如有問題請聯絡客服
       </div>
-      <div class="order-total">
-        NT$ <span th:text="${order.shopOrderTotal}"></span>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <!-- 待付款才顯示前往付款按鈕 -->
+        <a th:if="${order.shopPaymentStatus == 0}"
+           th:href="@{/shop/order/pay/{id}(id=${order.shopOrderId})}"
+           style="background:#c9a84c; color:#fff; padding:8px 20px; border-radius:4px; text-decoration:none; font-size:13px; letter-spacing:1px;">
+          <i class="fa-solid fa-credit-card me-1"></i>前往付款
+        </a>
+        <div class="order-total">
+          NT$ <span th:text="${order.shopOrderTotal}"></span>
+        </div>
       </div>
     </div>
 

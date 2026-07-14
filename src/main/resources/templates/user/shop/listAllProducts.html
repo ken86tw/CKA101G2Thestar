@@ -11,13 +11,18 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3e50; }
     /* 購物頁 navbar 樣式 */
-    .shop-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); height: 68px; border-bottom: 1px solid rgba(201,168,76,0.2); }
-    .shop-navbar .navbar-links > a { color: #c9d8e0; }
+    .shop-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); height: 88px; border-bottom: 1px solid rgba(201,168,76,0.2); }
+.shop-navbar .navbar-brand { display: flex; flex-direction: column; justify-content: center; align-self: center; height: 88px; padding-left: 8px; }
+    .shop-navbar { flex-direction: row !important; align-items: center !important; padding: 0 61px !important; }
+.shop-navbar .navbar-links { align-items: center; flex-direction: row !important; }
+.shop-navbar .navbar-links > a { color: #c9d8e0; }
     .shop-navbar .navbar-links > a:hover { color: #fff; }
     .shop-navbar .navbar-links > a.active { color: #c9a84c; }
     .shop-navbar .navbar-login { color: #fff; }
+.shop-navbar #loginLink { border: 1px solid #c9a84c !important; padding: 6px 16px !important; border-radius: 4px !important; color: #c9a84c !important; font-size: 14px; letter-spacing: 1px; }
+.shop-navbar #loginLink:hover { background: #c9a84c !important; color: #fff !important; }
     
-    .hero { background: linear-gradient(135deg, #1e3a4a 0%, #2d5a6b 50%, #1a2f3a 100%); padding: 120px 0 60px; text-align: center; position: relative; overflow: hidden; }
+    .hero { background: linear-gradient(135deg, #1e3a4a 0%, #2d5a6b 50%, #1a2f3a 100%); padding: 140px 0 80px; text-align: center; position: relative; overflow: hidden; }
     .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(201,168,76,0.08) 0%, transparent 70%); }
     .hero-content { position: relative; z-index: 1; }
     .hero-en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; color: #c9a84c; letter-spacing: 4px; margin-bottom: 12px; }
@@ -115,7 +120,7 @@
 <div class="shop-container">
   <div class="section-header">
     <div class="section-title"
-      th:text="${keyword != null and !#strings.isEmpty(keyword)} ? '搜尋結果：' + keyword : (${selectedCategoryId == null} ? '全部商品' : '篩選結果')">
+      th:text="${keyword != null and !#strings.isEmpty(keyword)} ? '搜尋結果：' + ${keyword} : (${selectedCategoryId == null} ? '全部商品' : '篩選結果')">
       全部商品
     </div>
     <div style="font-size:13px; color:#7a9aaa;" th:text="${#lists.size(productsListData)} + ' 件商品'"></div>

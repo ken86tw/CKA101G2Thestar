@@ -14,16 +14,21 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3e50; }
 /* 購物頁 navbar 樣式 */
-.shop-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); height: 68px; border-bottom: 1px solid rgba(201,168,76,0.2); }
+.shop-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); height: 88px; border-bottom: 1px solid rgba(201,168,76,0.2); }
+.shop-navbar .navbar-brand { display: flex; flex-direction: column; justify-content: center; align-self: center; height: 88px; padding-left: 8px; }
+.shop-navbar { flex-direction: row !important; align-items: center !important; padding: 0 61px !important; }
+.shop-navbar .navbar-links { align-items: center; flex-direction: row !important; }
 .shop-navbar .navbar-links > a { color: #c9d8e0; }
 .shop-navbar .navbar-links > a:hover { color: #fff; }
 .shop-navbar .navbar-links > a.active { color: #c9a84c; }
 .shop-navbar .navbar-login { color: #fff; }
+.shop-navbar #loginLink { border: 1px solid #c9a84c !important; padding: 6px 16px !important; border-radius: 4px !important; color: #c9a84c !important; font-size: 14px; letter-spacing: 1px; }
+.shop-navbar #loginLink:hover { background: #c9a84c !important; color: #fff !important; }
 
 /* ===== Navbar ===== */
 
 /* ===== Breadcrumb ===== */
-.breadcrumb-bar { background: #fff; border-bottom: 1px solid #dce8ed; padding: 14px 48px; margin-top: 68px; }
+.breadcrumb-bar { background: #fff; border-bottom: 1px solid #dce8ed; padding: 14px 48px; margin-top: 88px; }
 .breadcrumb-bar a { color: #7a9aaa; text-decoration: none; font-size: 13px; }
 .breadcrumb-bar a:hover { color: #2d5a6b; }
 .breadcrumb-bar span { color: #a0b8c0; font-size: 13px; margin: 0 8px; }
