@@ -5,7 +5,7 @@ import java.util.List;
 
 public class CreateRoomOrderDTO {
 
-    private Integer couponId;
+	private Integer memberCouponId;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private List<RoomItem> rooms;
@@ -33,12 +33,12 @@ public class CreateRoomOrderDTO {
 
     }
 
-    public Integer getCouponId() {
-        return couponId;
+    public Integer getMemberCouponId() {
+        return memberCouponId;
     }
 
-    public void setCouponId(Integer couponId) {
-        this.couponId = couponId;
+    public void setMemberCouponId(Integer memberCouponId) {
+        this.memberCouponId = memberCouponId;
     }
 
     public LocalDate getCheckOutDate() {
