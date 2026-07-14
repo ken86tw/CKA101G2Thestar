@@ -218,9 +218,9 @@
 						:class="{ active: currentPage === 'facilities' }"
 						@click.prevent="goPage('facilities')">設施</a> <a href="#"
 						@click.prevent="goHomeAnchor('faq')">FAQ</a> <a href="/shop">購物</a>
-					<a href="/shop/cart" class="cart-link" title="購物車" aria-label="購物車">
-						<i class="fa-solid fa-cart-shopping"></i>
-					</a>
+					<!-- 					<a href="/shop/cart" class="cart-link" title="購物車" aria-label="購物車"> -->
+					<!-- 						<i class="fa-solid fa-cart-shopping"></i> -->
+					<!-- 					</a> -->
 					<!-- 通知按鈕 -->
 					<div class="nav-actions">
 						<button class="notify-btn" type="button" title="通知"
@@ -272,13 +272,13 @@
 								<i class="fa-regular fa-user"></i>
 							</button>
 							<!-- 會員選單 -->
-							<div class="member-dropdown"
-								:class="{ show: memberDropdownOpen }" @click.stop>
+							<div class="member-dropdown" :class="{ show: memberDropdownOpen }" @click.stop>
 								<div class="member-greeting">貴賓，{{ displayName }}</div>
-								<a href="/profile.html">我的會員資料</a> <a
-									href="/roombooking.html?tab=orders">我的訂房預訂 </a> <a href="#"
-									@click.prevent="featureComingSoon('我的餐廳預訂')">我的餐廳預訂</a> <a
-									href="/shop/order/myOrders">我的購物訂單</a> <a href="/coupons.html">我的優惠券</a>
+								<a href="/profile.html">我的會員資料</a> 
+								<a href="/roombooking.html?tab=orders">我的訂房預訂 </a> 
+								<a href="/restaurant/booking/list">我的餐廳預訂</a> 
+								<a href="/shop/order/myOrders">我的購物訂單</a> 
+								<a href="/coupons.html">我的優惠券</a>
 								<button type="button" @click="logoutMember">登出</button>
 							</div>
 						</div>
@@ -520,6 +520,10 @@
 				</section>
 			</template>
 		</main>
+		<footer class="site-footer">
+			<div>© 2026 東方之星 The Star．All Rights Reserved</div>
+			<a href="/thestar/admin/login" class="staff-entry"> 員工專區 </a>
+		</footer>
 
 		<div class="login-modal-mask" v-if="loginModalOpen"
 			@click.self="closeLoginModal">
@@ -617,17 +621,23 @@
     },
 
     mounted() {
-      this.cleanIndexUrl();
-      this.loadRememberedLogin();
-      this.checkMemberStatus();
+    	  const initialAnchor = window.location.hash.replace('#', '');
 
-      document.addEventListener('click', () => {
-        this.memberDropdownOpen = false;
-        this.notificationPanelOpen = false;
-      });
-    },
+    	  this.cleanIndexUrl();
+    	  this.loadRememberedLogin();
+    	  this.checkMemberStatus();
+
+    	  document.addEventListener('click', () => {
+    	    this.memberDropdownOpen = false;
+    	    this.notificationPanelOpen = false;
+    	  });
+
+    	  if (initialAnchor === 'about-preview' || initialAnchor === 'faq') {
+    	    this.goHomeAnchor(initialAnchor);
+    	  }
+    	},
     beforeUnmount() {
-    	  this.stopNotificationPolling();
+    	this.stopNotificationPolling();
     },
 
     methods: {
