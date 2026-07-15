@@ -277,26 +277,14 @@
 					<h2 class="section-title">最新消息</h2>
 					<div class="gold-line"></div>
 					<div class="news-box">
-						<div class="news-item">
-							<span class="news-date">2026/05/19</span> <a class="news-title"
-								href="/articles.html">夏季住房專案開放預訂，享海景房型優惠</a>
+						<div class="news-item" th:each="news : ${latestNews}">
+							<time class="news-date" th:datetime="${news.createAt}"
+								th:text="${#temporals.format(news.createAt, 'yyyy/MM/dd')}">2026/05/19</time>
+							<a class="news-title"
+								th:href="@{/articles.html(article=${news.articleId})}"
+								th:text="${news.title}">公告標題</a>
 						</div>
-						<div class="news-item">
-							<span class="news-date">2026/05/12</span> <a class="news-title"
-								href="/articles.html">戶外泳池保養公告與開放時間調整</a>
-						</div>
-						<div class="news-item">
-							<span class="news-date">2026/05/05</span> <a class="news-title"
-								href="/articles.html">SPA 芳療中心推出雙人放鬆療程</a>
-						</div>
-						<div class="news-item">
-							<span class="news-date">2026/04/28</span> <a class="news-title"
-								href="/articles.html">餐廳新增季節限定海鮮套餐</a>
-						</div>
-						<div class="news-item">
-							<span class="news-date">2026/04/20</span> <a class="news-title"
-								href="/articles.html">館內購物服務新增伴手禮預訂功能</a>
-						</div>
+						<p class="news-empty" th:if="${#lists.isEmpty(latestNews)}">目前尚無公告。</p>
 						<div class="news-more">
 							<a href="/articles.html" class="text-link">查看全部公告</a>
 						</div>
