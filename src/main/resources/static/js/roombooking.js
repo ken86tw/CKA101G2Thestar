@@ -96,11 +96,6 @@ createApp({
             if (me.loggedIn) {
                 this.member.id = me.memberId;
                 this.member.on = me.memberId;
-                this.connectWs();   // 會員身分確認後連線 訂閱自己專屬的通知頻道
-            }
-            if (me.loggedIn) {
-                this.member.id = me.memberId;
-                this.member.on = me.memberId;
                 this.member.name = me.memberName;
                 this.connectWs();   // 會員身分確認後連線 訂閱自己專屬的通知頻道
             }
