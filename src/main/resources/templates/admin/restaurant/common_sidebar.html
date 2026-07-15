@@ -21,11 +21,11 @@
 
     <div th:fragment="sidebar(activePage)" class="sidebar">
         <div class="logo">
-            <i class="fa-solid fa-star text-warning me-2"></i>The Star 後台系統
+            <i class="fa-solid fa-star text-warning me-2"></i>The Star 餐廳後台
         </div>
         <div class="nav flex-column mt-3">
             <a href="/admin/restaurant" class="nav-link" th:classappend="${activePage == 'home'} ? 'active'">
-                <i class="fa-solid fa-gauge fa-fw"></i> 後台控制台
+                <i class="fa-solid fa-gauge fa-fw"></i> 餐廳控制台
             </a>
             <a href="/admin/restaurant/table/list" class="nav-link" th:classappend="${activePage == 'table'} ? 'active'">
                 <i class="fa-solid fa-table fa-fw"></i> 桌型管理設定
@@ -49,7 +49,7 @@
         <h4 class="m-0 fw-bold text-secondary" th:text="${pageTitle}">分頁標題</h4>
         <div class="d-flex align-items-center gap-3">
             <span class="text-muted"><i class="fa-solid fa-user-shield me-1"></i> 管理員 (Admin)</span>
-            <a href="/" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-house"></i> 回前台首頁</a>
+            <a href="/thestar/admin/home" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-house"></i> 回飯店控制台</a>
         </div>
     </div>
 
