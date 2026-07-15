@@ -4,52 +4,20 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>東方之星 The Star｜結帳</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link
+	href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap"
+	rel="stylesheet">
 <link rel="stylesheet" href="/css/common.css">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3e50; }
-/* 購物頁 navbar 樣式 */
-.shop-navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: rgba(30, 45, 55, 0.92);
-  backdrop-filter: blur(8px);
-  height: 68px;
-  border-bottom: 1px solid rgba(201, 168, 76, 0.2);
-  box-shadow: none;
-}
-
-.shop-navbar .navbar-links > a {
-  color: #c9d8e0;
-}
-
-.shop-navbar .navbar-links > a:hover {
-  color: #fff;
-}
-
-.shop-navbar .navbar-links > a.active {
-  color: #c9a84c;
-}
-
-.shop-navbar .navbar-login {
-  color: #fff;
-}
-/*
-.navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); padding: 0 48px; height: 68px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(201,168,76,0.2); }
-.navbar-brand { text-decoration: none; display: flex; flex-direction: column; }
-.navbar-brand .brand-zh { font-family: 'Noto Serif TC', serif; font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 2px; }
-.navbar-brand .brand-en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: #c9a84c; letter-spacing: 1px; }
-.navbar-links { display: flex; align-items: center; gap: 8px; }
-.navbar-links a { color: #c9d8e0; text-decoration: none; font-size: 14px; padding: 8px 14px; border-radius: 4px; transition: all 0.2s; letter-spacing: 1px; }
-.navbar-links a:hover { color: #fff; background: rgba(201,168,76,0.15); }
-.navbar-links a.active { color: #c9a84c; border-bottom: 2px solid #c9a84c; }
-.navbar-login { background: #c9a84c; color: #fff !important; padding: 8px 20px !important; border-radius: 4px !important; border: 0; cursor: pointer; font-size: 14px; letter-spacing: 1px; }
-*/
+.shop-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); height: 68px; border-bottom: 1px solid rgba(201,168,76,0.2); box-shadow: none; }
+.shop-navbar .navbar-links > a { color: #c9d8e0; }
+.shop-navbar .navbar-links > a:hover { color: #fff; }
+.shop-navbar .navbar-links > a.active { color: #c9a84c; }
+.shop-navbar .navbar-login { color: #fff; }
 .page-header { background: linear-gradient(135deg, #1e3a4a 0%, #2d5a6b 50%, #1a2f3a 100%); padding: 120px 0 60px; text-align: center; }
 .page-header h1 { font-family: 'Noto Serif TC', serif; font-size: 2rem; color: #fff; letter-spacing: 6px; }
 .gold-line { width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #c9a84c, transparent); margin: 16px auto; }
@@ -61,17 +29,17 @@ body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3
 .form-label .required { color: #e05a5a; margin-left: 2px; }
 .form-control { width: 100%; padding: 10px 14px; border: 1px solid #dce8ed; border-radius: 4px; font-size: 14px; color: #2c3e50; outline: none; transition: border-color 0.2s; }
 .form-control:focus { border-color: #2d5a6b; }
-/* 配送方式 */
 .pickup-options { display: flex; gap: 12px; margin-bottom: 16px; }
 .pickup-option { flex: 1; border: 2px solid #dce8ed; border-radius: 6px; padding: 14px; cursor: pointer; transition: all 0.2s; text-align: center; }
 .pickup-option.selected { border-color: #c9a84c; background: #fffbf0; }
+.pickup-option.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 .pickup-option input { display: none; }
 .pickup-option i { font-size: 24px; color: #c9a84c; display: block; margin-bottom: 8px; }
 .pickup-option span { font-size: 14px; color: #1e3a4a; font-weight: 600; }
-/* 自取日曆 */
 .pickup-section { display: none; }
 .pickup-section.show { display: block; }
-/* 訂單摘要 */
+.overstock-warning { background: #fff3e0; border: 1px solid #f0a500; border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: #8a5a00; display: none; }
+.overstock-warning.show { display: block; }
 .summary-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f6f8; font-size: 14px; }
 .summary-item:last-child { border-bottom: 0; }
 .summary-name { color: #5a7a8a; }
@@ -89,7 +57,6 @@ footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 
 .footer-divider { width: 40px; height: 1px; background: #c9a84c; margin: 12px auto; opacity: 0.4; }
 @media (max-width: 768px) {
   .checkout-container { grid-template-columns: 1fr; }
-  .navbar { padding: 0 24px; }
 }
 </style>
 </head>
@@ -108,7 +75,7 @@ footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 
   </a>
 </div>
 
-<form th:action="@{/shop/order/placeOrder}" method="post">
+<form th:action="@{/shop/order/placeOrder}" method="post" novalidate>
 <div class="checkout-container">
 
   <!-- 左側：填寫資料 -->
@@ -118,12 +85,12 @@ footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 
       <div class="card-title"><i class="fa-solid fa-user me-2"></i>收件人資料</div>
       <div class="form-group">
         <label class="form-label">姓名 <span class="required">*</span></label>
-        <input type="text" name="shopOrderName" class="form-control" required
+        <input type="text" name="shopOrderName" class="form-control"
           th:value="${loginMember.memberName}" placeholder="請輸入收件人姓名">
       </div>
       <div class="form-group">
         <label class="form-label">電話 <span class="required">*</span></label>
-        <input type="tel" name="shopOrderPhone" class="form-control" required
+        <input type="tel" name="shopOrderPhone" class="form-control"
           th:value="${loginMember.memberPhone}" placeholder="請輸入聯絡電話">
       </div>
       <div class="form-group">
@@ -135,13 +102,21 @@ footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 
     <!-- 配送方式 -->
     <div class="card">
       <div class="card-title"><i class="fa-solid fa-truck me-2"></i>配送方式</div>
+
+      <!-- 超庫存警告 -->
+      <div class="overstock-warning" id="overstockWarning" th:classappend="${hasOverStock} ? 'show' : ''">
+        <i class="fa-solid fa-triangle-exclamation me-1"></i>
+        購買數量超過部分商品庫存，無法選擇自取，僅能使用宅配。
+      </div>
+
       <div class="pickup-options">
         <label class="pickup-option selected" id="opt-delivery" onclick="selectPickup(0)">
           <input type="radio" name="shopOrderPickup" value="0" checked>
           <i class="fa-solid fa-truck"></i>
           <span>宅配到府</span>
         </label>
-        <label class="pickup-option" id="opt-pickup" onclick="selectPickup(1)">
+        <label class="pickup-option" id="opt-pickup" onclick="selectPickup(1)"
+          th:classappend="${hasOverStock} ? ' disabled' : ''">
           <input type="radio" name="shopOrderPickup" value="1">
           <i class="fa-solid fa-store"></i>
           <span>自取</span>
@@ -161,12 +136,10 @@ footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 
       <div class="pickup-section" id="section-pickup">
         <div class="form-group">
           <label class="form-label">取貨日期與時間 <span class="required">*</span></label>
-          <input type="datetime-local" name="shopOrderPickupTime" id="pickupTimeInput"
-            class="form-control"
-            th:attr="min=${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd') + 'T09:00'}">
+          <input type="datetime-local" name="shopOrderPickupTime" id="pickupTimeInput" class="form-control">
         </div>
         <div style="font-size:12px; color:#7a9aaa; margin-top:4px;">
-          <i class="fa-solid fa-circle-info me-1"></i>取貨時間為每日 09:00 ~ 18:00
+          <i class="fa-solid fa-circle-info me-1"></i>取貨時間為每日 09:00 ~ 18:00，最早可選隔日
         </div>
       </div>
     </div>
@@ -205,8 +178,12 @@ footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 
   <div>© 2026 東方之星 The Star．All Rights Reserved</div>
 </footer>
 
-<script>
+<script th:inline="javascript">
+const hasOverStock = /*[[${hasOverStock}]]*/ false;
+
 function selectPickup(val) {
+  if (val === 1 && hasOverStock) return; // 超庫存不允許自取
+
   const delivery = document.getElementById('section-delivery');
   const pickup = document.getElementById('section-pickup');
   const optDelivery = document.getElementById('opt-delivery');
@@ -230,9 +207,73 @@ function selectPickup(val) {
     addressInput.required = false;
     pickupTimeInput.required = true;
     document.querySelector('input[value="1"]').checked = true;
+
+    // 設定最早可選隔日 09:00
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().slice(0, 10) + 'T09:00';
+    pickupTimeInput.min = tomorrowStr;
   }
 }
 
+document.querySelector('form').addEventListener('submit', function(e) {
+
+    // 姓名驗證
+    const nameInput = document.querySelector('input[name="shopOrderName"]');
+    if (!nameInput.value.trim()) {
+        alert('請輸入收件人姓名！');
+        e.preventDefault();
+        return;
+    }
+
+    // 電話驗證
+    const phoneInput = document.querySelector('input[name="shopOrderPhone"]');
+    if (!phoneInput.value.trim()) {
+        alert('請輸入聯絡電話！');
+        e.preventDefault();
+        return;
+    }
+
+    // 宅配地址驗證
+    const pickupRadioCheck = document.querySelector('input[name="shopOrderPickup"]:checked');
+    if (pickupRadioCheck && pickupRadioCheck.value === '0') {
+        const addressInput = document.getElementById('addressInput');
+        if (!addressInput.value.trim()) {
+            alert('請輸入收件地址！');
+            e.preventDefault();
+            return;
+        }
+    }
+
+    // 自取時間驗證
+    const pickupRadio = document.querySelector('input[name="shopOrderPickup"]:checked');
+    if (pickupRadio && pickupRadio.value === '1') {
+        const pickupTimeInput = document.getElementById('pickupTimeInput');
+        const pickupTime = new Date(pickupTimeInput.value);
+
+        if (!pickupTimeInput.value) {
+            alert('請選擇取貨時間！');
+            e.preventDefault();
+            return;
+        }
+
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        if (pickupTime < tomorrow) {
+            alert('取貨時間最早為隔日！');
+            e.preventDefault();
+            return;
+        }
+
+        const hours = pickupTime.getHours();
+        if (hours < 9 || hours >= 18) {
+            alert('取貨時間必須在 09:00 ~ 18:00 之間！');
+            e.preventDefault();
+            return;
+        }
+    }
+});
 </script>
 <script src="/js/header-auth.js"></script>
 </body>

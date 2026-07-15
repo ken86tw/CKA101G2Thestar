@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,16 +21,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.thestar.member.entity.MemberVO;
+import com.thestar.member.service.MemberNotifyService;
 import com.thestar.shop.entity.CartItemVO;
 import com.thestar.shop.entity.ProductOrderItemVO;
+import com.thestar.shop.entity.ProductsVO;
 import com.thestar.shop.entity.ShopOrderVO;
 import com.thestar.shop.service.CartItemService;
 import com.thestar.shop.service.ProductOrderItemService;
+import com.thestar.shop.service.ProductsService;
 import com.thestar.shop.service.ShopOrderService;
 
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Value;
-import com.thestar.member.service.MemberNotifyService;
 
 @Controller
 @RequestMapping("/shop/order")
@@ -43,6 +45,9 @@ public class UserShopOrderController {
 
 	@Autowired
 	CartItemService cartItemSvc;
+	
+	@Autowired
+	ProductsService productsSvc;
 
 	@Autowired
 	MemberNotifyService memberNotifySvc;
@@ -87,9 +92,15 @@ public class UserShopOrderController {
 			}
 		}
 
+		// 檢查是否有超過庫存的商品
+		boolean hasOverStock = cartList.stream()
+				.anyMatch(item -> item.getProduct() != null
+						&& item.getCartItemProdQty() > item.getProduct().getProductQuantity());
+
 		model.addAttribute("cartListData", cartList);
 		model.addAttribute("cartTotal", total);
 		model.addAttribute("loginMember", loginMember);
+		model.addAttribute("hasOverStock", hasOverStock);
 		return "user/shop/order/checkout";
 	}
 
@@ -157,8 +168,14 @@ public class UserShopOrderController {
 			productOrderItemSvc.addProductOrderItem(orderItem);
 
 			if (itemNames.length() > 0)
-				itemNames.append("#");
+			    itemNames.append("#");
 			itemNames.append(item.getProduct().getProductName());
+
+			// 扣除庫存
+			ProductsVO product = item.getProduct();
+			int newQty = product.getProductQuantity() - item.getCartItemProdQty();
+			product.setProductQuantity(Math.max(newQty, 0)); // 最低為 0，不會變負數
+			productsSvc.updateProduct(product);
 		}
 
 		// 清空購物車
@@ -216,10 +233,8 @@ public class UserShopOrderController {
 		// 付款成功（RtnCode == 1）
 		if ("1".equals(params.get("RtnCode"))) {
 			String merchantTradeNo = params.get("MerchantTradeNo");
-			// 從 MerchantTradeNo 取得 orderId（SHOP{orderId}XXXX）
 			try {
 				String orderIdStr = merchantTradeNo.replace("SHOP", "");
-				// 取前面數字部分
 				orderIdStr = orderIdStr.replaceAll("[^0-9]", "").substring(0,
 						orderIdStr.replaceAll("[^0-9]", "").length() - 4);
 				Integer orderId = Integer.parseInt(orderIdStr);
@@ -237,12 +252,10 @@ public class UserShopOrderController {
 			}
 		}
 
-		// 一定要回傳這個，否則綠界會一直重打
 		return "1|OK";
 	}
 
 	// 付款結果頁（OrderResultURL，給使用者看）
-	// 注意：不驗證登入，因為綠界透過 ngrok 導回時 Session 可能已失效
 	@org.springframework.web.bind.annotation.RequestMapping(value = "ecpay/result", method = {
 			org.springframework.web.bind.annotation.RequestMethod.GET,
 			org.springframework.web.bind.annotation.RequestMethod.POST })
@@ -274,7 +287,6 @@ public class UserShopOrderController {
 			return "<script>location.href='/shop/order/myOrders'</script>";
 		}
 
-		// 取得訂單明細產生商品名稱
 		List<ProductOrderItemVO> itemList = productOrderItemSvc.getByShopOrderId(orderId);
 		StringBuilder itemNames = new StringBuilder();
 		for (ProductOrderItemVO item : itemList) {
@@ -316,40 +328,33 @@ public class UserShopOrderController {
 	// 查看我的訂單
 	@GetMapping("myOrders")
 	public String myOrders(HttpSession session, ModelMap model) {
-	    MemberVO loginMember = getLoginMember(session);
-	    if (loginMember == null) return "redirect:/login.html";
+		MemberVO loginMember = getLoginMember(session);
+		if (loginMember == null)
+			return "redirect:/login.html";
 
-	    List<ShopOrderVO> orderList = shopOrderSvc.getByMemberId(loginMember.getMemberId());
-	    
-	    // 每筆訂單的明細
-	    Map<Integer, List<ProductOrderItemVO>> orderItemsMap = new java.util.HashMap<>();
-	    for (ShopOrderVO order : orderList) {
-	        orderItemsMap.put(order.getShopOrderId(), 
-	            productOrderItemSvc.getByShopOrderId(order.getShopOrderId()));
-	    }
-	    
-	    model.addAttribute("orderListData", orderList);
-	    model.addAttribute("orderItemsMap", orderItemsMap);
-	    return "user/shop/order/myOrders";
+		List<ShopOrderVO> orderList = shopOrderSvc.getByMemberId(loginMember.getMemberId());
+
+		Map<Integer, List<ProductOrderItemVO>> orderItemsMap = new java.util.HashMap<>();
+		for (ShopOrderVO order : orderList) {
+			orderItemsMap.put(order.getShopOrderId(),
+					productOrderItemSvc.getByShopOrderId(order.getShopOrderId()));
+		}
+
+		model.addAttribute("orderListData", orderList);
+		model.addAttribute("orderItemsMap", orderItemsMap);
+		return "user/shop/order/myOrders";
 	}
 
 	// ===== 產生 CheckMacValue =====
 	private String generateCheckMacValue(Map<String, String> params) throws Exception {
-		// 1. 按 key 字母順序排序
 		String raw = params.entrySet().stream().sorted(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER))
 				.map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&"));
 
-		// 2. 前後加 HashKey 和 HashIV
 		raw = "HashKey=" + HASH_KEY + "&" + raw + "&HashIV=" + HASH_IV;
-
-		// 3. URL encode 並轉小寫
 		raw = URLEncoder.encode(raw, "UTF-8").toLowerCase();
-
-		// 4. 特殊字元還原（綠界規定）
 		raw = raw.replace("%2d", "-").replace("%5f", "_").replace("%2e", ".").replace("%21", "!").replace("%2a", "*")
 				.replace("%28", "(").replace("%29", ")");
 
-		// 5. SHA256 加密並轉大寫
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] hash = md.digest(raw.getBytes(StandardCharsets.UTF_8));
 		StringBuilder sb = new StringBuilder();

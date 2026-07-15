@@ -30,9 +30,11 @@ public class ShopOrderController {
 
 		// 若有傳 paymentStatus 就篩選
 		if (paymentStatus != null) {
-			list = list.stream()
-					.filter(o -> o.getShopPaymentStatus() != null && o.getShopPaymentStatus().equals(paymentStatus))
-					.collect(java.util.stream.Collectors.toList());
+		    list = list.stream()
+		            .filter(o -> o.getShopPaymentStatus() != null 
+		                      && o.getShopPaymentStatus().equals(paymentStatus)
+		                      && o.getShopOrderStatus() != 3) // 排除已取消
+		            .collect(java.util.stream.Collectors.toList());
 		}
 
 		model.addAttribute("orderListData", list);
