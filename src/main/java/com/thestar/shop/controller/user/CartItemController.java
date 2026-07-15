@@ -111,8 +111,9 @@ public class CartItemController {
 		// 確認這個購物車項目屬於此會員
 		CartItemVO cartItemVO = cartItemSvc.getOneCartItem(cartItemId);
 		if (cartItemVO != null && memberId.equals(cartItemVO.getMemberId())) {
-			cartItemVO.setCartItemProdQty(qty);
-			cartItemSvc.updateCartItem(cartItemVO);
+		    if (qty == null || qty <= 0) qty = 1;
+		    cartItemVO.setCartItemProdQty(qty);
+		    cartItemSvc.updateCartItem(cartItemVO);
 		}
 
 		return "redirect:/shop/cart";
