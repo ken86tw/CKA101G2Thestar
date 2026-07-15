@@ -1,5 +1,6 @@
 package com.thestar.order.service;
 
+import com.thestar.member.service.MemberCouponService;
 import com.thestar.room.service.RedisRoomStock;
 
 import com.thestar.order.dto.CreateRoomOrderDTO;
@@ -28,17 +29,19 @@ public class OrderService {
     private final RoomTypeRepository roomTypeRepository;
     private final RefundListRepository refundListRepository;
     private final RedisRoomStock redisRoomStock;
+    private final MemberCouponService memberCouponService;
 
 
     @Autowired
     public OrderService(OrderRepository orderRepository, RoomInventoryRepository roomInventoryRepository
             , RoomTypeRepository roomTypeRepository, RefundListRepository refundListRepository
-            , RedisRoomStock redisRoomStock) {
+            , RedisRoomStock redisRoomStock, MemberCouponService memberCouponService) {
         this.orderRepository = orderRepository;
         this.roomInventoryRepository = roomInventoryRepository;
         this.roomTypeRepository = roomTypeRepository;
         this.refundListRepository = refundListRepository;
         this.redisRoomStock = redisRoomStock;
+        this.memberCouponService = memberCouponService;
     }
 
     @Transactional
@@ -87,8 +90,7 @@ public class OrderService {
             orderList.add(listVO);
 
         }
-        
-        
+
 
         //使用內部類別建立一個這個訂單所有房型的每日住房清單 因為庫存資料庫是用房型跟天數作為雙主鍵
         //需要使用雙層迴圈將天數拆解成一天一天以加入庫存
@@ -141,7 +143,7 @@ public class OrderService {
             ordervo.setCheckInDate(checkInDate);
             ordervo.setCheckOutDate(checkOutDate);
             ordervo.setTotalAmount(totalAmount);
-            ordervo.setDiscountAmount(0);
+            ordervo.setDiscountAmount(resolveCouponDiscount(memberId, dto.getMemberCouponId(), totalAmount));
             ordervo.setPaidAmount(0);
             ordervo.setMerchantTradeNo(generateMerchantTradeNo());
 
@@ -169,6 +171,14 @@ public class OrderService {
         order.setMerchantTradeNo(newNo);
         orderRepository.save(order);
         return newNo;
+    }
+
+    //建立折價券方法
+    private int resolveCouponDiscount(Integer memberId, Integer memberCouponId, int totalAmount) {
+        if (memberCouponId == null) {
+            return 0;
+        }
+        return memberCouponService.useCouponForRoomOrder(memberId, memberCouponId, totalAmount);
     }
 
     //建立此訂單金流編號
@@ -216,6 +226,9 @@ public class OrderService {
             LocalDate checkInDate = expiredOrder.getCheckInDate();
             LocalDate checkOutDate = expiredOrder.getCheckOutDate();
             long nights = checkOutDate.toEpochDay() - checkInDate.toEpochDay();
+
+            //若是沒結帳將會還券
+            memberCouponService.restoreCouponForUnpaidOrder(expiredOrder.getMemberCouponId());
 
             for (OrderListVO orderList : expiredOrder.getOrderList()) {
                 Integer roomTypeId = orderList.getRoomTypeId();

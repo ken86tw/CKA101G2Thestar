@@ -1213,3 +1213,121 @@ summary {
     letter-spacing: 1px
 }
 
+
+/* ===== 優惠券 (confirm 頁預覽 & 金額明細) ===== */
+.coupon-note {
+    margin: 9px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7
+}
+
+.coupon-note a {
+    color: var(--gold);
+    text-decoration: none
+}
+
+.coupon-preview {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: center;
+    margin-top: 24px;
+    padding: 18px 20px;
+    border: 1px solid #d8c79a;
+    background: #f7f0dd
+}
+
+.coupon-preview-label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--gold);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase
+}
+
+.coupon-preview strong {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 500
+}
+
+.coupon-preview p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 12px
+}
+
+.coupon-preview-value {
+    min-width: 150px;
+    text-align: right
+}
+
+.coupon-preview-value b,
+.coupon-preview-value small {
+    display: block
+}
+
+.coupon-preview-value b {
+    color: var(--gold);
+    font-family: var(--serif);
+    font-size: 20px
+}
+
+.coupon-preview-value small {
+    margin-top: 4px;
+    color: var(--muted)
+}
+
+.booking-summary {
+    margin-top: 28px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line)
+}
+
+.booking-summary > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 7px 0;
+    color: var(--soft);
+    font-size: 13px
+}
+
+.booking-summary b {
+    color: var(--ink);
+    font-weight: 500
+}
+
+.booking-summary .discount-row,
+.booking-summary .discount-row b {
+    color: #8a6a26
+}
+
+.booking-summary .payable-row {
+    margin-top: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+    font-size: 16px
+}
+
+.booking-summary .payable-row b {
+    color: var(--gold);
+    font-family: var(--serif);
+    font-size: 24px
+}
+
+@media (max-width: 720px) {
+    .coupon-preview {
+        align-items: flex-start;
+        flex-direction: column
+    }
+
+    .coupon-preview-value {
+        min-width: 0;
+        text-align: left
+    }
+}
