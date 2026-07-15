@@ -17,4 +17,6 @@ public interface ProductReviewRepository extends JpaRepository<ProductReviewVO, 
 
     List<ProductReviewVO> findByProductId(Integer productId);
     List<ProductReviewVO> findByMemberId(Integer memberId);
+    
+    boolean existsByProductOrderItemId(Integer productOrderItemId);
 }

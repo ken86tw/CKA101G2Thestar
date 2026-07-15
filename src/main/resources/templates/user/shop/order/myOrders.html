@@ -4,189 +4,475 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>東方之星 The Star｜我的訂單</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link
+	href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap"
+	rel="stylesheet">
 <link rel="stylesheet" href="/css/common.css">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3e50; }
-/* 購物頁 navbar 樣式 */
-.shop-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(30,45,55,0.92); backdrop-filter: blur(8px); height: 88px; border-bottom: 1px solid rgba(201,168,76,0.2); }
-.shop-navbar .navbar-brand { display: flex; flex-direction: column; justify-content: center; align-self: center; height: 88px; padding-left: 8px; }
-.shop-navbar .navbar-links { flex: 1; justify-content: flex-end; }
-.shop-navbar { flex-direction: row !important; align-items: center !important; padding: 0 61px !important; }
-.shop-navbar .navbar-links { align-items: center; flex-direction: row !important; }
-.shop-navbar .navbar-links > a { color: #c9d8e0; }
-.shop-navbar .navbar-links > a:hover { color: #fff; }
-.shop-navbar .navbar-links > a.active { color: #c9a84c; }
-.shop-navbar .navbar-login { color: #fff; }
-.shop-navbar #loginLink { border: 1px solid #c9a84c !important; padding: 6px 16px !important; border-radius: 4px !important; color: #c9a84c !important; font-size: 14px; letter-spacing: 1px; }
-.shop-navbar #loginLink:hover { background: #c9a84c !important; color: #fff !important; }
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
 
-.page-header { background: linear-gradient(135deg, #1e3a4a 0%, #2d5a6b 50%, #1a2f3a 100%); padding: 140px 0 80px; text-align: center; }
-.page-header h1 { font-family: 'Noto Serif TC', serif; font-size: 2rem; color: #fff; letter-spacing: 6px; }
-.gold-line { width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #c9a84c, transparent); margin: 16px auto; }
-.orders-container { max-width: 900px; margin: 48px auto 80px; padding: 0 32px; }
+body {
+	font-family: 'Noto Sans TC', sans-serif;
+	background: #f5f8fa;
+	color: #2c3e50;
+}
+/* 購物頁 navbar 樣式 */
+.shop-navbar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 100;
+	background: rgba(30, 45, 55, 0.92);
+	backdrop-filter: blur(8px);
+	height: 88px;
+	border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+.shop-navbar .navbar-brand {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-self: center;
+	height: 88px;
+	padding-left: 8px;
+}
+
+.shop-navbar .navbar-links {
+	flex: 1;
+	justify-content: flex-end;
+}
+
+.shop-navbar {
+	flex-direction: row !important;
+	align-items: center !important;
+	padding: 0 61px !important;
+}
+
+.shop-navbar .navbar-links {
+	align-items: center;
+	flex-direction: row !important;
+}
+
+.shop-navbar .navbar-links>a {
+	color: #c9d8e0;
+}
+
+.shop-navbar .navbar-links>a:hover {
+	color: #fff;
+}
+
+.shop-navbar .navbar-links>a.active {
+	color: #c9a84c;
+}
+
+.shop-navbar .navbar-login {
+	color: #fff;
+}
+
+.shop-navbar #loginLink {
+	border: 1px solid #c9a84c !important;
+	padding: 6px 16px !important;
+	border-radius: 4px !important;
+	color: #c9a84c !important;
+	font-size: 14px;
+	letter-spacing: 1px;
+}
+
+.shop-navbar #loginLink:hover {
+	background: #c9a84c !important;
+	color: #fff !important;
+}
+
+.page-header {
+	background: linear-gradient(135deg, #1e3a4a 0%, #2d5a6b 50%, #1a2f3a 100%);
+	padding: 140px 0 80px;
+	text-align: center;
+}
+
+.page-header h1 {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 2rem;
+	color: #fff;
+	letter-spacing: 6px;
+}
+
+.gold-line {
+	width: 60px;
+	height: 2px;
+	background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+	margin: 16px auto;
+}
+
+.orders-container {
+	max-width: 900px;
+	margin: 48px auto 80px;
+	padding: 0 32px;
+}
 
 /* 空訂單 */
-.empty-orders { text-align: center; padding: 80px 0; }
-.empty-orders i { font-size: 64px; color: #c8dae0; display: block; margin-bottom: 24px; }
-.empty-orders p { font-size: 16px; color: #7a9aaa; margin-bottom: 24px; }
+.empty-orders {
+	text-align: center;
+	padding: 80px 0;
+}
+
+.empty-orders i {
+	font-size: 64px;
+	color: #c8dae0;
+	display: block;
+	margin-bottom: 24px;
+}
+
+.empty-orders p {
+	font-size: 16px;
+	color: #7a9aaa;
+	margin-bottom: 24px;
+}
 
 /* 訂單卡片 */
-.order-card { background: #fff; border: 1px solid #dce8ed; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
-.order-card-header { background: #f0f7fa; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dce8ed; }
-.order-id { font-family: 'Noto Serif TC', serif; font-weight: 700; color: #1e3a4a; font-size: 15px; }
-.order-date { font-size: 12px; color: #7a9aaa; margin-top: 4px; }
-.order-badges { display: flex; gap: 8px; align-items: center; }
-.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; }
-.badge-pending-pay { background: #fff3e0; color: #e67e22; }
-.badge-paid { background: #e8f5ee; color: #2d7a4a; }
-.badge-processing { background: #e8f0fe; color: #3a5fc8; }
-.badge-shipped { background: #f3e8ff; color: #7b3fa0; }
-.badge-done { background: #e8f5ee; color: #2d7a4a; }
-.badge-cancelled { background: #fce8e8; color: #c0392b; }
-.badge-delivery { background: #e8f2f6; color: #2d5a6b; }
-.badge-pickup { background: #fff8e6; color: #8a6a00; }
+.order-card {
+	background: #fff;
+	border: 1px solid #dce8ed;
+	border-radius: 8px;
+	margin-bottom: 20px;
+	overflow: hidden;
+}
+
+.order-card-header {
+	background: #f0f7fa;
+	padding: 16px 24px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #dce8ed;
+}
+
+.order-id {
+	font-family: 'Noto Serif TC', serif;
+	font-weight: 700;
+	color: #1e3a4a;
+	font-size: 15px;
+}
+
+.order-date {
+	font-size: 12px;
+	color: #7a9aaa;
+	margin-top: 4px;
+}
+
+.order-badges {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.badge {
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 1px;
+}
+
+.badge-pending-pay {
+	background: #fff3e0;
+	color: #e67e22;
+}
+
+.badge-paid {
+	background: #e8f5ee;
+	color: #2d7a4a;
+}
+
+.badge-processing {
+	background: #e8f0fe;
+	color: #3a5fc8;
+}
+
+.badge-shipped {
+	background: #f3e8ff;
+	color: #7b3fa0;
+}
+
+.badge-done {
+	background: #e8f5ee;
+	color: #2d7a4a;
+}
+
+.badge-cancelled {
+	background: #fce8e8;
+	color: #c0392b;
+}
+
+.badge-delivery {
+	background: #e8f2f6;
+	color: #2d5a6b;
+}
+
+.badge-pickup {
+	background: #fff8e6;
+	color: #8a6a00;
+}
 
 /* 訂單內容 */
-.order-card-body { padding: 16px 24px; }
-.order-item-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f5f8fa; color: #5a7a8a; }
-.order-item-row:last-child { border-bottom: 0; }
-.order-item-name { color: #1e3a4a; }
+.order-card-body {
+	padding: 16px 24px;
+}
+
+.order-item-row {
+	display: flex;
+	justify-content: space-between;
+	padding: 8px 0;
+	font-size: 14px;
+	border-bottom: 1px solid #f5f8fa;
+	color: #5a7a8a;
+}
+
+.order-item-row:last-child {
+	border-bottom: 0;
+}
+
+.order-item-name {
+	color: #1e3a4a;
+}
 
 /* 訂單底部 */
-.order-card-footer { padding: 14px 24px; border-top: 1px solid #dce8ed; display: flex; justify-content: space-between; align-items: center; background: #fafcfd; }
-.order-total { font-family: 'Noto Serif TC', serif; font-size: 1.3rem; font-weight: 700; color: #c9a84c; }
-.order-info-small { font-size: 12px; color: #7a9aaa; }
+.order-card-footer {
+	padding: 14px 24px;
+	border-top: 1px solid #dce8ed;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: #fafcfd;
+}
+
+.order-total {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 1.3rem;
+	font-weight: 700;
+	color: #c9a84c;
+}
+
+.order-info-small {
+	font-size: 12px;
+	color: #7a9aaa;
+}
 
 /* 按鈕 */
-.btn-shop { display: inline-block; background: #2d5a6b; color: #fff; padding: 12px 32px; border-radius: 4px; text-decoration: none; font-size: 14px; letter-spacing: 1px; transition: background 0.2s; }
-.btn-shop:hover { background: #1e3a4a; color: #fff; }
+.btn-shop {
+	display: inline-block;
+	background: #2d5a6b;
+	color: #fff;
+	padding: 12px 32px;
+	border-radius: 4px;
+	text-decoration: none;
+	font-size: 14px;
+	letter-spacing: 1px;
+	transition: background 0.2s;
+}
 
-footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 32px; font-size: 13px; }
-.footer-brand { font-family: 'Noto Serif TC', serif; font-size: 16px; color: #c9a84c; letter-spacing: 4px; margin-bottom: 8px; }
-.footer-en { font-family: 'Cormorant Garamond', serif; font-style: italic; color: #5a8a9a; font-size: 14px; margin-bottom: 16px; }
-.footer-divider { width: 40px; height: 1px; background: #c9a84c; margin: 12px auto; opacity: 0.4; }
+.btn-shop:hover {
+	background: #1e3a4a;
+	color: #fff;
+}
+
+footer {
+	background: #1e3a4a;
+	color: #7a9aaa;
+	text-align: center;
+	padding: 40px 32px;
+	font-size: 13px;
+}
+
+.footer-brand {
+	font-family: 'Noto Serif TC', serif;
+	font-size: 16px;
+	color: #c9a84c;
+	letter-spacing: 4px;
+	margin-bottom: 8px;
+}
+
+.footer-en {
+	font-family: 'Cormorant Garamond', serif;
+	font-style: italic;
+	color: #5a8a9a;
+	font-size: 14px;
+	margin-bottom: 16px;
+}
+
+.footer-divider {
+	width: 40px;
+	height: 1px;
+	background: #c9a84c;
+	margin: 12px auto;
+	opacity: 0.4;
+}
 
 /* ===== 購物頁 navbar 覆蓋（fixed 深色背景） ===== */
-
 </style>
 </head>
 <body>
 
-<div th:replace="~{user/common/frontNavbar :: navbar('shop', true, 'shop-navbar site-navbar-dark', false)}"></div>
+	<div
+		th:replace="~{user/common/frontNavbar :: navbar('shop', true, 'shop-navbar site-navbar-dark', false)}"></div>
 
-<div class="page-header">
-  <h1>我的訂單</h1>
-  <div class="gold-line"></div>
-</div>
+	<div class="page-header">
+		<h1>我的訂單</h1>
+		<div class="gold-line"></div>
+	</div>
 
-<div class="orders-container">
+	<div class="orders-container">
 
-  <!-- 沒有訂單 -->
-  <div class="empty-orders" th:if="${#lists.isEmpty(orderListData)}">
-    <i class="fa-solid fa-box-open"></i>
-    <p>目前還沒有任何訂單</p>
-    <a href="/shop" class="btn-shop">
-      <i class="fa-solid fa-bag-shopping me-1"></i>前往購物
-    </a>
-  </div>
+		<!-- 沒有訂單 -->
+		<div class="empty-orders" th:if="${#lists.isEmpty(orderListData)}">
+			<i class="fa-solid fa-box-open"></i>
+			<p>目前還沒有任何訂單</p>
+			<a href="/shop" class="btn-shop"> <i
+				class="fa-solid fa-bag-shopping me-1"></i>前往購物
+			</a>
+		</div>
 
-  <!-- 訂單列表 -->
-  <div th:each="order : ${orderListData}" class="order-card">
+		<!-- 訂單列表 -->
+		<div th:each="order : ${orderListData}" class="order-card">
 
-    <!-- 訂單標題 -->
-    <div class="order-card-header">
-      <div>
-        <div class="order-id">訂單 #<span th:text="${order.shopOrderId}"></span></div>
-        <div class="order-date"
-          th:text="${#temporals.format(order.shopOrderTime, 'yyyy-MM-dd HH:mm')}"></div>
-      </div>
-      <div class="order-badges">
-        <!-- 配送方式 -->
-        <span th:if="${order.shopOrderPickup == 0}" class="badge badge-delivery">
-          <i class="fa-solid fa-truck me-1"></i>宅配
-        </span>
-        <span th:if="${order.shopOrderPickup == 1}" class="badge badge-pickup">
-          <i class="fa-solid fa-store me-1"></i>自取
-        </span>
-        <!-- 付款狀態 -->
-        <span th:if="${order.shopPaymentStatus == 0}" class="badge badge-pending-pay">待付款</span>
-        <span th:if="${order.shopPaymentStatus == 1}" class="badge badge-paid">已付款</span>
-        <span th:if="${order.shopPaymentStatus == 2}" class="badge badge-cancelled">退款中</span>
-        <!-- 訂單狀態 -->
-        <span th:if="${order.shopOrderStatus == 0}" class="badge badge-processing">待處理</span>
-        <span th:if="${order.shopOrderStatus == 1}" class="badge badge-processing">處理中</span>
-        <span th:if="${order.shopOrderStatus == 2}" class="badge badge-shipped">已出貨</span>
-        <span th:if="${order.shopOrderStatus == 3}" class="badge badge-done">已完成</span>
-        <span th:if="${order.shopOrderStatus == 4}" class="badge badge-cancelled">已取消</span>
-      </div>
-    </div>
+			<!-- 訂單標題 -->
+			<div class="order-card-header">
+				<div>
+					<div class="order-id">
+						訂單 #<span th:text="${order.shopOrderId}"></span>
+					</div>
+					<div class="order-date"
+						th:text="${#temporals.format(order.shopOrderTime, 'yyyy-MM-dd HH:mm')}"></div>
+				</div>
+				<div class="order-badges">
+					<!-- 配送方式 -->
+					<span th:if="${order.shopOrderPickup == 0}"
+						class="badge badge-delivery"> <i
+						class="fa-solid fa-truck me-1"></i>宅配
+					</span> <span th:if="${order.shopOrderPickup == 1}"
+						class="badge badge-pickup"> <i
+						class="fa-solid fa-store me-1"></i>自取
+					</span>
+					<!-- 付款狀態 -->
+					<span th:if="${order.shopPaymentStatus == 0}"
+						class="badge badge-pending-pay">待付款</span> <span
+						th:if="${order.shopPaymentStatus == 1}" class="badge badge-paid">已付款</span>
+					<span th:if="${order.shopPaymentStatus == 2}"
+						class="badge badge-cancelled">退款中</span>
+					<!-- 訂單狀態 -->
+					<span th:if="${order.shopOrderStatus == 0}"
+						class="badge badge-processing">待處理</span> <span
+						th:if="${order.shopOrderStatus == 1}"
+						class="badge badge-processing">處理中</span> <span
+						th:if="${order.shopOrderStatus == 2}" class="badge badge-shipped">已出貨</span>
+					<span th:if="${order.shopOrderStatus == 3}"
+						class="badge badge-done">已完成</span> <span
+						th:if="${order.shopOrderStatus == 4}"
+						class="badge badge-cancelled">已取消</span>
+				</div>
+			</div>
 
-    <!-- 收件資訊 -->
-    <div class="order-card-body">
-      <div class="order-item-row">
-        <span>收件人</span>
-        <span class="order-item-name" th:text="${order.shopOrderName}"></span>
-      </div>
-      <div class="order-item-row">
-        <span>聯絡電話</span>
-        <span class="order-item-name" th:text="${order.shopOrderPhone}"></span>
-      </div>
-      <div class="order-item-row" th:if="${order.shopOrderPickup == 0 and order.shopOrderAddress != null}">
-        <span>收件地址</span>
-        <span class="order-item-name" th:text="${order.shopOrderAddress}"></span>
-      </div>
-      <div class="order-item-row" th:if="${order.shopOrderPickup == 1 and order.shopOrderPickupTime != null}">
-        <span>取貨時間</span>
-        <span class="order-item-name"
-          th:text="${#temporals.format(order.shopOrderPickupTime, 'yyyy-MM-dd HH:mm')}"></span>
-      </div>
-      <div class="order-item-row"
-        th:if="${order.shopOrderNote != null and !#strings.isEmpty(order.shopOrderNote)}">
-        <span>備註</span>
-        <span class="order-item-name" th:text="${order.shopOrderNote}"></span>
-      </div>
-    </div>
+			<!-- 收件資訊 -->
+			<div class="order-card-body">
+				<div class="order-item-row">
+					<span>收件人</span> <span class="order-item-name"
+						th:text="${order.shopOrderName}"></span>
+				</div>
+				<div class="order-item-row">
+					<span>聯絡電話</span> <span class="order-item-name"
+						th:text="${order.shopOrderPhone}"></span>
+				</div>
+				<div class="order-item-row"
+					th:if="${order.shopOrderPickup == 0 and order.shopOrderAddress != null}">
+					<span>收件地址</span> <span class="order-item-name"
+						th:text="${order.shopOrderAddress}"></span>
+				</div>
+				<div class="order-item-row"
+					th:if="${order.shopOrderPickup == 1 and order.shopOrderPickupTime != null}">
+					<span>取貨時間</span> <span class="order-item-name"
+						th:text="${#temporals.format(order.shopOrderPickupTime, 'yyyy-MM-dd HH:mm')}"></span>
+				</div>
+				<div class="order-item-row"
+					th:if="${order.shopOrderNote != null and !#strings.isEmpty(order.shopOrderNote)}">
+					<span>備註</span> <span class="order-item-name"
+						th:text="${order.shopOrderNote}"></span>
+				</div>
+			</div>
+			<!-- 商品明細 -->
+			<div style="padding: 12px 24px; border-top: 1px solid #f0f5f8;">
+				<div
+					style="font-size: 12px; color: #7a9aaa; margin-bottom: 8px; letter-spacing: 1px;">商品明細</div>
+				<div th:each="item : ${orderItemsMap[order.shopOrderId]}"
+					style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f8fa; font-size: 14px;">
+					<div style="display: flex; align-items: center; gap: 12px;">
+						<span class="order-item-name"
+							th:text="${item.product != null ? item.product.productName : '商品'}"></span>
+						<span style="color: #7a9aaa;">x<span
+							th:text="${item.prodOrderItemQty}"></span></span>
+					</div>
+					<div style="display: flex; align-items: center; gap: 12px;">
+						<span style="color: #c9a84c; font-weight: 600;"> NT$ <span
+							th:text="${item.prodOrderItemPrice * item.prodOrderItemQty}"></span>
+						</span>
+						<!-- 已收貨 + 未評論才顯示寫評論按鈕 -->
+						<a
+							th:if="${order.shopOrderStatus == 2 and item.prodOrderReviewStat == 0}"
+							th:href="@{/shop/review/add(productOrderItemId=${item.productOrderItemId})}"
+							style="background: #f0f5f8; color: #2d5a6b; padding: 4px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; border: 1px solid #c8dae0;">
+							<i class="fa-solid fa-pen me-1"></i>寫評論
+						</a> <span
+							th:if="${order.shopOrderStatus == 2 and item.prodOrderReviewStat == 1}"
+							style="color: #2d7a4a; font-size: 12px;"> <i
+							class="fa-solid fa-check me-1"></i>已評論
+						</span>
+					</div>
+				</div>
+			</div>
 
-    <!-- 訂單金額 -->
-    <div class="order-card-footer">
-      <div class="order-info-small">
-        <i class="fa-solid fa-circle-info me-1"></i>
-        如有問題請聯絡客服
-      </div>
-      <div style="display:flex; align-items:center; gap:16px;">
-        <!-- 待付款才顯示前往付款按鈕 -->
-        <a th:if="${order.shopPaymentStatus == 0}"
-           th:href="@{/shop/order/pay/{id}(id=${order.shopOrderId})}"
-           style="background:#c9a84c; color:#fff; padding:8px 20px; border-radius:4px; text-decoration:none; font-size:13px; letter-spacing:1px;">
-          <i class="fa-solid fa-credit-card me-1"></i>前往付款
-        </a>
-        <div class="order-total">
-          NT$ <span th:text="${order.shopOrderTotal}"></span>
-        </div>
-      </div>
-    </div>
+			<!-- 訂單金額 -->
+			<div class="order-card-footer">
+				<div class="order-info-small">
+					<i class="fa-solid fa-circle-info me-1"></i> 如有問題請聯絡客服
+				</div>
+				<div style="display: flex; align-items: center; gap: 16px;">
+					<!-- 待付款才顯示前往付款按鈕 -->
+					<a th:if="${order.shopPaymentStatus == 0}"
+						th:href="@{/shop/order/pay/{id}(id=${order.shopOrderId})}"
+						style="background: #c9a84c; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-size: 13px; letter-spacing: 1px;">
+						<i class="fa-solid fa-credit-card me-1"></i>前往付款
+					</a>
+					<div class="order-total">
+						NT$ <span th:text="${order.shopOrderTotal}"></span>
+					</div>
+				</div>
+			</div>
 
-  </div>
+		</div>
 
-  <!-- 繼續購物按鈕 -->
-  <div style="text-align:center; margin-top:32px;" th:if="${!#lists.isEmpty(orderListData)}">
-    <a href="/shop" class="btn-shop">
-      <i class="fa-solid fa-bag-shopping me-1"></i>繼續購物
-    </a>
-  </div>
+		<!-- 繼續購物按鈕 -->
+		<div style="text-align: center; margin-top: 32px;"
+			th:if="${!#lists.isEmpty(orderListData)}">
+			<a href="/shop" class="btn-shop"> <i
+				class="fa-solid fa-bag-shopping me-1"></i>繼續購物
+			</a>
+		</div>
 
-</div>
+	</div>
 
-<footer>
-  <div class="footer-brand">東方之星</div>
-  <div class="footer-en">The Star Resort Hotel</div>
-  <div class="footer-divider"></div>
-  <div>© 2026 東方之星 The Star．All Rights Reserved</div>
-</footer>
+	<footer>
+		<div class="footer-brand">東方之星</div>
+		<div class="footer-en">The Star Resort Hotel</div>
+		<div class="footer-divider"></div>
+		<div>© 2026 東方之星 The Star．All Rights Reserved</div>
+	</footer>
 
-<script src="/js/header-auth.js"></script>
+	<script src="/js/header-auth.js"></script>
 </body>
 </html>

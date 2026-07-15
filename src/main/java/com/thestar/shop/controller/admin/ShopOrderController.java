@@ -19,41 +19,51 @@ import com.thestar.shop.service.ProductOrderItemService;
 @RequestMapping("/admin/shop/order")
 public class ShopOrderController {
 
-    @Autowired
-    ShopOrderService shopOrderSvc;
+	@Autowired
+	ShopOrderService shopOrderSvc;
 
-    // 顯示所有訂單
-    @GetMapping("listAllOrders")
-    public String listAllOrders(ModelMap model) {
-        List<ShopOrderVO> list = shopOrderSvc.getAll();
-        model.addAttribute("orderListData", list);
-        return "admin/shop/order/listAllOrders";
-    }
+	// 顯示所有訂單
+	@GetMapping("listAllOrders")
+	public String listAllOrders(@RequestParam(value = "paymentStatus", required = false) Byte paymentStatus,
+			ModelMap model) {
+		List<ShopOrderVO> list = shopOrderSvc.getAll();
 
-    // 顯示單筆訂單
-    @Autowired
-    ProductOrderItemService productOrderItemSvc;
+		// 若有傳 paymentStatus 就篩選
+		if (paymentStatus != null) {
+			list = list.stream()
+					.filter(o -> o.getShopPaymentStatus() != null && o.getShopPaymentStatus().equals(paymentStatus))
+					.collect(java.util.stream.Collectors.toList());
+		}
 
-    @PostMapping("getOne")
-    public String getOne(@RequestParam("shopOrderId") Integer shopOrderId, ModelMap model) {
-        ShopOrderVO shopOrderVO = shopOrderSvc.getOneShopOrder(shopOrderId);
-        List<ProductOrderItemVO> itemList = productOrderItemSvc.getByShopOrderId(shopOrderId);
-        model.addAttribute("shopOrderVO", shopOrderVO);
-        model.addAttribute("itemListData", itemList);
-        return "admin/shop/order/listOneOrder";
-    }
+		model.addAttribute("orderListData", list);
+		model.addAttribute("selectedPaymentStatus", paymentStatus);
+		return "admin/shop/order/listAllOrders";
+	}
 
-    // 更新訂單狀態
-    @PostMapping("updateStatus")
-    public String updateStatus(@RequestParam("shopOrderId") Integer shopOrderId,
-                               @RequestParam("shopOrderStatus") Byte shopOrderStatus,
-                               @RequestParam("shopPaymentStatus") Byte shopPaymentStatus) {
-        ShopOrderVO shopOrderVO = shopOrderSvc.getOneShopOrder(shopOrderId);
-        if (shopOrderVO != null) {
-            shopOrderVO.setShopOrderStatus(shopOrderStatus);
-            shopOrderVO.setShopPaymentStatus(shopPaymentStatus);
-            shopOrderSvc.updateShopOrder(shopOrderVO);
-        }
-        return "redirect:/admin/shop/order/listAllOrders";
-    }
+	// 顯示單筆訂單
+	@Autowired
+	ProductOrderItemService productOrderItemSvc;
+
+	@PostMapping("getOne")
+	public String getOne(@RequestParam("shopOrderId") Integer shopOrderId, ModelMap model) {
+		ShopOrderVO shopOrderVO = shopOrderSvc.getOneShopOrder(shopOrderId);
+		List<ProductOrderItemVO> itemList = productOrderItemSvc.getByShopOrderId(shopOrderId);
+		model.addAttribute("shopOrderVO", shopOrderVO);
+		model.addAttribute("itemListData", itemList);
+		return "admin/shop/order/listOneOrder";
+	}
+
+	// 更新訂單狀態
+	@PostMapping("updateStatus")
+	public String updateStatus(@RequestParam("shopOrderId") Integer shopOrderId,
+			@RequestParam("shopOrderStatus") Byte shopOrderStatus,
+			@RequestParam("shopPaymentStatus") Byte shopPaymentStatus) {
+		ShopOrderVO shopOrderVO = shopOrderSvc.getOneShopOrder(shopOrderId);
+		if (shopOrderVO != null) {
+			shopOrderVO.setShopOrderStatus(shopOrderStatus);
+			shopOrderVO.setShopPaymentStatus(shopPaymentStatus);
+			shopOrderSvc.updateShopOrder(shopOrderVO);
+		}
+		return "redirect:/admin/shop/order/listAllOrders";
+	}
 }
