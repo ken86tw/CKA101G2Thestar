@@ -21,7 +21,7 @@ public class RoomVO {
 	@Max(value = 9999, message = "房間編號不得大於 9999")
 	private Integer roomId;
 
-	@Column(name = "ROOM_TYPE_ID")
+	@Column(name = "ROOM_TYPE_ID", nullable = false)
 	private Integer roomTypeId;
 
 	@Column(name = "ROOM_STATUS", columnDefinition = "TINYINT")
