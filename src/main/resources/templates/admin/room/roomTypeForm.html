@@ -6,16 +6,50 @@
 <link rel="stylesheet" th:href="@{/css/roomTypeManage.css}">
 <!-- CSS 樣式維持不變 (略...) -->
 <style>
-.form-container { max-width: 600px; margin: 50px auto; background: white; padding: 40px; border: 1px solid #e0dcd5; }
-.form-group { margin-bottom: 25px; }
-.form-group label { display: block; margin-bottom: 8px; color: #888; font-size: 13px; letter-spacing: 1px; }
-.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #e0dcd5; box-sizing: border-box; font-family: inherit; color: #4a4a4a; }
-.btn-row { margin-top: 40px; display: flex; gap: 20px; }
+.form-container {
+	max-width: 600px;
+	margin: 50px auto;
+	background: white;
+	padding: 40px;
+	border: 1px solid #e0dcd5;
+}
+
+.form-group {
+	margin-bottom: 25px;
+}
+
+.form-group label {
+	display: block;
+	margin-bottom: 8px;
+	color: #888;
+	font-size: 13px;
+	letter-spacing: 1px;
+}
+
+.form-group input, .form-group textarea, .form-group select {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #e0dcd5;
+	box-sizing: border-box;
+	font-family: inherit;
+	color: #4a4a4a;
+}
+
+.btn-row {
+	margin-top: 40px;
+	display: flex;
+	gap: 20px;
+}
+
+textarea {
+    resize: none;
+}
+    
 </style>
 </head>
 <body>
 
-    <!-- Header 區塊維持不變 (略...) -->
+	<!-- Header 區塊維持不變 (略...) -->
 
 	<div class="container">
 		<header class="admin-header">
@@ -23,41 +57,66 @@
 			<h1 th:text="${roomTypeVO.roomTypeId == null ? '新增房型' : '編輯房型'}">表單</h1>
 		</header>
 
-		<form th:action="@{${roomTypeVO.roomTypeId == null ? '/roomtype/insert' : '/roomtype/update'}}"
+		<form
+			th:action="@{${roomTypeVO.roomTypeId == null ? '/roomtype/insert' : '/roomtype/update'}}"
 			th:object="${roomTypeVO}" method="post" enctype="multipart/form-data"
 			class="form-container">
 
 			<input type="hidden" th:field="*{roomTypeId}" />
 
 			<div class="form-group">
-				<label>房型名稱</label> <input type="text" th:field="*{roomTypeName}" required />
+				<label>房型名稱</label>
+				<!-- 
+      				pattern: 限制只能輸入中文、英文、數字 (禁止特殊符號)
+      				maxlength: 限制最大字數 20 
+      				placeholder: 提示文字
+    				-->
+				<input type="text" th:field="*{roomTypeName}" id="roomTypeName"
+					maxlength="20" pattern="^[\u4e00-\u9fa5a-zA-Z0-9]+$"
+					title="房型名稱僅能包含中文、英文或數字，且長度上限為 20 字" placeholder="請輸入房型名稱 (禁止特殊符號)"
+					required />
+				<!-- 用於顯示錯誤訊息的容器 -->
+				<span id="nameError"
+					style="color: #a85b50; font-size: 12px; display: none;">格式不正確或包含特殊符號</span>
 			</div>
 
 			<div class="form-group">
-				<label>房型圖片</label> 
-				<input type="file" id="imageInput" name="imageFile" accept="image/*" />
+				<label>房型圖片</label> <input type="file" id="imageInput"
+					name="imageFile" accept="image/*" />
 			</div>
 
-            <!-- 修改後：新增與編輯皆顯示，透過 JavaScript 處理預覽 -->
+			<!-- 修改後：新增與編輯皆顯示，透過 JavaScript 處理預覽 -->
 			<div class="form-group">
-				<label>圖片預覽</label> 
-				<img id="previewImg" 
-                     th:src="${roomTypeVO.roomTypeId != null ? '/roomtypephoto/display/' + roomTypeVO.roomTypeId : '#'}"
-                     th:style="${roomTypeVO.roomTypeId != null ? 'display: block; max-width: 100%; height: auto; border-radius: 4px;' : 'display: none; max-width: 100%; height: auto; border-radius: 4px;'}"
-                     alt="圖片預覽" />
+				<label>圖片預覽</label> <img id="previewImg"
+					th:src="${roomTypeVO.roomTypeId != null ? '/roomtypephoto/display/' + roomTypeVO.roomTypeId : '#'}"
+					th:style="${roomTypeVO.roomTypeId != null ? 'display: block; max-width: 100%; height: auto; border-radius: 4px;' : 'display: none; max-width: 100%; height: auto; border-radius: 4px;'}"
+					alt="圖片預覽" />
 			</div>
 
+
+			<!-- 庫存數量 -->
 			<div class="form-group">
-				<label>庫存數量</label> <input type="number" th:field="*{roomTypeAmount}" min="0" required />
+				<label>庫存數量</label> <input type="number"
+					th:field="*{roomTypeAmount}" id="amountInput" min="1"
+					placeholder="最少數量請輸入1" required /> <span id="amountError"
+					style="color: #a85b50; font-size: 12px; display: none;">請輸入有效的正整數</span>
 			</div>
 
 			<div class="form-group">
 				<label>房型說明</label>
-				<textarea th:field="*{roomTypeContent}" rows="5"></textarea>
+				<textarea th:field="*{roomTypeContent}" id="contentInput" rows="5"
+					required placeholder="請詳細說明房型內容..."></textarea>
+				<span id="contentError"
+					style="color: #a85b50; font-size: 12px; display: none;">房型說明不可為空</span>
 			</div>
 
+			<!-- 價格 -->
+
 			<div class="form-group">
-				<label>價格 (NT$)</label> <input type="number" th:field="*{roomTypePrice}" required />
+				<label>價格 (NT$)</label> <input type="number"
+					th:field="*{roomTypePrice}" id="priceInput" min="1"
+					placeholder="請輸入金額" required /> <span id="priceError"
+					style="color: #a85b50; font-size: 12px; display: none;">請輸入有效的金額數字</span>
 			</div>
 
 			<div class="form-group">
@@ -69,12 +128,13 @@
 
 			<div class="btn-row">
 				<button type="submit" class="btn" style="flex: 2;">儲存變更</button>
-				<a th:href="@{/roomtype/manage}" class="btn ghost" style="flex: 1; text-align: center;">返回</a>
+				<a th:href="@{/roomtype/manage}" class="btn ghost"
+					style="flex: 1; text-align: center;">返回</a>
 			</div>
 		</form>
 	</div>
 
-    <!-- 請確保你的 roomTypeManage.js 包含下方的 JS 邏輯 -->
+	<!-- 請確保你的 roomTypeManage.js 包含下方的 JS 邏輯 -->
 	<script th:src="@{/js/roomTypeManage.js}"></script>
 </body>
 </html>
