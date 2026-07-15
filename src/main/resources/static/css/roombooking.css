@@ -9,7 +9,7 @@
     --gold: #9c7c4f;
     --gold-d: #80623a;
     --line: #e4ddd0;
-    --hero: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80');
+    --hero: url('https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=2000&q=80');
 }
 
 * {
@@ -873,8 +873,347 @@ summary {
     color: var(--gold)
 }
 
-/* ===== 訂房優惠券與金額預覽 ===== */
+/* ===== 訂房三步驟 ===== */
+.steps {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 620px;
+    margin: 0 auto 44px
+}
 
+.steps .step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    white-space: nowrap
+}
+
+.steps .step .no {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 17px;
+    background: var(--paper);
+    transition: .3s
+}
+
+.steps .step .lb {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase
+}
+
+.steps .step.on {
+    color: var(--ink)
+}
+
+.steps .step.on .no {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #fff
+}
+
+.steps .step.done {
+    color: var(--soft)
+}
+
+.steps .step.done .no {
+    border-color: var(--gold);
+    color: var(--gold)
+}
+
+.steps .bar {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    margin: 0 18px;
+    min-width: 36px
+}
+
+/* ===== 搜尋列（步驟一） ===== */
+.searchbar {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--line);
+    background: #fff
+}
+
+.searchbar .sfield {
+    flex: 1;
+    padding: 18px 24px
+}
+
+.searchbar .sfield label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px
+}
+
+.searchbar .sfield input {
+    border: 0;
+    outline: 0;
+    width: 100%;
+    font-family: var(--sans);
+    font-size: 15.5px;
+    color: var(--ink);
+    background: transparent;
+    padding: 0
+}
+
+.searchbar .sdiv {
+    width: 1px;
+    background: var(--line)
+}
+
+.searchbar .btn {
+    padding: 0 42px
+}
+
+/* ===== 房型卡片（步驟二） ===== */
+.staybrief {
+    text-align: center;
+    color: var(--soft);
+    margin-bottom: 30px;
+    font-size: 14px;
+    letter-spacing: .5px
+}
+
+.staybrief .ser {
+    font-size: 19px;
+    color: var(--ink);
+    margin: 0 4px
+}
+
+.roomcard {
+    position: relative;
+    padding-left: 300px;
+    min-height: 210px;
+    border: 1px solid var(--line);
+    background: #fff;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: .3s
+}
+
+.roomcard .rc-photo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 300px;
+    height: 100%;
+    object-fit: cover;
+    display: block
+}
+
+.roomcard.soldout .rc-photo {
+    filter: grayscale(.65)
+}
+
+.roomcard .rc-body {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 26px 32px;
+    min-height: 210px
+}
+
+.roomcard:hover {
+    border-color: var(--gold);
+    box-shadow: 0 12px 32px rgba(35, 33, 28, .07)
+}
+
+.roomcard.soldout {
+    opacity: .55
+}
+
+.roomcard.soldout:hover {
+    border-color: var(--line);
+    box-shadow: none
+}
+
+.roomcard .rc-info {
+    flex: 1
+}
+
+.roomcard .rc-info h3 {
+    font-size: 25px
+}
+
+.rc-tag {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    padding: 4px 13px;
+    border: 1px solid
+}
+
+.rc-tag.few {
+    color: #a85b50;
+    border-color: #d8b3ab;
+    background: #faf1ef
+}
+
+.rc-tag.out {
+    color: var(--muted);
+    border-color: var(--line);
+    background: var(--cream)
+}
+
+.rc-tag.ok {
+    color: #5b8a5f;
+    border-color: #bfd3c1;
+    background: #f1f6f1
+}
+
+.roomcard .rc-price {
+    text-align: right
+}
+
+.roomcard .rc-price .per {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px
+}
+
+.roomcard .rc-price .total {
+    font-family: var(--serif);
+    font-size: 30px;
+    color: var(--gold-d);
+    line-height: 1.25
+}
+
+.roomcard .rc-qty {
+    width: 108px
+}
+
+.roomcard .rc-qty label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px
+}
+
+.roomcard .rc-qty select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    font-family: var(--sans);
+    font-size: 15px;
+    color: var(--ink)
+}
+
+.rc-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line)
+}
+
+.rc-foot-right {
+    display: flex;
+    align-items: center;
+    gap: 26px
+}
+
+.rc-foot .money {
+    font-family: var(--serif);
+    font-size: 25px;
+    color: var(--gold-d)
+}
+
+/* ===== 首屏:上方搜尋+房型展示 ===== */
+.herofull {
+    text-align: center;
+    padding: 64px 20px 88px
+}
+
+.herofull .inner {
+    width: min(920px, 94vw);
+    margin: 0 auto
+}
+
+.herofull .up {
+    color: var(--gold);
+    letter-spacing: 4px
+}
+
+.herofull h1 {
+    font-size: 44px;
+    margin-top: 10px
+}
+
+.herofull .rule {
+    width: 48px;
+    height: 1px;
+    background: var(--gold);
+    margin: 20px auto 0
+}
+
+.herofull .searchbar {
+    margin-top: 38px;
+    text-align: left;
+    box-shadow: 0 18px 44px rgba(35, 33, 28, .08)
+}
+
+.showcase {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    margin-top: 60px
+}
+
+.showcase .show {
+    background: #fff;
+    border: 1px solid var(--line);
+    overflow: hidden;
+    text-align: left;
+    transition: .3s
+}
+
+.showcase .show:hover {
+    border-color: var(--gold);
+    box-shadow: 0 12px 32px rgba(35, 33, 28, .07)
+}
+
+.showcase .show img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block
+}
+
+.showcase .show .cap {
+    padding: 16px 20px 18px
+}
+
+.showcase .show .cap h3 {
+    font-size: 20px
+}
+
+.showcase .show .cap p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 1px
+}
+
+/* ===== 優惠券(樣式來自 master 的 coupon usage) ===== */
 .coupon-note {
     margin: 9px 0 0;
     color: var(--muted);
@@ -938,56 +1277,4 @@ summary {
 .coupon-preview-value small {
     margin-top: 4px;
     color: var(--muted)
-}
-
-.booking-summary {
-    margin-top: 28px;
-    padding: 20px 24px;
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line)
-}
-
-.booking-summary > div {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 7px 0;
-    color: var(--soft);
-    font-size: 13px
-}
-
-.booking-summary b {
-    color: var(--ink);
-    font-weight: 500
-}
-
-.booking-summary .discount-row,
-.booking-summary .discount-row b {
-    color: #8a6a26
-}
-
-.booking-summary .payable-row {
-    margin-top: 8px;
-    padding-top: 14px;
-    border-top: 1px solid var(--line);
-    color: var(--ink);
-    font-size: 16px
-}
-
-.booking-summary .payable-row b {
-    color: var(--gold);
-    font-family: var(--serif);
-    font-size: 24px
-}
-
-@media (max-width: 720px) {
-    .coupon-preview {
-        align-items: flex-start;
-        flex-direction: column
-    }
-
-    .coupon-preview-value {
-        min-width: 0;
-        text-align: left
-    }
 }
