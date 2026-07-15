@@ -30,8 +30,10 @@
 					</tr>
 					<tr>
 						<th>取貨方式</th>
-						<td><span th:if="${shopOrderVO.shopOrderPickup == 0}">自取</span>
-							<span th:if="${shopOrderVO.shopOrderPickup == 1}">宅配</span></td>
+						<td>
+							<span th:if="${shopOrderVO.shopOrderPickup == 0}">自取</span>
+							<span th:if="${shopOrderVO.shopOrderPickup == 1}">宅配</span>
+						</td>
 					</tr>
 					<tr>
 						<th>收件人</th>
@@ -53,69 +55,84 @@
 						<th>備註</th>
 						<td th:text="${shopOrderVO.shopOrderNote}"></td>
 					</tr>
+					<tr>
+						<th>付款狀態</th>
+						<td>
+							<span th:if="${shopOrderVO.shopPaymentStatus == 0}" class="badge bg-warning text-dark">未付款</span>
+							<span th:if="${shopOrderVO.shopPaymentStatus == 1}" class="badge bg-success">已付款</span>
+							<span th:if="${shopOrderVO.shopPaymentStatus == 2}" class="badge bg-secondary">已退款</span>
+						</td>
+					</tr>
+					<tr>
+						<th>訂單狀態</th>
+						<td>
+							<span th:if="${shopOrderVO.shopOrderStatus == 0}" class="badge bg-primary">訂單成立</span>
+							<span th:if="${shopOrderVO.shopOrderStatus == 1}" class="badge bg-info text-dark">出貨中</span>
+							<span th:if="${shopOrderVO.shopOrderStatus == 2}" class="badge bg-success">已送達</span>
+							<span th:if="${shopOrderVO.shopOrderStatus == 3}" class="badge bg-danger">已取消</span>
+						</td>
+					</tr>
+				</table>
+
+				<!-- 訂單項目 -->
+				<h6 class="fw-bold mt-4 mb-3">訂單項目</h6>
+				<table class="table table-bordered table-hover align-middle">
+					<thead class="table-light">
+						<tr>
+							<th>商品名稱</th>
+							<th>數量</th>
+							<th>單價</th>
+							<th>小計</th>
+							<th>評論狀態</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="item : ${itemListData}">
+							<td th:text="${item.product != null ? item.product.productName : '-'}"></td>
+							<td th:text="${item.prodOrderItemQty}"></td>
+							<td th:text="'NT$ ' + ${item.prodOrderItemPrice}"></td>
+							<td th:text="'NT$ ' + ${item.prodOrderItemQty * item.prodOrderItemPrice}"></td>
+							<td>
+								<span th:if="${item.prodOrderReviewStat == 0}" class="badge bg-secondary">未評論</span>
+								<span th:if="${item.prodOrderReviewStat == 1}" class="badge bg-success">已評論</span>
+							</td>
+						</tr>
+					</tbody>
 				</table>
 
 				<!-- 更新狀態 -->
-				<form th:action="@{/admin/shop/order/updateStatus}" method="post"
-					class="mt-4">
-					<input type="hidden" name="shopOrderId"
-						th:value="${shopOrderVO.shopOrderId}">
+				<form th:action="@{/admin/shop/order/updateStatus}" method="post" class="mt-4">
+					<input type="hidden" name="shopOrderId" th:value="${shopOrderVO.shopOrderId}">
+
+					<!-- 已取消時顯示警告 -->
+					<div th:if="${shopOrderVO.shopOrderStatus == 3}"
+						style="background:#fce8e8; border:1px solid #e0a0a0; border-radius:6px; padding:12px 16px; margin-bottom:16px; color:#c0392b; font-size:14px;">
+						<i class="fa-solid fa-ban me-1"></i>此訂單已取消，無法修改狀態。
+					</div>
+
 					<div class="row g-3">
 						<div class="col-md-4">
-							<label class="form-label fw-bold">付款狀態</label> <select
-								name="shopPaymentStatus" class="form-select">
-								<option value="0"
-									th:selected="${shopOrderVO.shopPaymentStatus == 0}">未付款</option>
-								<option value="1"
-									th:selected="${shopOrderVO.shopPaymentStatus == 1}">已付款</option>
-								<option value="2"
-									th:selected="${shopOrderVO.shopPaymentStatus == 2}">已退款</option>
+							<label class="form-label fw-bold">付款狀態</label>
+							<select name="shopPaymentStatus" class="form-select"
+								th:disabled="${shopOrderVO.shopOrderStatus == 3}">
+								<option value="0" th:selected="${shopOrderVO.shopPaymentStatus == 0}">未付款</option>
+								<option value="1" th:selected="${shopOrderVO.shopPaymentStatus == 1}">已付款</option>
+								<option value="2" th:selected="${shopOrderVO.shopPaymentStatus == 2}">已退款</option>
 							</select>
 						</div>
 						<div class="col-md-4">
-							<label class="form-label fw-bold">訂單狀態</label> <select
-								name="shopOrderStatus" class="form-select">
-								<option value="0"
-									th:selected="${shopOrderVO.shopOrderStatus == 0}">訂單成立</option>
-								<option value="1"
-									th:selected="${shopOrderVO.shopOrderStatus == 1}">出貨中</option>
-								<option value="2"
-									th:selected="${shopOrderVO.shopOrderStatus == 2}">已送達</option>
-								<option value="3"
-									th:selected="${shopOrderVO.shopOrderStatus == 3}">已取消</option>
+							<label class="form-label fw-bold">訂單狀態</label>
+							<select name="shopOrderStatus" class="form-select"
+								th:disabled="${shopOrderVO.shopOrderStatus == 3}">
+								<option value="0" th:selected="${shopOrderVO.shopOrderStatus == 0}">訂單成立</option>
+								<option value="1" th:selected="${shopOrderVO.shopOrderStatus == 1}">出貨中</option>
+								<option value="2" th:selected="${shopOrderVO.shopOrderStatus == 2}">已送達</option>
+								<option value="3" th:selected="${shopOrderVO.shopOrderStatus == 3}">已取消</option>
 							</select>
 						</div>
-
-						<!-- 訂單項目 -->
-						<h6 class="fw-bold mt-4 mb-3">訂單項目</h6>
-						<table class="table table-bordered table-hover align-middle">
-							<thead class="table-light">
-								<tr>
-									<th>商品名稱</th>
-									<th>數量</th>
-									<th>單價</th>
-									<th>小計</th>
-									<th>評論狀態</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr th:each="item : ${itemListData}">
-									<td
-										th:text="${item.product != null ? item.product.productName : '-'}"></td>
-									<td th:text="${item.prodOrderItemQty}"></td>
-									<td th:text="'NT$ ' + ${item.prodOrderItemPrice}"></td>
-									<td
-										th:text="'NT$ ' + ${item.prodOrderItemQty * item.prodOrderItemPrice}"></td>
-									<td><span th:if="${item.prodOrderReviewStat == 0}"
-										class="badge bg-secondary">未評論</span> <span
-										th:if="${item.prodOrderReviewStat == 1}"
-										class="badge bg-success">已評論</span></td>
-								</tr>
-							</tbody>
-						</table>
-
 						<div class="col-md-4 d-flex align-items-end">
-							<button type="submit" class="btn btn-teal w-100">
+							<button type="submit" class="btn btn-teal w-100"
+								th:disabled="${shopOrderVO.shopOrderStatus == 3}">
 								<i class="fa-solid fa-check me-1"></i>更新狀態
 							</button>
 						</div>

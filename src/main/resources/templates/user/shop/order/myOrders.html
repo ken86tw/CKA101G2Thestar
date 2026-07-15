@@ -362,20 +362,18 @@ footer {
 					</span>
 					<!-- 付款狀態 -->
 					<span th:if="${order.shopPaymentStatus == 0}"
-						class="badge badge-pending-pay">待付款</span> <span
+						class="badge badge-pending-pay">未付款</span> <span
 						th:if="${order.shopPaymentStatus == 1}" class="badge badge-paid">已付款</span>
 					<span th:if="${order.shopPaymentStatus == 2}"
-						class="badge badge-cancelled">退款中</span>
+						class="badge badge-cancelled">已退款</span>
 					<!-- 訂單狀態 -->
 					<span th:if="${order.shopOrderStatus == 0}"
-						class="badge badge-processing">待處理</span> <span
+						class="badge badge-processing">訂單成立</span> <span
 						th:if="${order.shopOrderStatus == 1}"
-						class="badge badge-processing">處理中</span> <span
-						th:if="${order.shopOrderStatus == 2}" class="badge badge-shipped">已出貨</span>
+						class="badge badge-processing">出貨中</span> <span
+						th:if="${order.shopOrderStatus == 2}" class="badge badge-shipped">已送達</span>
 					<span th:if="${order.shopOrderStatus == 3}"
-						class="badge badge-done">已完成</span> <span
-						th:if="${order.shopOrderStatus == 4}"
-						class="badge badge-cancelled">已取消</span>
+						class="badge badge-cancelled">已取消</span> 
 				</div>
 			</div>
 
@@ -443,7 +441,7 @@ footer {
 				</div>
 				<div style="display: flex; align-items: center; gap: 16px;">
 					<!-- 待付款才顯示前往付款按鈕 -->
-					<a th:if="${order.shopPaymentStatus == 0}"
+					<a th:if="${order.shopPaymentStatus == 0 and order.shopOrderStatus != 3}"
 						th:href="@{/shop/order/pay/{id}(id=${order.shopOrderId})}"
 						style="background: #c9a84c; color: #fff; padding: 8px 20px; border-radius: 4px; text-decoration: none; font-size: 13px; letter-spacing: 1px;">
 						<i class="fa-solid fa-credit-card me-1"></i>前往付款
