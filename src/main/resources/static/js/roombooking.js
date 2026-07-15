@@ -11,11 +11,14 @@ createApp({
     data() {
         const d = localDate;
         return {
-            STATUS, nav: 'book', gateTab: 'member',
+            STATUS,
+            nav: 'book',
+            gateTab: 'member',
             roomTypes: [],   // 房型清單(id/name/price),頁面載入時從查房API撈,新增房型自動跟上
-            member: {id: 1, on: null, name: ''}, employee: {id: 1, on: null, name: ''},
+            member: {id: 1, on: null, name: ''},
+            employee: {id: 1, on: null, name: ''},
             form: {checkInDate: d(1), checkOutDate: d(2), memberCouponId: null, rooms: [{roomTypeId: null, qty: 1}]},
-            coupons: [],           // 會員優惠券(確認頁載入)
+            coupons: [],
             couponsLoading: false,
             book: {step: 'search', results: [], sel: {}, nights: 0},
             browsing: true,   // 預設直接進查房頁不擋登入,到「確認預訂」才要求登入;設 false 會顯示登入閘門(員工入口用)
@@ -47,7 +50,9 @@ createApp({
                 detailLines: []
             },
             refund: {list: []},
-            toasts: [], logLines: [], _tid: 0,
+            toasts: [],
+            logLines: [],
+            _tid: 0,
         };
     },
     computed: {
@@ -74,32 +79,13 @@ createApp({
         bookTotal() {
             return this.bookItems.reduce((sum, it) => sum + it.subtotal, 0);
         },
-
-        // ===== 優惠券(邏輯移植自 master 的 coupon usage) =====
-        availableCoupons() {
-            return this.coupons.filter(c => c.displayStatus === 'AVAILABLE');
+        couponDiscount(){
+            return this.resolveCouponDiscount(this.form.memberCouponId,this.bookTotal);
         },
-
+        // 目前選中的券物件(給預覽卡顯示用)
         selectedCoupon() {
-            return this.availableCoupons.find(c => c.memberCouponId === this.form.memberCouponId) || null;
-        },
-
-        couponDiscount() {
-            const coupon = this.selectedCoupon;
-            const total = this.bookTotal;
-            if (!coupon || total <= 0) return 0;
-            if (coupon.discountType === 1) {           // 折抵固定金額
-                return Math.min(total, Number(coupon.discountAmount) || 0);
-            }
-            if (coupon.discountType === 2) {           // 打折(discountPercent=實付百分比)
-                const payPercent = Number(coupon.discountPercent) || 100;
-                return Math.max(0, total - Math.round(total * payPercent / 100));
-            }
-            return 0;
-        },
-
-        payableTotal() {
-            return Math.max(0, this.bookTotal - this.couponDiscount);
+            if (this.form.memberCouponId == null) return null;
+            return this.coupons.find(c => c.memberCouponId === this.form.memberCouponId) || null;
         }
     },
     // 重整後問會員登入狀態(首頁的真登入);員工登入不跨頁記憶,重整需重登
@@ -201,41 +187,8 @@ createApp({
             this.nav = 'book';
             this.orders.list = [];
             this.admin.list = [];
-            this.coupons = [];
-            this.form.memberCouponId = null;
             this.toast('warn', '已登出');
         },
-        // 載入會員可用優惠券(進確認頁時呼叫;需登入)
-        async loadCoupons() {
-            this.couponsLoading = true;
-            try {
-                this.coupons = await this.api('/api/member/coupons');
-                // 原本選的券如果失效了就清掉
-                const stillOk = this.availableCoupons.some(c => c.memberCouponId === this.form.memberCouponId);
-                if (this.form.memberCouponId && !stillOk) this.form.memberCouponId = null;
-            } catch (e) {
-                this.coupons = [];
-                this.toast('err', '優惠券載入失敗', this.errMsg(e));
-            } finally {
-                this.couponsLoading = false;
-            }
-        },
-
-        couponDiscountText(coupon) {
-            if (!coupon) return '';
-            if (coupon.discountType === 1) {
-                return `折抵 $${(Number(coupon.discountAmount) || 0).toLocaleString()}`;
-            }
-            if (coupon.discountType === 2) {
-                return `${(Number(coupon.discountPercent) || 100) / 10} 折`;
-            }
-            return '優惠內容未設定';
-        },
-
-        couponEndDate(value) {
-            return value ? String(value).slice(0, 10) : '';
-        },
-
         // 用「今天住到明天」查一次空房,拿到目前資料庫裡全部房型的名稱與價格
         async loadRoomTypes() {
             try {
@@ -306,7 +259,7 @@ createApp({
                 setTimeout(() => location.href = '/login.html?redirect=/roombooking.html', 800);
                 return;
             }
-            this.loadCoupons();   // 已登入:載入可用優惠券供確認頁選擇
+            this.loadCoupons();
             this.book.step = 'confirm';
         },
 
@@ -333,6 +286,7 @@ createApp({
                 this.book.step = 'search';
                 this.book.results = [];
                 this.book.sel = {};
+                this.form.memberCouponId = null;
                 try {
                     this.confirmDetail = await this.api(`/thestar/order/member/order/detail/${r.orderId}`);
                 } catch {
@@ -624,6 +578,52 @@ createApp({
                 this.toast('err', '退款失敗', this.errMsg(e));
             }
         },
+        async loadCoupons() {
+            this.couponsLoading = true;
+            try {
+                this.coupons = await
+                    this.api('/api/member/coupons');
+            } catch (e) {
+                this.coupons = [];
+                this.toast('err', '優惠券載入失敗', this.errMsg());
+
+            } finally {
+                this.couponsLoading = false;
+            }
+        },
+
+        resolveCouponDiscount(memberCouponId, totalAmount) {
+            if (memberCouponId == null || totalAmount <= 0) return 0;
+
+            const coupon = this.coupons.find(c => c.memberCouponId === memberCouponId);
+            if (!coupon) return 0;
+
+            if (coupon.discountType === 1) {                              // 固定金額
+                return Math.min(totalAmount, coupon.discountAmount || 0);
+            }
+            if (coupon.discountType === 2) {                              // 百分比(實付比例)
+                const paid = Math.round(totalAmount * (coupon.discountPercent || 100) / 100);
+                return totalAmount - paid;
+            }
+            return 0;
+        },
+        // 券的折扣文字(下拉選項 & 預覽卡顯示用)
+        couponDiscountText(coupon) {
+            if (!coupon) return '';
+            if (coupon.discountType === 1) {
+                return `折抵 $${(Number(coupon.discountAmount) || 0).toLocaleString()}`;
+            }
+            if (coupon.discountType === 2) {
+                return `${(Number(coupon.discountPercent) || 100) / 10} 折`;
+            }
+            return '優惠內容未設定';
+        },
+        // 到期日只取 yyyy-MM-dd
+        couponEndDate(value) {
+            return value ? String(value).slice(0, 10) : '';
+        },
+
+
 
         connectWs() {
             if (this._stomp) return;

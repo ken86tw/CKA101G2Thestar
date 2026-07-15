@@ -1213,7 +1213,8 @@ summary {
     letter-spacing: 1px
 }
 
-/* ===== 優惠券(樣式來自 master 的 coupon usage) ===== */
+
+/* ===== 優惠券 (confirm 頁預覽 & 金額明細) ===== */
 .coupon-note {
     margin: 9px 0 0;
     color: var(--muted);
@@ -1277,4 +1278,56 @@ summary {
 .coupon-preview-value small {
     margin-top: 4px;
     color: var(--muted)
+}
+
+.booking-summary {
+    margin-top: 28px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line)
+}
+
+.booking-summary > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 7px 0;
+    color: var(--soft);
+    font-size: 13px
+}
+
+.booking-summary b {
+    color: var(--ink);
+    font-weight: 500
+}
+
+.booking-summary .discount-row,
+.booking-summary .discount-row b {
+    color: #8a6a26
+}
+
+.booking-summary .payable-row {
+    margin-top: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+    font-size: 16px
+}
+
+.booking-summary .payable-row b {
+    color: var(--gold);
+    font-family: var(--serif);
+    font-size: 24px
+}
+
+@media (max-width: 720px) {
+    .coupon-preview {
+        align-items: flex-start;
+        flex-direction: column
+    }
+
+    .coupon-preview-value {
+        min-width: 0;
+        text-align: left
+    }
 }

@@ -52,7 +52,8 @@
                 <a class="logo" href="/index.html"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp;
                     Residences</small></a>
                 <nav class="menu">
-                    <button v-if="member.on || browsing" :class="{on:nav==='book'}" @click="nav='book'">預訂客房</button>
+                    <button v-if="member.on || browsing" :class="{on:nav==='book'}" @click="nav='book'">預訂客房
+                    </button>
                     <button v-if="member.on" :class="{on:nav==='orders'}" @click="nav='orders';loadOrders()">我的預訂
                     </button>
                     <button v-if="employee.on" :class="{on:nav==='admin'}" @click="nav='admin';loadAdmin()">後台訂單
@@ -71,7 +72,9 @@
                     <button class="btn line" v-if="member.on || employee.on" @click="logout">登出</button>
                     <template v-else>
                         <a class="btn line" href="/login.html?redirect=/roombooking.html">登入</a>
-                        <button class="reslink" style="margin-left:14px" @click="gateTab='staff';browsing=false">員工入口</button>
+                        <button class="reslink" style="margin-left:14px" @click="gateTab='staff';browsing=false">
+                            員工入口
+                        </button>
                     </template>
                 </div>
             </div>
@@ -222,19 +225,26 @@
                             </tr>
                             </tbody>
                         </table>
-                        <div class="field" style="margin-top:22px">
+                        <div style="margin-top:24px;text-align:left">
                             <label>優惠券 Coupon</label>
                             <select v-model.number="form.memberCouponId" :disabled="couponsLoading">
-                                <option :value="null">{{ couponsLoading ? '優惠券載入中…' : '不使用優惠券' }}</option>
-                                <option v-for="coupon in availableCoupons" :key="coupon.memberCouponId"
-                                        :value="coupon.memberCouponId">
-                                    {{ coupon.couponName }}｜{{ couponDiscountText(coupon) }}｜{{ couponEndDate(coupon.usageEndTime) }} 到期
+                                <option :value="null">
+                                    {{ couponsLoading ? '優惠券載入中…' : '不使用優惠券' }}
+                                </option>
+                                <option
+                                        v-for="c in coupons.filter(c => c.displayStatus === 'AVAILABLE')"
+                                        :key="c.memberCouponId"
+                                        :value="c.memberCouponId">
+                                    {{ c.couponName }} ｜{{ couponDiscountText(c) }} ｜{{ couponEndDate(c.usageEndTime) }} 到期
                                 </option>
                             </select>
-                            <p v-if="!couponsLoading && availableCoupons.length === 0" class="coupon-note">
-                                目前沒有可使用的優惠券，<a href="/coupons.html">查看我的優惠券</a>
+                            <p v-if="!couponsLoading && coupons.filter(c => c.displayStatus === 'AVAILABLE').length === 0"
+                               class="coupon-note">
+                                目前沒有可使用的優惠券， <a href="/coupons.html">查看我的優惠券</a>
                             </p>
                         </div>
+
+                        <!-- 選中的券:預覽卡 -->
                         <div v-if="selectedCoupon" class="coupon-preview">
                             <div>
                                 <span class="coupon-preview-label">Selected Coupon</span>
@@ -246,11 +256,16 @@
                                 <small>有效至 {{ couponEndDate(selectedCoupon.usageEndTime) }}</small>
                             </div>
                         </div>
-                        <p style="text-align:right;margin-top:16px">合計 ${{ bookTotal.toLocaleString() }}</p>
-                        <p v-if="couponDiscount > 0" style="text-align:right;color:#a85b50;margin-top:4px">
-                            優惠折抵 −${{ couponDiscount.toLocaleString() }}</p>
-                        <p class="money" style="font-size:24px;text-align:right;margin-top:6px">
-                            應付 ${{ payableTotal.toLocaleString() }}</p>
+
+                        <!-- 金額明細 -->
+                        <div class="booking-summary">
+                            <div><span>住宿天數</span> <b>{{ book.nights }} 晚</b></div>
+                            <div><span>房價總額</span> <b>${{ bookTotal.toLocaleString() }}</b></div>
+                            <div v-if="couponDiscount > 0" class="discount-row">
+                                <span>優惠券折抵</span> <b>－${{ couponDiscount.toLocaleString() }}</b>
+                            </div>
+                            <div class="payable-row"><span>應付金額</span> <b>${{ (bookTotal - couponDiscount).toLocaleString() }}</b></div>
+                        </div>
                         <p class="hint" style="text-align:right">實際金額以訂單成立後為準</p>
                         <div style="margin-top:26px;display:flex;justify-content:space-between">
                             <button class="btn ghost" @click="book.step='list'">‹ 返回修改</button>

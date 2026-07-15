@@ -30,6 +30,7 @@ public class FakeOrderConfirm {
 
         String merChantTradeNo = order.getMerchantTradeNo();
 
+        //結帳是金額為總額減掉折扣價
         int paidAmount = order.getTotalAmount() - order.getDiscountAmount();
 
         String ecPay = "dev" + System.currentTimeMillis();
