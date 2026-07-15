@@ -30,7 +30,6 @@ public class AdminShopIndexController {
 
 	@GetMapping
 	public String index(ModelMap model) {
-
 		List<ProductsVO> allProducts = productsSvc.getAll();
 		List<ShopOrderVO> allOrders = shopOrderSvc.getAll();
 
@@ -47,11 +46,22 @@ public class AdminShopIndexController {
 
 		// 訂單統計
 		long totalOrders = allOrders.size();
+
+		// 待處理：訂單成立且未取消
 		long pendingOrders = allOrders.stream()
 				.filter(o -> o.getShopOrderStatus() != null && o.getShopOrderStatus() == 0)
 				.count();
+
+		// 待付款：未付款且未取消
 		long unpaidOrders = allOrders.stream()
-				.filter(o -> o.getShopPaymentStatus() != null && o.getShopPaymentStatus() == 0)
+				.filter(o -> o.getShopPaymentStatus() != null && o.getShopPaymentStatus() == 0
+						&& o.getShopOrderStatus() != null && o.getShopOrderStatus() != 3)
+				.count();
+
+		// 待處理訂單：已付款但訂單狀態為訂單成立（尚未出貨）
+		long processingOrders = allOrders.stream()
+				.filter(o -> o.getShopPaymentStatus() != null && o.getShopPaymentStatus() == 1
+						&& o.getShopOrderStatus() != null && o.getShopOrderStatus() == 0)
 				.count();
 
 		// 評論統計
@@ -63,8 +73,8 @@ public class AdminShopIndexController {
 		model.addAttribute("totalOrders", totalOrders);
 		model.addAttribute("pendingOrders", pendingOrders);
 		model.addAttribute("unpaidOrders", unpaidOrders);
+		model.addAttribute("processingOrders", processingOrders);
 		model.addAttribute("totalReviews", totalReviews);
-
 		return "admin/shop/index";
 	}
 }
