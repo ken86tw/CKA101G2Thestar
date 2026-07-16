@@ -43,6 +43,12 @@
             <a class="side-link" th:href="@{/thestar/admin/content/article}"><span class="side-icon">✎</span>文章管理</a>
             <a class="side-link" th:href="@{/thestar/admin/content/review}"><span class="side-icon">☰</span>文章評論管理</a>
         </div>
+        <div class="side-section">
+            <p class="side-title">營運管理</p>
+            <a class="side-link" th:href="@{/admin/shop}"><span class="side-icon">◇</span>購物管理</a>
+            <a class="side-link" th:href="@{/roombooking.html}"><span class="side-icon">▱</span>訂房管理</a>
+            <a class="side-link" th:href="@{/admin/restaurant}"><span class="side-icon">♢</span>餐廳管理</a>
+        </div>
     </aside>
 
     <main class="admin-main">
@@ -55,24 +61,69 @@
 
         <p class="admin-message error" th:if="${param.error}" th:text="${param.error}"></p>
 
-        <div class="admin-dashboard">
-            <a class="dashboard-tile" th:classappend="${!canManageEmployees} ? ' locked'" th:href="${canManageEmployees} ? @{/thestar/admin/employee/list} : @{/thestar/admin/home(error='沒有員工管理權限')}">
-                <h2>員工管理</h2>
-                <p>新增、編輯員工資料與在職狀態。</p>
-            </a>
-            <a class="dashboard-tile" th:href="@{/thestar/admin/content/news}">
-                <h2>最新消息管理</h2>
-                <p>發布飯店公告、活動消息與維護通知。</p>
-            </a>
-            <a class="dashboard-tile" th:href="@{/thestar/admin/content/article}">
-                <h2>文章管理</h2>
-                <p>管理攻略、住宿體驗與美食推薦文章。</p>
-            </a>
-            <a class="dashboard-tile" th:href="@{/thestar/admin/content/review}">
-                <h2>文章評論管理</h2>
-                <p>查看會員留言並移除不適當內容。</p>
-            </a>
-        </div>
+        <section class="dashboard-section">
+            <div class="dashboard-section-heading">
+                <div>
+                    <span class="dashboard-kicker">Operations</span>
+                    <h2>營運管理</h2>
+                </div>
+                <p>管理旅客從預訂、用餐到選購商品的完整體驗</p>
+            </div>
+            <div class="admin-dashboard featured">
+                <a class="dashboard-tile module-shop" th:href="@{/admin/shop}">
+                    <span class="dashboard-icon">◇</span>
+                    <span class="dashboard-tag">SHOP</span>
+                    <h2>購物管理</h2>
+                    <p>管理商品、分類、購物訂單與顧客評論。</p>
+                    <span class="dashboard-enter">進入管理 <b>→</b></span>
+                </a>
+                <a class="dashboard-tile module-room" th:href="@{/roombooking.html}">
+                    <span class="dashboard-icon">▱</span>
+                    <span class="dashboard-tag">BOOKING</span>
+                    <h2>訂房管理</h2>
+                    <p>查看訂房訂單、入住狀態與退款申請。</p>
+                    <span class="dashboard-enter">進入管理 <b>→</b></span>
+                </a>
+                <a class="dashboard-tile module-restaurant" th:href="@{/admin/restaurant}">
+                    <span class="dashboard-icon">♢</span>
+                    <span class="dashboard-tag">DINING</span>
+                    <h2>餐廳管理</h2>
+                    <p>管理訂位、菜單、桌型、營業時間與評論。</p>
+                    <span class="dashboard-enter">進入管理 <b>→</b></span>
+                </a>
+            </div>
+        </section>
+
+        <section class="dashboard-section secondary">
+            <div class="dashboard-section-heading">
+                <div>
+                    <span class="dashboard-kicker">Administration</span>
+                    <h2>行政與內容</h2>
+                </div>
+            </div>
+            <div class="admin-dashboard compact">
+                <a class="dashboard-tile" th:classappend="${!canManageEmployees} ? ' locked'" th:href="${canManageEmployees} ? @{/thestar/admin/employee/list} : @{/thestar/admin/home(error='沒有員工管理權限')}">
+                    <span class="dashboard-icon small">◎</span>
+                    <h2>員工管理</h2>
+                    <p>員工資料、在職狀態與後台角色。</p>
+                </a>
+                <a class="dashboard-tile" th:href="@{/thestar/admin/content/news}">
+                    <span class="dashboard-icon small">▤</span>
+                    <h2>最新消息</h2>
+                    <p>飯店公告、活動與維護通知。</p>
+                </a>
+                <a class="dashboard-tile" th:href="@{/thestar/admin/content/article}">
+                    <span class="dashboard-icon small">✎</span>
+                    <h2>文章管理</h2>
+                    <p>攻略、住宿體驗與美食推薦。</p>
+                </a>
+                <a class="dashboard-tile" th:href="@{/thestar/admin/content/review}">
+                    <span class="dashboard-icon small">☰</span>
+                    <h2>文章評論</h2>
+                    <p>查看留言並維護內容品質。</p>
+                </a>
+            </div>
+        </section>
     </main>
 </div>
 </body>
