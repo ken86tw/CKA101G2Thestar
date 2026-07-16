@@ -48,7 +48,7 @@
   box-shadow: var(--shadow-card-hover);
 }
 
-.facility-img {
+.facility-card .facility-img {
   height: 280px;
   background-size: cover;
   background-position: center;

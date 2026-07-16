@@ -1,6 +1,8 @@
 package com.thestar.member.service;
 
+import com.thestar.member.dto.CouponAdminForm;
 import com.thestar.member.dto.MemberCouponDTO;
+import com.thestar.member.dto.MemberCouponAdminDTO;
 import com.thestar.member.entity.CouponVO;
 import com.thestar.member.entity.MemberCouponVO;
 import com.thestar.member.entity.MemberVO;
@@ -18,6 +20,11 @@ import java.time.temporal.ChronoUnit;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class MemberCouponService {
@@ -31,6 +38,8 @@ public class MemberCouponService {
 	private static final String ISSUE_PERIOD_ONCE = "ONCE";
 
 	private static final String BIRTHDAY_CODE = "BIRTHDAY";
+
+	private static final ZoneId TAIPEI_ZONE = ZoneId.of("Asia/Taipei");
 
 	private final MemberCouponRepository memberCouponRepository;
 	private final CouponRepository couponRepository;
@@ -465,6 +474,13 @@ public class MemberCouponService {
 		return couponRepository.findAll(Sort.by(Sort.Direction.ASC, "couponId"));
 	}
 
+	@Transactional(readOnly = true)
+	public boolean isBirthdayCouponIssuable() {
+		return couponRepository
+				.findByCouponCodeAndIssueStatus(BIRTHDAY_CODE, ISSUE_ACTIVE)
+				.isPresent();
+	}
+
 	@Transactional
 	public void updateCouponIssueStatus( // 啟用或暫停發放
 			Integer couponId, boolean enabled) {
@@ -480,6 +496,332 @@ public class MemberCouponService {
 		couponRepository.save(coupon);
 	}
 	
+
+
+	@Transactional
+	public void deleteCoupon(Integer couponId) {
+		if (couponId == null) {
+			throw new IllegalArgumentException("優惠券編號不可為空");
+		}
+
+		CouponVO coupon = couponRepository.findById(couponId)
+				.orElseThrow(() -> new IllegalArgumentException("找不到指定的優惠券"));
+
+		if (isSystemCoupon(coupon.getCouponCode())) {
+			throw new IllegalArgumentException("新會員券與生日券屬於系統優惠券，不能刪除");
+		}
+
+		if (memberCouponRepository.existsByCoupon_CouponId(couponId)) {
+			throw new IllegalArgumentException("此優惠券已發放給會員，為保留紀錄不能刪除，請改為暫停發放");
+		}
+
+		couponRepository.delete(coupon);
+	}
+
+	@Transactional
+	public CouponVO createCoupon(CouponAdminForm form) {
+		validateCouponForm(form, true);
+
+		String normalizedCode = normalizeCouponCode(form.getCouponCode());
+
+		if (couponRepository.findByCouponCodeIgnoreCase(normalizedCode).isPresent()) {
+			throw new IllegalArgumentException("優惠券代碼已存在");
+		}
+
+		CouponVO coupon = new CouponVO();
+		coupon.setCouponCode(normalizedCode);
+		applyCouponForm(coupon, form);
+
+		return couponRepository.save(coupon);
+	}
+
+	@Transactional
+	public CouponVO updateCoupon(Integer couponId, CouponAdminForm form) {
+		if (couponId == null) {
+			throw new IllegalArgumentException("優惠券編號不可為空");
+		}
+
+		validateCouponForm(form, false);
+
+		CouponVO coupon = couponRepository.findById(couponId)
+				.orElseThrow(() -> new IllegalArgumentException("找不到指定的優惠券"));
+
+		applyCouponForm(coupon, form);
+		return couponRepository.save(coupon);
+	}
+
+	private void validateCouponForm(CouponAdminForm form, boolean creating) {
+		if (form == null) {
+			throw new IllegalArgumentException("優惠券資料不可為空");
+		}
+
+		if (creating) {
+			String code = normalizeCouponCode(form.getCouponCode());
+			if (code.isBlank()) {
+				throw new IllegalArgumentException("請填寫優惠券代碼");
+			}
+			if (code.length() > 50 || !code.matches("[A-Z0-9_]+")) {
+				throw new IllegalArgumentException("優惠券代碼只能使用英文大寫、數字與底線，且不可超過 50 字");
+			}
+		}
+
+		String name = form.getCouponName() == null ? "" : form.getCouponName().trim();
+		if (name.isBlank()) {
+			throw new IllegalArgumentException("請填寫優惠券名稱");
+		}
+		if (name.length() > 100) {
+			throw new IllegalArgumentException("優惠券名稱不可超過 100 字");
+		}
+
+		Byte discountType = form.getDiscountType();
+		if (discountType == null || (discountType != 1 && discountType != 2)) {
+			throw new IllegalArgumentException("請選擇正確的折扣類型");
+		}
+
+		if (discountType == 1) {
+			if (form.getDiscountAmount() == null || form.getDiscountAmount() <= 0) {
+				throw new IllegalArgumentException("固定金額券必須填寫大於 0 的折抵金額");
+			}
+		} else {
+			if (form.getDiscountPercent() == null
+					|| form.getDiscountPercent() <= 0
+					|| form.getDiscountPercent() > 100) {
+				throw new IllegalArgumentException("百分比券的折後支付比例必須介於 1 到 100");
+			}
+		}
+
+		if (form.getRemainingQuantity() != null && form.getRemainingQuantity() < 0) {
+			throw new IllegalArgumentException("剩餘數量不可小於 0");
+		}
+
+		if (form.getDefaultValidDays() != null && form.getDefaultValidDays() <= 0) {
+			throw new IllegalArgumentException("預設有效天數必須大於 0");
+		}
+
+		if (form.getIssueStatus() == null
+				|| (form.getIssueStatus() != 0 && form.getIssueStatus() != 1)) {
+			throw new IllegalArgumentException("發放狀態不正確");
+		}
+	}
+
+	private void applyCouponForm(CouponVO coupon, CouponAdminForm form) {
+		coupon.setCouponName(form.getCouponName().trim());
+
+		String description = form.getDescription() == null
+				? null
+				: form.getDescription().trim();
+		coupon.setDescription(description == null || description.isBlank() ? null : description);
+
+		coupon.setDiscountType(form.getDiscountType());
+		if (form.getDiscountType() == 1) {
+			coupon.setDiscountAmount(form.getDiscountAmount());
+			coupon.setDiscountPercent(null);
+		} else {
+			coupon.setDiscountAmount(null);
+			coupon.setDiscountPercent(form.getDiscountPercent());
+		}
+
+		coupon.setRemainingQuantity(form.getRemainingQuantity());
+		coupon.setDefaultValidDays(form.getDefaultValidDays());
+		coupon.setIssueStatus(form.getIssueStatus());
+	}
+
+	private String normalizeCouponCode(String couponCode) {
+		return couponCode == null
+				? ""
+				: couponCode.trim().toUpperCase(Locale.ROOT);
+	}
+
+
+	@Transactional(readOnly = true)
+	public List<MemberVO> getEnabledMembersForCouponIssue() {
+		return memberRepository.findByMemberStatusOrderByMemberIdAsc((byte) 1);
+	}
+
+	@Transactional(readOnly = true)
+	public List<MemberCouponAdminDTO> getAllMemberCouponsForAdmin() {
+		List<MemberCouponVO> memberCoupons =
+				memberCouponRepository.findAllByOrderByClaimedTimeDesc();
+
+		Set<Integer> memberIds = memberCoupons.stream()
+				.map(MemberCouponVO::getMemberId)
+				.collect(Collectors.toSet());
+
+		Map<Integer, MemberVO> membersById = memberRepository
+				.findAllById(memberIds)
+				.stream()
+				.collect(Collectors.toMap(
+						MemberVO::getMemberId,
+						Function.identity()
+				));
+
+		LocalDateTime now = nowTaipei();
+
+		return memberCoupons.stream()
+				.map(memberCoupon -> toAdminDTO(
+						memberCoupon,
+						membersById.get(memberCoupon.getMemberId()),
+						now
+				))
+				.toList();
+	}
+
+	@Transactional
+	public void issueCouponToMember(Integer couponId, Integer memberId) {
+		CouponVO coupon = getIssuableCampaignCoupon(couponId);
+		MemberVO member = memberRepository.findById(memberId)
+				.orElseThrow(() -> new IllegalArgumentException("找不到指定會員"));
+
+		if (member.getMemberStatus() == null || member.getMemberStatus() != 1) {
+			throw new IllegalArgumentException("只能發給正常啟用的會員");
+		}
+
+		boolean issued = issueCampaignCoupon(coupon, member, nowTaipei());
+
+		if (!issued) {
+			throw new IllegalArgumentException("這位會員已取得此優惠券，或優惠券已發完");
+		}
+	}
+
+	@Transactional
+	public int issueCouponToAllEnabledMembers(Integer couponId) {
+		CouponVO coupon = getIssuableCampaignCoupon(couponId);
+		List<MemberVO> members =
+				memberRepository.findByMemberStatusOrderByMemberIdAsc((byte) 1);
+
+		int issuedCount = 0;
+		LocalDateTime now = nowTaipei();
+
+		for (MemberVO member : members) {
+			Integer remainingQuantity = coupon.getRemainingQuantity();
+
+			if (remainingQuantity != null && remainingQuantity <= 0) {
+				break;
+			}
+
+			if (issueCampaignCoupon(coupon, member, now)) {
+				issuedCount++;
+			}
+		}
+
+		return issuedCount;
+	}
+
+	private boolean issueCampaignCoupon(
+			CouponVO coupon,
+			MemberVO member,
+			LocalDateTime now
+	) {
+		String issuePeriod = "MANUAL-" + coupon.getCouponId();
+
+		boolean alreadyIssued = memberCouponRepository
+				.existsByMemberIdAndCoupon_CouponIdAndIssuePeriod(
+						member.getMemberId(),
+						coupon.getCouponId(),
+						issuePeriod
+				);
+
+		if (alreadyIssued) {
+			return false;
+		}
+
+		Integer remainingQuantity = coupon.getRemainingQuantity();
+		if (remainingQuantity != null && remainingQuantity <= 0) {
+			return false;
+		}
+
+		Integer validDays = coupon.getDefaultValidDays();
+		if (validDays == null || validDays <= 0) {
+			throw new IllegalArgumentException("請先設定預設有效天數，才能發放優惠券");
+		}
+
+		LocalDateTime usageEndTime = now.toLocalDate()
+				.plusDays(validDays - 1L)
+				.atTime(23, 59, 59);
+
+		MemberCouponVO memberCoupon = new MemberCouponVO();
+		memberCoupon.setMemberId(member.getMemberId());
+		memberCoupon.setCoupon(coupon);
+		memberCoupon.setIssuePeriod(issuePeriod);
+		memberCoupon.setUsedStatus(NOT_USED);
+		memberCoupon.setClaimedTime(now);
+		memberCoupon.setUsageStartTime(now);
+		memberCoupon.setUsageEndTime(usageEndTime);
+		memberCoupon.setUsedTime(null);
+
+		memberCouponRepository.save(memberCoupon);
+
+		if (remainingQuantity != null) {
+			coupon.setRemainingQuantity(remainingQuantity - 1);
+			couponRepository.save(coupon);
+		}
+
+		memberNotifyService.createNotification(
+				member.getMemberId(),
+				"您獲得「"
+						+ coupon.getCouponName()
+						+ "」，請於 "
+						+ usageEndTime.toLocalDate()
+						+ " 前使用。"
+		);
+
+		return true;
+	}
+
+	private CouponVO getIssuableCampaignCoupon(Integer couponId) {
+		if (couponId == null) {
+			throw new IllegalArgumentException("優惠券編號不可為空");
+		}
+
+		CouponVO coupon = couponRepository.findById(couponId)
+				.orElseThrow(() -> new IllegalArgumentException("找不到指定的優惠券"));
+
+		if (isSystemCoupon(coupon.getCouponCode())) {
+			throw new IllegalArgumentException("新會員券與生日券請使用原本的專用發放流程");
+		}
+
+		if (coupon.getIssueStatus() == null || coupon.getIssueStatus() != ISSUE_ACTIVE) {
+			throw new IllegalArgumentException("此優惠券目前已暫停發放");
+		}
+
+		return coupon;
+	}
+
+	private boolean isSystemCoupon(String couponCode) {
+		return NEW_MEMBER_CODE.equalsIgnoreCase(couponCode)
+				|| BIRTHDAY_CODE.equalsIgnoreCase(couponCode);
+	}
+
+	private MemberCouponAdminDTO toAdminDTO(
+			MemberCouponVO memberCoupon,
+			MemberVO member,
+			LocalDateTime now
+	) {
+		CouponVO coupon = memberCoupon.getCoupon();
+		MemberCouponAdminDTO dto = new MemberCouponAdminDTO();
+
+		dto.setMemberCouponId(memberCoupon.getMemberCouponId());
+		dto.setMemberId(memberCoupon.getMemberId());
+		dto.setMemberName(member == null ? "未知會員" : member.getMemberName());
+		dto.setMemberEmail(member == null ? "" : member.getMemberEmail());
+		dto.setCouponId(coupon.getCouponId());
+		dto.setCouponCode(coupon.getCouponCode());
+		dto.setCouponName(coupon.getCouponName());
+		dto.setIssuePeriod(memberCoupon.getIssuePeriod());
+		dto.setClaimedTime(memberCoupon.getClaimedTime());
+		dto.setUsageStartTime(memberCoupon.getUsageStartTime());
+		dto.setUsageEndTime(memberCoupon.getUsageEndTime());
+		dto.setUsedTime(memberCoupon.getUsedTime());
+		dto.setDisplayStatus(resolveDisplayStatus(memberCoupon, now));
+
+		return dto;
+	}
+
+	private LocalDateTime nowTaipei() {
+		return LocalDateTime.now(TAIPEI_ZONE)
+				.truncatedTo(ChronoUnit.SECONDS);
+	}
+
 	@Transactional
 	public int createExpiringCouponNotifications() {
 

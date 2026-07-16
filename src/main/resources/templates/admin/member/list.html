@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員管理 | The Star Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin-member-coupon.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <aside class="sidebar">
+        <a class="brand" th:href="@{/thestar/admin/home}">
+            <span class="brand-star">✦</span>
+            <strong>The Star</strong>
+            <small>Hotel Administration</small>
+        </a>
+
+        <nav class="side-nav">
+            <a th:href="@{/thestar/admin/home}"><span>⌂</span>控制中心</a>
+            <a class="active" th:href="@{/admin/members}"><span>◎</span>會員管理</a>
+            <a th:href="@{/admin/coupons}"><span>◇</span>優惠券管理</a>
+        </nav>
+
+        <div class="sidebar-note">
+            <span>目前操作人員</span>
+            <strong th:text="${currentEmployeeName}">後台員工</strong>
+        </div>
+    </aside>
+
+    <main class="main-area">
+        <header class="page-header">
+            <div>
+                <p class="eyebrow">MEMBER CONTROL</p>
+                <h1>會員管理</h1>
+                <p>查看會員基本資料，並管理已驗證會員的啟用與停權狀態。</p>
+            </div>
+            <div class="header-stat">
+                <span>目前筆數</span>
+                <strong th:text="${#lists.size(members)}">0</strong>
+            </div>
+        </header>
+
+        <div class="flash success" th:if="${message}" th:text="${message}"></div>
+        <div class="flash error" th:if="${error}" th:text="${error}"></div>
+
+        <section class="filter-card">
+            <form class="filter-form member-filter-form" method="get" th:action="@{/admin/members}">
+                <div class="field">
+                    <label for="memberName">會員姓名</label>
+                    <input id="memberName" name="memberName" type="search" th:value="${memberName}"
+                           placeholder="輸入會員姓名">
+                </div>
+                <div class="field">
+                    <label for="memberEmail">會員 Email</label>
+                    <input id="memberEmail" name="memberEmail" type="search" th:value="${memberEmail}"
+                           placeholder="輸入會員 Email">
+                </div>
+                <div class="field">
+                    <label for="status">會員狀態</label>
+                    <select id="status" name="status">
+                        <option value="" th:selected="${selectedStatus == null}">全部狀態</option>
+                        <option value="0" th:selected="${selectedStatus != null and selectedStatus == 0}">尚未驗證</option>
+                        <option value="1" th:selected="${selectedStatus != null and selectedStatus == 1}">正常啟用</option>
+                        <option value="2" th:selected="${selectedStatus != null and selectedStatus == 2}">已停權</option>
+                    </select>
+                </div>
+                <button class="button primary" type="submit">查詢</button>
+                <a class="button ghost" th:href="@{/admin/members}">清除</a>
+            </form>
+        </section>
+
+        <section class="table-card">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>會員</th>
+                        <th>聯絡資料</th>
+                        <th>生日與性別</th>
+                        <th>註冊時間</th>
+                        <th>狀態</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="member : ${members}">
+                        <td>
+                            <span class="number" th:text="|MEMBER ${member.memberId}|">MEMBER 1</span>
+                            <strong class="primary-text" th:text="${member.memberName}">會員姓名</strong>
+                            <small class="secondary-text" th:text="${member.memberAddress}">地址</small>
+                        </td>
+                        <td>
+                            <span th:text="${member.memberEmail}">mail@example.com</span>
+                            <small class="secondary-text" th:text="${member.memberPhone}">0912345678</small>
+                        </td>
+                        <td>
+                            <span th:text="${member.memberBirthday != null ? member.memberBirthday : '未填寫'}">未填寫</span>
+                            <small class="secondary-text"
+                                   th:text="${member.memberGender == null ? '未設定' : (member.memberGender == 0 ? '女性' : (member.memberGender == 1 ? '男性' : '其他'))}">未設定</small>
+                        </td>
+                        <td>
+                            <span th:text="${member.createdTime != null ? #temporals.format(member.createdTime, 'yyyy-MM-dd') : '未記錄'}">2026-07-15</span>
+                            <small class="secondary-text"
+                                   th:text="${member.updatedTime != null ? '更新 ' + #temporals.format(member.updatedTime, 'yyyy-MM-dd HH:mm') : ''}"></small>
+                        </td>
+                        <td>
+                            <span class="status pending" th:if="${member.memberStatus == 0}">尚未驗證</span>
+                            <span class="status active" th:if="${member.memberStatus == 1}">正常啟用</span>
+                            <span class="status suspended" th:if="${member.memberStatus == 2}">已停權</span>
+                        </td>
+                        <td>
+                            <span class="muted-action" th:if="${member.memberStatus == 0}">等待會員完成驗證</span>
+
+                            <form th:if="${member.memberStatus == 1}"
+                                  th:action="@{/admin/members/{id}/status(id=${member.memberId})}"
+                                  method="post"
+                                  onsubmit="return confirm('確定要停權這位會員嗎？')">
+                                <input type="hidden" name="newStatus" value="2">
+                                <button class="button danger small" type="submit">停權會員</button>
+                            </form>
+
+                            <form th:if="${member.memberStatus == 2}"
+                                  th:action="@{/admin/members/{id}/status(id=${member.memberId})}"
+                                  method="post"
+                                  onsubmit="return confirm('確定要恢復這位會員嗎？')">
+                                <input type="hidden" name="newStatus" value="1">
+                                <button class="button outline small" type="submit">恢復會員</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(members)}">
+                        <td colspan="6" class="empty-state">
+                            <strong>沒有符合條件的會員</strong>
+                            <span>請調整搜尋文字或狀態篩選。</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

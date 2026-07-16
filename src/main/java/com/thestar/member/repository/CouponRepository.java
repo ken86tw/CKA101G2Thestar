@@ -12,6 +12,10 @@ public interface CouponRepository
             String couponCode
     );
 
+    Optional<CouponVO> findByCouponCodeIgnoreCase(
+            String couponCode
+    );
+
     Optional<CouponVO> findByCouponCodeAndIssueStatus(
             String couponCode,
             Byte issueStatus

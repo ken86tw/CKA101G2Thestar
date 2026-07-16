@@ -725,3 +725,20 @@ a {
     align-self: auto;
   }
 }
+
+/* 導覽列最右側員工入口 */
+.navbar .navbar-staff-entry,
+.shop-navbar .navbar-links > .navbar-staff-entry,
+.site-navbar-dark .navbar-links > .navbar-staff-entry {
+  color: #d4a95f;
+  font-size: 13px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.navbar .navbar-staff-entry:hover,
+.shop-navbar .navbar-links > .navbar-staff-entry:hover,
+.site-navbar-dark .navbar-links > .navbar-staff-entry:hover {
+  color: #f1d29b;
+  border-bottom-color: #d4a95f;
+}

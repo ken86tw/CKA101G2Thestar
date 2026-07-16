@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>優惠券管理 | The Star Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/admin-member-coupon.css}">
+</head>
+<body>
+<div class="admin-shell">
+    <aside class="sidebar">
+        <a class="brand" th:href="@{/thestar/admin/home}">
+            <span class="brand-star">✦</span>
+            <strong>The Star</strong>
+            <small>Hotel Administration</small>
+        </a>
+
+        <nav class="side-nav">
+            <a th:href="@{/thestar/admin/home}"><span>⌂</span>控制中心</a>
+            <a th:href="@{/admin/members}"><span>◎</span>會員管理</a>
+            <a class="active" th:href="@{/admin/coupons}"><span>◇</span>優惠券管理</a>
+        </nav>
+
+        <div class="sidebar-note">
+            <span>目前操作人員</span>
+            <strong th:text="${currentEmployeeName}">後台員工</strong>
+        </div>
+    </aside>
+
+    <main class="main-area">
+        <header class="page-header coupon-header">
+            <div>
+                <p class="eyebrow">COUPON CONTROL</p>
+                <h1>優惠券管理</h1>
+                <p>管理優惠券規則、發放對象與會員持有狀態。</p>
+            </div>
+            <div class="header-actions">
+                <form method="post" th:if="${birthdayCouponIssuable}"
+                      th:action="@{/admin/coupons/birthday/issue-current-month}"
+                      onsubmit="return confirm('確定要補發本月生日券嗎？已領取過的會員不會重複取得。')">
+                    <button class="button outline" type="submit">補發本月生日券</button>
+                </form>
+                <button class="button ghost" type="button" th:unless="${birthdayCouponIssuable}" disabled
+                        title="生日券目前為暫停發放，恢復後才能補發">
+                    生日券已暫停
+                </button>
+                <button class="button primary" type="button" onclick="openCreatePanel()">新增優惠券</button>
+            </div>
+        </header>
+
+        <div class="flash success" th:if="${message}" th:text="${message}"></div>
+        <div class="flash error" th:if="${error}" th:text="${error}"></div>
+
+        <section id="createPanel" class="form-card create-panel" hidden>
+            <div class="section-title">
+                <div>
+                    <p class="eyebrow">NEW COUPON</p>
+                    <h2>新增優惠券</h2>
+                </div>
+                <button class="close-button" type="button" onclick="closeCreatePanel()">×</button>
+            </div>
+
+            <form class="coupon-form" method="post" th:action="@{/admin/coupons/create}" th:object="${couponForm}">
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="couponCode">優惠券代碼</label>
+                        <input id="couponCode" type="text" th:field="*{couponCode}" maxlength="50" required
+                               placeholder="例如 SUMMER2026">
+                    </div>
+                    <div class="field">
+                        <label for="couponName">優惠券名稱</label>
+                        <input id="couponName" type="text" th:field="*{couponName}" maxlength="100" required
+                               placeholder="例如 夏季住房優惠">
+                    </div>
+                    <div class="field">
+                        <label for="discountType">折扣類型</label>
+                        <select id="discountType" th:field="*{discountType}" required
+                                onchange="syncDiscountFields(this.closest('form'))">
+                            <option value="">請選擇</option>
+                            <option value="1">固定金額折抵</option>
+                            <option value="2">百分比折扣</option>
+                        </select>
+                    </div>
+                    <div class="discount-value-field">
+                        <div class="field discount-placeholder-field">
+                            <label>折扣內容</label>
+                            <input type="text" value="請先選擇折扣類型" disabled>
+                        </div>
+                        <div class="field fixed-field" hidden>
+                            <label for="discountAmount">固定折抵金額</label>
+                            <input id="discountAmount" type="number" th:field="*{discountAmount}" min="1"
+                                   placeholder="例如 500">
+                        </div>
+                        <div class="field percent-field" hidden>
+                            <label for="discountPercent">折後支付比例</label>
+                            <input id="discountPercent" type="number" th:field="*{discountPercent}" min="1" max="99"
+                                   placeholder="九折請填 90">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="remainingQuantity">剩餘數量</label>
+                        <input id="remainingQuantity" type="number" th:field="*{remainingQuantity}" min="0"
+                               placeholder="留白代表不限量">
+                    </div>
+                    <div class="field">
+                        <label for="defaultValidDays">預設有效天數</label>
+                        <input id="defaultValidDays" type="number" th:field="*{defaultValidDays}" min="1"
+                               placeholder="例如 30，發放後 30 天到期">
+                    </div>
+                    <div class="field">
+                        <label for="issueStatus">目前發放狀態</label>
+                        <select id="issueStatus" th:field="*{issueStatus}">
+                            <option value="0">暫停發放</option>
+                            <option value="1">啟用發放</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="description">優惠券說明</label>
+                    <textarea id="description" th:field="*{description}" maxlength="1000"
+                              placeholder="輸入優惠券用途與注意事項"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="button ghost" type="button" onclick="closeCreatePanel()">取消</button>
+                    <button class="button primary" type="submit">儲存優惠券</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="coupon-list-section">
+            <div class="list-heading">
+                <div>
+                    <p class="eyebrow">COUPON LIST</p>
+                    <h2>優惠券清單</h2>
+                </div>
+                <span th:text="|共 ${#lists.size(coupons)} 張|">共 0 張</span>
+            </div>
+
+            <div class="coupon-list">
+                <details class="coupon-row" th:each="coupon : ${coupons}">
+                    <summary class="coupon-summary">
+                        <div class="coupon-summary-main">
+                            <code th:text="${coupon.couponCode}">COUPON_CODE</code>
+                            <div>
+                                <strong th:text="${coupon.couponName}">優惠券名稱</strong>
+                                <small th:text="|COUPON ${coupon.couponId}|">COUPON 1</small>
+                            </div>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>折扣</span>
+                            <b th:if="${coupon.discountType == 1}"
+                               th:text="|NT$ ${#numbers.formatInteger(coupon.discountAmount, 1, 'COMMA')}|">NT$ 500</b>
+                            <b th:if="${coupon.discountType == 2}"
+                               th:text="|${coupon.discountPercent / 10.0} 折|">9.0 折</b>
+                        </div>
+
+                        <div class="summary-item">
+                            <span>數量</span>
+                            <b th:text="${coupon.remainingQuantity == null ? '不限量' : coupon.remainingQuantity + ' 張'}">不限量</b>
+                        </div>
+
+                        <span class="status active" th:if="${coupon.issueStatus == 1}">發放中</span>
+                        <span class="status suspended" th:if="${coupon.issueStatus != 1}">已暫停</span>
+                        <span class="expand-label">展開</span>
+                    </summary>
+
+                    <div class="coupon-detail">
+                        <p class="coupon-description"
+                           th:text="${coupon.description != null ? coupon.description : '尚未填寫優惠券說明'}"></p>
+
+                        <div class="detail-metrics">
+                            <div>
+                                <span>預設效期</span>
+                                <strong th:text="${coupon.defaultValidDays == null ? '未設定' : coupon.defaultValidDays + ' 天'}">30 天</strong>
+                            </div>
+                            <div>
+                                <span>活動券發放</span>
+                                <strong th:if="${coupon.couponCode != 'NEW_MEMBER' and coupon.couponCode != 'BIRTHDAY'}">員工手動發放</strong>
+                                <strong th:if="${coupon.couponCode == 'NEW_MEMBER'}">完成驗證後自動發放</strong>
+                                <strong th:if="${coupon.couponCode == 'BIRTHDAY'}">生日排程發放</strong>
+                            </div>
+                            <div>
+                                <span>最後更新</span>
+                                <strong th:text="${coupon.updatedTime != null ? #temporals.format(coupon.updatedTime, 'yyyy-MM-dd HH:mm') : '未記錄'}">未記錄</strong>
+                            </div>
+                        </div>
+
+                        <div class="coupon-operation-bar">
+                            <div class="coupon-admin-actions">
+                                <form th:action="@{/admin/coupons/{id}/status(id=${coupon.couponId})}" method="post"
+                                      onsubmit="return confirm('確定要變更這張優惠券的發放狀態嗎？')">
+                                    <input type="hidden" name="enabled" th:value="${coupon.issueStatus == 1 ? false : true}">
+                                    <button class="button small"
+                                            th:classappend="${coupon.issueStatus == 1} ? ' danger' : ' outline'"
+                                            type="submit"
+                                            th:text="${coupon.issueStatus == 1} ? '暫停發放' : '恢復發放'">暫停發放</button>
+                                </form>
+
+                                <form method="post"
+                                      th:unless="${coupon.couponCode == 'NEW_MEMBER' or coupon.couponCode == 'BIRTHDAY'}"
+                                      th:action="@{/admin/coupons/{id}/delete(id=${coupon.couponId})}"
+                                      onsubmit="return confirm('確定要刪除這張優惠券嗎？只有尚未發放給會員的優惠券能刪除。')">
+                                    <button class="button danger small" type="submit">刪除優惠券</button>
+                                </form>
+                            </div>
+
+                            <div class="issue-tools"
+                                 th:if="${coupon.issueStatus == 1 and coupon.couponCode != 'NEW_MEMBER' and coupon.couponCode != 'BIRTHDAY'}">
+                                <form class="inline-issue-form" method="post"
+                                      th:action="@{/admin/coupons/{id}/issue/member(id=${coupon.couponId})}"
+                                      onsubmit="return validateSelectedMember(this)">
+                                    <div class="member-search-box">
+                                        <input class="member-search-input" type="search" autocomplete="off"
+                                               placeholder="輸入會員編號、姓名或 Email"
+                                               onfocus="filterMemberOptions(this)"
+                                               oninput="filterMemberOptions(this)">
+                                        <input class="selected-member-id" type="hidden" name="memberId">
+                                        <div class="member-search-results" hidden>
+                                            <button class="member-search-option" type="button"
+                                                    th:each="member : ${enabledMembers}"
+                                                    th:attr="data-member-id=${member.memberId},data-search=|${member.memberId} ${member.memberName} ${member.memberEmail}|,data-label=|${member.memberId} · ${member.memberName} · ${member.memberEmail}|"
+                                                    onclick="selectMemberOption(this)">
+                                                <strong th:text="|${member.memberId} · ${member.memberName}|">1 · 會員</strong>
+                                                <small th:text="${member.memberEmail}">member@example.com</small>
+                                            </button>
+                                            <span class="member-search-empty" hidden>找不到符合的正常啟用會員</span>
+                                        </div>
+                                    </div>
+                                    <button class="button outline small" type="submit">發給指定會員</button>
+                                </form>
+
+                                <form method="post" th:action="@{/admin/coupons/{id}/issue/all(id=${coupon.couponId})}"
+                                      onsubmit="return confirm('確定要將這張優惠券直接發給全部正常啟用會員嗎？')">
+                                    <button class="button primary small" type="submit">立即發給全部會員</button>
+                                </form>
+                            </div>
+
+                            <span class="system-coupon-note paused-coupon-note"
+                                  th:if="${coupon.issueStatus != 1 and coupon.couponCode != 'NEW_MEMBER' and coupon.couponCode != 'BIRTHDAY'}">
+                                此優惠券已暫停，恢復發放後才能發給會員
+                            </span>
+                            <span class="system-coupon-note"
+                                  th:if="${coupon.couponCode == 'NEW_MEMBER'}">由會員驗證流程自動發放</span>
+                            <span class="system-coupon-note"
+                                  th:if="${coupon.couponCode == 'BIRTHDAY'}">由生日排程或上方補發按鈕處理</span>
+                        </div>
+
+                        <details class="edit-disclosure">
+                            <summary>編輯優惠券內容</summary>
+                            <form class="coupon-form compact" method="post"
+                                  th:action="@{/admin/coupons/{id}/update(id=${coupon.couponId})}">
+                                <div class="form-grid">
+                                    <div class="field">
+                                        <label>優惠券代碼</label>
+                                        <input type="text" th:value="${coupon.couponCode}" readonly>
+                                    </div>
+                                    <div class="field">
+                                        <label>優惠券名稱</label>
+                                        <input type="text" name="couponName" th:value="${coupon.couponName}"
+                                               maxlength="100" required>
+                                    </div>
+                                    <div class="field">
+                                        <label>折扣類型</label>
+                                        <select name="discountType" required
+                                                onchange="syncDiscountFields(this.closest('form'))">
+                                            <option value="1" th:selected="${coupon.discountType == 1}">固定金額折抵</option>
+                                            <option value="2" th:selected="${coupon.discountType == 2}">百分比折扣</option>
+                                        </select>
+                                    </div>
+                                    <div class="discount-value-field">
+                                        <div class="field discount-placeholder-field" hidden>
+                                            <label>折扣內容</label>
+                                            <input type="text" value="請先選擇折扣類型" disabled>
+                                        </div>
+                                        <div class="field fixed-field" th:hidden="${coupon.discountType != 1}">
+                                            <label>固定折抵金額</label>
+                                            <input type="number" name="discountAmount" min="1"
+                                                   th:value="${coupon.discountAmount}">
+                                        </div>
+                                        <div class="field percent-field" th:hidden="${coupon.discountType != 2}">
+                                            <label>折後支付比例</label>
+                                            <input type="number" name="discountPercent" min="1" max="99"
+                                                   th:value="${coupon.discountPercent}">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <label>剩餘數量</label>
+                                        <input type="number" name="remainingQuantity" min="0"
+                                               th:value="${coupon.remainingQuantity}">
+                                    </div>
+                                    <div class="field">
+                                        <label>預設有效天數</label>
+                                        <input type="number" name="defaultValidDays" min="1"
+                                               th:value="${coupon.defaultValidDays}">
+                                    </div>
+                                    <div class="field">
+                                        <label>目前發放狀態</label>
+                                        <select name="issueStatus">
+                                            <option value="1" th:selected="${coupon.issueStatus == 1}">啟用發放</option>
+                                            <option value="0" th:selected="${coupon.issueStatus != 1}">暫停發放</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>優惠券說明</label>
+                                    <textarea name="description" maxlength="1000"
+                                              th:text="${coupon.description}"></textarea>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="button primary small" type="submit">儲存修改</button>
+                                </div>
+                            </form>
+                        </details>
+                    </div>
+                </details>
+
+                <div class="empty-state card-empty" th:if="${#lists.isEmpty(coupons)}">
+                    <strong>目前沒有優惠券</strong>
+                    <span>點選右上方「新增優惠券」建立第一張券。</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="member-coupon-section">
+            <details class="member-coupon-disclosure">
+                <summary>
+                    <div>
+                        <p class="eyebrow">MEMBER COUPONS</p>
+                        <h2>會員持有優惠券</h2>
+                    </div>
+                    <span th:text="|共 ${#lists.size(memberCoupons)} 筆|">共 0 筆</span>
+                </summary>
+
+                <div class="table-scroll">
+                    <table class="member-coupon-table">
+                        <thead>
+                        <tr>
+                            <th>會員</th>
+                            <th>優惠券</th>
+                            <th>發放批次</th>
+                            <th>使用期間</th>
+                            <th>狀態</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${memberCoupons}">
+                            <td>
+                                <strong th:text="|${item.memberId} · ${item.memberName}|">1 · 會員</strong>
+                                <small class="secondary-text" th:text="${item.memberEmail}">mail@example.com</small>
+                            </td>
+                            <td>
+                                <strong th:text="${item.couponName}">優惠券</strong>
+                                <small class="secondary-text" th:text="${item.couponCode}">CODE</small>
+                            </td>
+                            <td>
+                                <span th:text="${item.issuePeriod}">MANUAL</span>
+                                <small class="secondary-text"
+                                       th:text="${item.claimedTime != null ? #temporals.format(item.claimedTime, 'yyyy-MM-dd HH:mm') : ''}"></small>
+                            </td>
+                            <td>
+                                <span th:text="${#temporals.format(item.usageStartTime, 'yyyy-MM-dd HH:mm')}">開始</span>
+                                <small class="secondary-text"
+                                       th:text="|至 ${#temporals.format(item.usageEndTime, 'yyyy-MM-dd HH:mm')}|">至 結束</small>
+                            </td>
+                            <td>
+                                <span class="status active" th:if="${item.displayStatus == 'AVAILABLE'}">可使用</span>
+                                <span class="status pending" th:if="${item.displayStatus == 'NOT_STARTED'}">尚未開始</span>
+                                <span class="status suspended" th:if="${item.displayStatus == 'EXPIRED'}">已過期</span>
+                                <span class="status used" th:if="${item.displayStatus == 'USED'}">已使用</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(memberCoupons)}">
+                            <td colspan="5" class="empty-state">
+                                <strong>目前沒有會員優惠券資料</strong>
+                                <span>完成發放後，會員持有狀態會顯示在這裡。</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </section>
+    </main>
+</div>
+
+<script>
+    function openCreatePanel() {
+        const panel = document.getElementById('createPanel');
+        panel.hidden = false;
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        syncDiscountFields(panel.querySelector('form'));
+    }
+
+    function closeCreatePanel() {
+        document.getElementById('createPanel').hidden = true;
+    }
+
+    function syncDiscountFields(form) {
+        if (!form) return;
+
+        const type = form.querySelector('[name="discountType"]');
+        const fixed = form.querySelector('.fixed-field');
+        const percent = form.querySelector('.percent-field');
+        const placeholder = form.querySelector('.discount-placeholder-field');
+
+        if (!type || !fixed || !percent) return;
+
+        const fixedInput = fixed.querySelector('input');
+        const percentInput = percent.querySelector('input');
+        const isFixed = type.value === '1';
+        const isPercent = type.value === '2';
+
+        fixed.hidden = !isFixed;
+        percent.hidden = !isPercent;
+        if (placeholder) placeholder.hidden = isFixed || isPercent;
+
+        if (fixedInput) {
+            fixedInput.disabled = !isFixed;
+            fixedInput.required = isFixed;
+        }
+        if (percentInput) {
+            percentInput.disabled = !isPercent;
+            percentInput.required = isPercent;
+        }
+    }
+
+    function filterMemberOptions(input) {
+        const box = input.closest('.member-search-box');
+        if (!box) return;
+
+        const results = box.querySelector('.member-search-results');
+        const hiddenInput = box.querySelector('.selected-member-id');
+        const options = [...box.querySelectorAll('.member-search-option')];
+        const empty = box.querySelector('.member-search-empty');
+        const keyword = input.value.trim().toLowerCase();
+
+        hiddenInput.value = '';
+
+        if (!keyword) {
+            results.hidden = true;
+            options.forEach(option => option.hidden = true);
+            if (empty) empty.hidden = true;
+            return;
+        }
+
+        let visibleCount = 0;
+        options.forEach(option => {
+            const matched = option.dataset.search.toLowerCase().includes(keyword);
+            const shouldShow = matched && visibleCount < 8;
+            option.hidden = !shouldShow;
+            if (shouldShow) visibleCount++;
+        });
+
+        if (empty) empty.hidden = visibleCount > 0;
+        results.hidden = false;
+    }
+
+    function selectMemberOption(option) {
+        const box = option.closest('.member-search-box');
+        box.querySelector('.member-search-input').value = option.dataset.label;
+        box.querySelector('.selected-member-id').value = option.dataset.memberId;
+        box.querySelector('.member-search-results').hidden = true;
+    }
+
+    function validateSelectedMember(form) {
+        const memberId = form.querySelector('.selected-member-id').value;
+        if (memberId) return true;
+
+        alert('請先搜尋並點選一位會員');
+        form.querySelector('.member-search-input').focus();
+        return false;
+    }
+
+    document.addEventListener('click', event => {
+        document.querySelectorAll('.member-search-results').forEach(results => {
+            if (!results.closest('.member-search-box').contains(event.target)) {
+                results.hidden = true;
+            }
+        });
+    });
+
+    document.querySelectorAll('.coupon-form').forEach(syncDiscountFields);
+</script>
+</body>
+</html>

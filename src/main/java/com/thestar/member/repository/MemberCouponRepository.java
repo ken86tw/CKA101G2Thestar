@@ -45,4 +45,9 @@ public interface MemberCouponRepository
             LocalDateTime startTime,
             LocalDateTime endTime
     );
+
+    @EntityGraph(attributePaths = "coupon")
+    List<MemberCouponVO> findAllByOrderByClaimedTimeDesc();
+
+    boolean existsByCoupon_CouponId(Integer couponId);
 }

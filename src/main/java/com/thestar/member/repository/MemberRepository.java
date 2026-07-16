@@ -63,4 +63,10 @@ public interface MemberRepository extends JpaRepository<MemberVO, Integer> {
     List<MemberVO> findEnabledMembersByBirthMonth(
             @Param("birthMonth") Integer birthMonth
     );
+
+    /**
+     * 查詢指定狀態的會員，供後台發券時選擇。
+     */
+    List<MemberVO> findByMemberStatusOrderByMemberIdAsc(Byte memberStatus);
+
 }
