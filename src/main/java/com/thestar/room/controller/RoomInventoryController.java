@@ -1,6 +1,7 @@
 package com.thestar.room.controller;
 
 
+import com.thestar.room.dto.AdminRoomInventoryDTO;
 import com.thestar.room.dto.RoomInventoryDTO;
 import com.thestar.room.service.RoomInventoryQueryService;
 import org.springframework.http.ResponseEntity;
@@ -29,5 +30,11 @@ public class RoomInventoryController {
 
        return ResponseEntity.ok().body(roomInventoryQueryService.findAllAvailableRoom(checkInDate, checkOutDate));
 
+    }
+
+
+    @GetMapping("/admin/room")
+    public ResponseEntity<List<AdminRoomInventoryDTO>> checkAdminRoomInventory(@RequestParam(required = false) LocalDate date){
+        return ResponseEntity.ok().body(roomInventoryQueryService.findAdminRoom(date));
     }
 }

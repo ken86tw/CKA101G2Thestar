@@ -147,6 +147,9 @@ public class OrderService {
             ordervo.setPaidAmount(0);
             ordervo.setMerchantTradeNo(generateMerchantTradeNo());
 
+            if(totalAmount - ordervo.getDiscountAmount() <= 0){
+                throw new IllegalArgumentException("折抵後結帳金額不得低於$1");
+            }
             //將此訂單依房型暫存明細一筆筆存入orderListVO
             for (OrderListVO listVO : orderList) {
                 ordervo.addOrderList(listVO);
