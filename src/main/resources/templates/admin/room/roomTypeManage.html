@@ -115,24 +115,33 @@ a {
 				</thead>
 				<tbody>
 					<tr th:each="room : ${rooms}">
-						<td><img th:src="@{/roomtypephoto/display/{id}(id=${room.roomTypeId})}" 
-     						class="table-img" alt="房型圖片"></td>
+						<td><img
+							th:src="@{/roomtypephoto/display/{id}(id=${room.roomTypeId})}"
+							class="table-img" alt="房型圖片"></td>
 						<td th:text="${room.roomTypeName}"></td>
 						<td th:text="${room.roomTypeAmount} + ' 間'"></td>
 						<td th:text="'NT$ ' + ${room.roomTypePrice}"></td>
 						<td><span class="status-badge"
 							th:text="${room.roomTypeStatus} ? '已啟用' : '未啟用'"></span></td>
-						<td class="actions"><a
+
+						<td class="actions">
+							<!-- 修改按鈕 --> <a
 							th:href="@{'/roomtype/edit/' + ${room.roomTypeId}}"
-							class="btn-icon"><i class="fa-solid fa-pen"></i></a>
-							<form
-								th:action="@{'/roomtype/delete/' + ${room.roomTypeId}}"
+							class="btn-icon" title="修改"> <i class="fa-solid fa-pen"></i>
+
+						</a> <!-- 新增：檢視按鈕 --> <a
+							th:href="@{'/roomtype/details/' + ${room.roomTypeId}}"
+							class="btn-icon" title="檢視詳情"> <i class="fa-solid fa-eye"></i>
+
+						</a> <!-- 刪除按鈕 (保留原本的 form 結構) -->
+							<form th:action="@{'/roomtype/delete/' + ${room.roomTypeId}}"
 								method="post" style="display: inline;">
-								<button type="submit" class="btn-icon"
+								<button type="submit" class="btn-icon" title="刪除"
 									onclick="return confirm('確定刪除？')">
 									<i class="fa-solid fa-trash"></i>
 								</button>
-							</form></td>
+							</form>
+						</td>
 					</tr>
 				</tbody>
 			</table>

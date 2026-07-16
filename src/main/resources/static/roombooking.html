@@ -15,38 +15,7 @@
 <body>
 <div id="app">
 
-    <!-- ============ 登入（入口，與其他頁分開） ============ -->
-    <div v-if="!member.on && !employee.on && !browsing" class="gate">
-        <div class="visual">
-            <div class="cap">
-                <div class="up">The Star · Since 2026</div>
-                <h1>Arrive as a guest,<br>leave as family.</h1></div>
-        </div>
-        <div class="form">
-            <div class="mark">
-                <div class="star">✦</div>
-                <h2>THE STAR</h2>
-                <p>Hotel &amp; Residences</p></div>
-            <div class="seg">
-                <button :class="{on:gateTab==='member'}" @click="gateTab='member'">貴賓登入</button>
-                <button :class="{on:gateTab==='staff'}" @click="gateTab='staff'">員工登入</button>
-            </div>
-            <div v-if="gateTab==='member'">
-                <p class="hint" style="margin-bottom:26px">貴賓請先於登入頁面登入，完成後即自動進入專屬服務</p>
-                <a class="btn block" href="/login.html?redirect=/roombooking.html">前往登入頁面登入</a>
-                <button class="reslink" style="margin-top:16px" @click="browsing=true">‹ 返回查詢空房</button>
-            </div>
-            <div v-else>
-                <div class="field"><label>Employee ID</label><input type="number" v-model.number="employee.id"
-                                                                    @keyup.enter="loginEmployee"></div>
-                <button class="btn block" @click="loginEmployee">進入後台</button>
-                <p class="hint">後台訂單 · 房務入住 / 退房</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============ 主站 ============ -->
-    <template v-else>
+    <!-- ============ 主站（登入頁已統一：貴賓走 /login.html，員工走 Spring Security 的 /thestar/admin/login） ============ -->
         <header>
             <div class="hbar">
                 <a class="logo" href="/index.html"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp;
@@ -67,14 +36,13 @@
                     <div class="ident">
                         <div v-if="member.on">貴賓，
                             <b>{{ member.name ? member.name + '（#' + member.on + '）' : '#' + member.on }}</b></div>
-                        <div v-if="employee.on">員工， <b>#{{ employee.on }}</b></div>
+                        <div v-if="employee.on">員工，
+                            <b>{{ employee.name ? employee.name + '（#' + employee.on + '）' : '#' + employee.on }}</b></div>
                     </div>
                     <button class="btn line" v-if="member.on || employee.on" @click="logout">登出</button>
                     <template v-else>
                         <a class="btn line" href="/login.html?redirect=/roombooking.html">登入</a>
-                        <button class="reslink" style="margin-left:14px" @click="gateTab='staff';browsing=false">
-                            員工入口
-                        </button>
+                        <a class="btn line" href="/thestar/admin/login">員工登入</a>
                     </template>
                 </div>
             </div>
@@ -137,13 +105,14 @@
                     </table>
                     <p class="money" style="font-size:24px">應付
                         ${{(confirmOrder.totalAmount - confirmOrder.discountAmount).toLocaleString()}}</p>
-                    <div style="margin-top: 26px">
+                    <div style="margin-top: 26px;display:flex;justify-content:center;align-items:center">
                         <button class="btn" @click="pay(confirmOrder.orderId)">立即付款</button>
                         <button class="btn ghost" style="margin-left:10px"
                                 @click="confirmOrder=null;nav='orders';orders.status=0;orders.page=0;loadOrders()">
-                            稍後付款，查看我的預訂
+                            略過金流
                         </button>
                     </div>
+                    <div class="hint" style="margin-top:40px;color: red">請於三分鐘內完成付款，否則將取消訂單</div>
                 </div>
                 <template v-else>
 
@@ -176,8 +145,8 @@
                                 <div class="rc-info">
                                     <h3>{{ r.roomTypeName }}</h3>
                                     <span v-if="r.remaining<=0" class="rc-tag out">已售完</span>
+                                    <span v-else-if="r.remaining>5" class="rc-tag lot">還剩 {{ r.remaining }} 間</span>
                                     <span v-else-if="r.remaining<=5" class="rc-tag few">僅剩 {{ r.remaining }} 間</span>
-                                    <span v-else class="rc-tag ok">尚有空房</span>
                                 </div>
                                 <div class="rc-price">
                                     <div class="per">每晚 ${{ r.price.toLocaleString() }}</div>
@@ -332,7 +301,7 @@
                                             前往結帳
                                         </button>
                                         <button v-if="o.orderStatus===0" class="btn ghost sm"
-                                                @click="devConfirm(o.orderId)" title="不經綠界直接標記已付款">模擬付款
+                                                @click="devConfirm(o.orderId)" title="不經綠界直接標記已付款">略過金流付款
                                         </button>
                                         <button v-if="o.orderStatus===1" class="btn danger sm"
                                                 @click="cancel(o.orderId)">取消訂單（退款）
@@ -755,7 +724,6 @@
                 </div>
             </div>
         </section>
-    </template>
 
     <div class="toasts">
         <transition-group name="fade">

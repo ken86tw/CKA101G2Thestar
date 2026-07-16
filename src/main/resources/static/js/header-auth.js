@@ -319,6 +319,17 @@
 		      return;
 		    }
 
+			/*
+			 * 訂單相關通知，點擊後前往我的購物訂單。
+			 */
+			if (
+			  content.includes("購物訂單")
+			  || content.includes("付款")
+			) {
+			  location.href = "/shop/order/myOrders";
+			  return;
+			}
+			
 		    /*
 		     * 其他類型通知目前只更新已讀狀態。
 		     */

@@ -13,15 +13,14 @@ createApp({
         return {
             STATUS,
             nav: 'book',
-            gateTab: 'member',
             roomTypes: [],   // 房型清單(id/name/price),頁面載入時從查房API撈,新增房型自動跟上
             member: {id: 1, on: null, name: ''},
-            employee: {id: 1, on: null, name: ''},
+            employee: {on: null, name: ''},
             form: {checkInDate: d(1), checkOutDate: d(2), memberCouponId: null, rooms: [{roomTypeId: null, qty: 1}]},
             coupons: [],
             couponsLoading: false,
             book: {step: 'search', results: [], sel: {}, nights: 0},
-            browsing: true,   // 預設直接進查房頁不擋登入,到「確認預訂」才要求登入;設 false 會顯示登入閘門(員工入口用)
+            browsing: true,   // 預設直接進查房頁不擋登入,到「確認預訂」才要求登入;員工登入後設 false 隱藏訂房分頁
             confirmOrder: null,
             confirmDetail: [],
             orders: {status: 0, page: 0, size: 10, list: [], totalPages: 0, counts: {}, open: {}, detail: {}},
@@ -91,7 +90,7 @@ createApp({
             ) || null;
         }
     },
-    // 重整後問會員登入狀態(首頁的真登入);員工登入不跨頁記憶,重整需重登
+    // 重整後問會員/員工登入狀態:兩種身分都存在同一個 HTTP session,重整不掉登入
     async mounted() {
         this.loadRoomTypes();   // 首屏房型展示卡用,不需登入
         try {
@@ -103,6 +102,18 @@ createApp({
                 this.connectWs();   // 會員身分確認後連線 訂閱自己專屬的通知頻道
             }
         } catch { /* 沒登入就停在登入頁 */
+        }
+        // 員工從後台登入頁(Spring Security 的 /thestar/admin/login)登入後進來:共用同一個 session,
+        // /thestar/admin/me 登入回員工資料、未登入回 401。認得員工就直接進後台
+        try {
+            const emp = await this.api('/thestar/admin/me');
+            this.employee.on = emp.employeeId;
+            this.employee.name = emp.employeeName;
+            this.browsing = false;   // 關掉訪客瀏覽旗:員工不該看到「預訂客房」分頁與查房頁
+            this.connectWs();   // 員工身分確認後連線 訂閱 rooms/orders/refunds 頻道
+            this.nav = 'admin';
+            this.loadAdmin();
+        } catch { /* 不是登入員工就略過,維持一般查房頁 */
         }
         // 登入前有存下的訂房內容:重查空房(拿最新剩餘數)後還原選擇,直接跳回確認頁
         if (this.member.on && sessionStorage.getItem('pendingBooking')) {
@@ -155,24 +166,19 @@ createApp({
             }
             return body;
         },
-        async loginEmployee() {
-            try {
-                await this.api(`/dev/employeelogin/${this.employee.id}`);
-                this.employee.on = this.employee.id;
-                this.connectWs();
-                this.toast('ok', '員工已登入', `#${this.employee.id}`);
-                this.nav = 'admin';
-                this.loadAdmin();
-            } catch {
-                this.toast('err', '登入失敗');
-            }
-        },
         async logout() {
-            // 會員走首頁的真登出;員工端目前無登出API,清前端狀態即可
+            // 會員走 /api/member/logout;員工走 Spring Security 的 /thestar/admin/logout
+            // 注意:員工登出會 invalidate 整個 session,同瀏覽器的會員登入也會一起失效
             if (this.member.on) {
                 try {
                     await this.api('/api/member/logout', {method: 'POST'});
                 } catch { /* 後端沒清成也照樣登出前端 */
+                }
+            }
+            if (this.employee.on) {
+                try {
+                    await this.api('/thestar/admin/logout', {method: 'POST'});
+                } catch { /* 同上 */
                 }
             }
             if (this._stomp) {
@@ -182,6 +188,8 @@ createApp({
             this.member.on = null;
             this.member.name = '';
             this.employee.on = null;
+            this.employee.name = '';
+            this.browsing = true;   // 回到訪客查房頁
             this.nav = 'book';
             this.orders.list = [];
             this.admin.list = [];

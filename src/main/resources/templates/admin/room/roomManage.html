@@ -4,15 +4,30 @@
 <meta charset="UTF-8">
 <title>房間管理 | THE STAR</title>
 <link rel="stylesheet" th:href="@{/css/roomManage.css}">
-<link rel="stylesheet"
-	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    /* 按鈕排列樣式 */
+    .actions {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        align-items: center;
+    }
+    .btn-icon {
+        color: #555;
+        font-size: 1.1em;
+        transition: color 0.3s;
+    }
+    .btn-icon:hover {
+        color: #d4af37;
+    }
+</style>
 </head>
 <body>
 	<header>
 		<div class="hbar">
 			<div class="logo">
-				<span class="star">✦</span><b>THE STAR</b><small>Hotel &amp;
-					Residences</small>
+				<span class="star">✦</span><b>THE STAR</b><small>Hotel &amp; Residences</small>
 			</div>
 			<nav class="menu">
 				<button>後台訂單</button>
@@ -37,13 +52,12 @@
 				<div class="admin-stats">
 					目前共有 <span th:text="${#lists.size(roomList)}">0</span> 間客房
 				</div>
-				<a th:href="@{/room/add}" class="btn"> <i
-					class="fa-solid fa-plus"></i> 新增房間
+				<a th:href="@{/room/add}" class="btn"> 
+					<i class="fa-solid fa-plus"></i> 新增房間
 				</a>
 			</div>
 
 			<table class="room-table">
-
 				<thead>
 					<tr>
 						<th>編號</th>
@@ -56,32 +70,37 @@
 				<tbody>
 					<tr th:each="room : ${roomList}">
 						<td th:text="${room.roomId}"></td>
+						
+						<!-- 改為直接顯示後端補入的房型名稱，若為 null 顯示"未知" -->
+						<td th:text="${room.roomTypeName != null ? room.roomTypeName : '未知'}"></td>
+						
 						<td>
-						<span th:switch="${room.roomTypeId}">
-       					<span th:case="1">雙人房</span>
-        					<span th:case="2">四人房</span>
-       					<span th:case="3">總統套房</span>
-    						</span>
-    						</td>
-    						
+							<span class="status-badge" th:text="${room.roomStatus == 0 ? '空房' : (room.roomStatus == 1 ? '已入住' : '待清潔')}"></span>
+						</td>
 						<td>
-						<span class="status-badge"
-							th:text="${room.roomStatus == 1 ? '空房' : (room.roomStatus == 2 ? '入住中' : '維修中')}"></span>
+							<span th:text="${room.roomSwitchStatus ? '已上架' : '未上架'}"></span>
 						</td>
-						<td><span th:text="${room.roomSwitchStatus ? '已上架' : '已下架'}"></span>
-						</td>
-						<td class="actions"><a
-							th:href="@{'/room/edit/' + ${room.roomId}}" class="btn-icon">
+						
+						<td class="actions">
+							<!-- 編輯按鈕 -->
+							<a th:href="@{'/room/edit/' + ${room.roomId}}" class="btn-icon" title="修改">
 								<i class="fa-solid fa-pen"></i>
-						</a>
-							<form th:action="@{/room/delete}" method="post"
-								style="display: inline;">
+							</a>
+							
+							<!-- 檢視詳細按鈕 -->
+							<a th:href="@{'/room/details/' + ${room.roomId}}" class="btn-icon" title="查看詳情">
+								<i class="fa-solid fa-eye"></i>
+							</a>
+							
+							<!-- 刪除按鈕 -->
+							<form th:action="@{/room/delete}" method="post" style="display: inline;">
 								<input type="hidden" name="roomId" th:value="${room.roomId}" />
-								<button type="submit" class="btn-icon"
-									onclick="return confirm('確定刪除？')">
+								<button type="submit" class="btn-icon" style="border: none; background: none; cursor: pointer;"
+										onclick="return confirm('確定刪除此房間嗎？')">
 									<i class="fa-solid fa-trash"></i>
 								</button>
-							</form></td>
+							</form>
+						</td>
 					</tr>
 				</tbody>
 			</table>

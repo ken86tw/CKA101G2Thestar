@@ -45,6 +45,17 @@ createApp({
           return '/index.html';
         }
 
+        const path = target.pathname.toLowerCase();
+        const targetsApi = path === '/api'
+          || path.startsWith('/api/')
+          || path.includes('/api/')
+          || path === '/thestar'
+          || path.startsWith('/thestar/');
+
+        if (targetsApi) {
+          return '/index.html';
+        }
+
         return target.pathname + target.search + target.hash;
       } catch (e) {
         return '/index.html';

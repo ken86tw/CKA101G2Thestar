@@ -20,7 +20,9 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
                           AuthenticationException authException) throws IOException {
         String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains(MediaType.TEXT_HTML_VALUE)) {
+        String fetchMode = request.getHeader("Sec-Fetch-Mode");
+        if ((accept != null && accept.contains(MediaType.TEXT_HTML_VALUE))
+                || "navigate".equalsIgnoreCase(fetchMode)) {
             response.sendRedirect(request.getContextPath() + "/thestar/admin/login");
             return;
         }
