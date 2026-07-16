@@ -84,10 +84,14 @@ public class MemberLoginFilter extends OncePerRequestFilter {
     private boolean isApiRequest(String path, HttpServletRequest request) {
         String accept = request.getHeader("Accept");
         String requestedWith = request.getHeader("X-Requested-With");
+        String fetchDestination = request.getHeader("Sec-Fetch-Dest");
 
-        return path.startsWith("/thestar/")
+        return path.equals("/api")
                 || path.startsWith("/api/")
+                || path.contains("/api/")
+                || path.startsWith("/thestar/")
                 || "XMLHttpRequest".equalsIgnoreCase(requestedWith)
+                || "empty".equalsIgnoreCase(fetchDestination)
                 || (accept != null && accept.contains("application/json"));
     }
 
