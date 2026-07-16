@@ -1,27 +1,229 @@
-/* 1. 全域變數定義 (這是 THE STAR 高級感的來源) */
+/* --- THE STAR 品牌基調 --- */
 :root {
-	--serif: 'Cormorant Garamond', 'Noto Serif TC', serif;
-	--sans: 'Jost', 'Noto Serif TC', system-ui, sans-serif;
-	--cream: #f6f2ea;
-	--paper: #fbf9f4;
-	--ink: #23211c;
-	--soft: #5b564c;
-	--muted: #9b9486;
-	--gold: #9c7c4f;
-	--gold-d: #80623a;
-	--line: #e4ddd0;
+	--brand-bg: #f7f3ed;
+    --brand-panel: #fcfbf9;
+    --brand-text: #4a4a4a;
+    --brand-accent: #9c8a77; /* 金褐色 */
+    --gold: #9c8a77;        /* 補上這個變數 */
+    --gold-d: #80623a;      /* 補上懸停用的深色 */
+    --ink: #23211c;         /* 補上深墨色 */
+    --border-color: #e0dcd5;
 }
 
-/* 2. 基礎底色與字型 */
 body {
-	background-color: var(--cream);
-	color: var(--ink);
-	font-family: var(--sans);
+	background-color: var(--brand-bg);
+	color: var(--brand-text);
+	font-family: 'Helvetica Neue', 'Arial', sans-serif;
 	margin: 0;
-	font-weight: 300;
 }
 
-/* 3. Header 區域 (確保與圖片一致) */
+/* --- 導覽列風格 (對應圖片) --- */
+.top-nav {
+	display: flex;
+	align-items: center;
+	padding: 20px 50px;
+	background: white;
+	border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+	font-size: 18px;
+	letter-spacing: 4px;
+	font-weight: bold;
+	margin-right: 60px;
+}
+
+.nav-links a {
+	margin: 0 20px;
+	color: #888;
+	text-decoration: none;
+	transition: color 0.3s;
+	font-size: 14px;
+}
+
+.nav-links a.active {
+	color: #333;
+	border-bottom: 1px solid #333;
+	padding-bottom: 5px;
+}
+
+/* --- 頁面內容區 --- */
+.container {
+	max-width: 1000px;
+	margin: 50px auto;
+	padding: 20px;
+}
+
+.admin-header {
+	text-align: center;
+	margin-bottom: 60px;
+}
+
+.section-label {
+	color: var(--brand-accent);
+	letter-spacing: 4px;
+	font-size: 11px;
+	margin-bottom: 10px;
+}
+
+h1 {
+	font-size: 32px;
+	font-weight: 300;
+	margin: 0;
+	color: #222;
+}
+
+/* --- 查詢區域樣式 (新增！對應圖片中的搜尋盒) --- */
+.search-panel {
+	background: white;
+	border: 1px solid var(--border-color);
+	padding: 30px;
+	margin-bottom: 40px;
+	display: flex;
+	align-items: center;
+}
+
+.search-panel input {
+	border: none;
+	border-bottom: 1px solid var(--border-color);
+	padding: 10px;
+	width: 250px;
+	background: transparent;
+}
+
+.btn-search {
+	background: var(--brand-accent);
+	color: white;
+	border: none;
+	padding: 10px 25px;
+	margin-left: 20px;
+	cursor: pointer;
+}
+
+/* --- 表格區塊優化 --- */
+.admin-content {
+	background: white;
+	padding: 30px;
+	border: 1px solid var(--border-color);
+}
+
+.room-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 20px;
+}
+
+.room-table th {
+	text-align: left;
+	padding: 15px;
+	color: #999;
+	font-size: 12px;
+	font-weight: normal;
+	border-bottom: 1px solid #eee;
+}
+
+.room-table td {
+	padding: 20px 15px;
+	border-bottom: 1px solid #f9f9f9;
+}
+
+/* --- 按鈕與圖示 --- */
+.btn-icon {
+	color: #9c8a77;
+	border: none;
+	background: none;
+	cursor: pointer;
+	padding: 5px;
+}
+
+.btn-primary {
+	background: #333;
+	color: white;
+	padding: 10px 20px;
+	text-decoration: none;
+	font-size: 13px;
+	letter-spacing: 1px;
+}
+
+.table-img {
+	width: 100px;
+	height: 60px;
+	object-fit: cover;
+	border-radius: 2px;
+}
+
+/* ===== buttons ===== */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	border: 0;
+	cursor: pointer;
+	background: var(--gold);
+	color: #fff;
+	font-family: var(--sans);
+	font-size: 11.5px;
+	letter-spacing: 2.5px;
+	text-transform: uppercase;
+	padding: 14px 30px;
+	transition: .3s
+}
+
+.btn:hover {
+	background: var(--gold-d)
+}
+
+.btn:disabled {
+	opacity: .4;
+	cursor: not-allowed
+}
+
+.btn.ghost {
+	background: transparent;
+	border: 1px solid var(--ink);
+	color: var(--ink)
+}
+
+.btn.ghost:hover {
+	background: var(--ink);
+	color: #fff
+}
+
+.btn.line {
+	background: transparent;
+	border: 1px solid var(--gold);
+	color: var(--gold);
+	padding: 9px 18px
+}
+
+.btn.line:hover {
+	background: var(--gold);
+	color: #fff
+}
+
+.btn.sm {
+	padding: 9px 18px;
+	font-size: 10.5px;
+	letter-spacing: 2px
+}
+
+.btn.danger {
+	background: transparent;
+	border: 1px solid #a85b50;
+	color: #a85b50
+}
+
+.btn.danger:hover {
+	background: #a85b50;
+	color: #fff
+}
+
+.btn.block {
+	width: 100%
+}
+
+/* ===== header ===== */
 header {
 	position: sticky;
 	top: 0;
@@ -125,74 +327,47 @@ nav.menu button.on::after {
 	font-weight: 400
 }
 
-
-/* 4. 頁面標題與層次 */
-.admin-header {
-	text-align: center;
-	margin: 60px 0 40px;
+.btn-row {
+    display: flex !important; /* 強制 flex 佈局 */
+    align-items: center !important;
+    gap: 20px !important;
+    margin-top: 40px !important;
+    padding: 20px 0 !important;
+    min-height: 60px !important; /* 強制撐開容器高度 */
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
-.admin-header h1 {
-	font-family: var(--serif);
-	font-size: 32px;
-	letter-spacing: 2px;
-	margin: 10px 0;
+/* --- 按鈕懸停互動效果 --- */
+button.btn {
+    display: inline-flex !important;
+    background-color: #9c7c4f !important; /* 基礎金褐色 */
+    color: #ffffff !important;
+    border: none !important;
+    padding: 14px 30px !important;
+    font-size: 11.5px !important;
+    text-transform: uppercase !important;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease !important; /* 加入過渡效果 */
 }
 
-.section-label {
-	font-size: 11px;
-	letter-spacing: 4px;
-	color: var(--muted);
-	text-transform: uppercase;
+/* 滑鼠移入時變深色，呼應品牌風格 */
+button.btn:hover {
+    background-color: #80623a !important; 
 }
 
-/* 5. 表格區域風格 */
-.admin-content {
-	max-width: 1000px;
-	margin: 0 auto;
-	background: var(--paper);
-	padding: 40px;
-	border: 1px solid var(--line);
+/* 返回按鈕的交互效果 */
+a.btn.ghost {
+    background-color: transparent !important;
+    border: 1px solid #23211c !important;
+    color: #23211c !important;
+    text-decoration: none !important;
+    padding: 14px 30px !important;
+    transition: all 0.3s ease !important;
 }
 
-.room-table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-top: 20px;
-}
-
-.room-table th {
-	font-family: var(--serif);
-	color: var(--soft);
-	border-bottom: 1px solid var(--ink);
-	padding: 15px;
-	text-align: left;
-}
-
-.room-table td {
-	padding: 15px;
-	border-bottom: 1px solid var(--line);
-}
-
-/* ===== buttons ===== */
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;
-      background:var(--gold);color:#fff;font-family:var(--sans);font-size:11.5px;letter-spacing:2.5px;
-      text-transform:uppercase;padding:14px 30px;transition:.3s}
-    .btn:hover{background:var(--gold-d)}
-    .btn:disabled{opacity:.4;cursor:not-allowed}
-    .btn.ghost{background:transparent;border:1px solid var(--ink);color:var(--ink)}
-    .btn.ghost:hover{background:var(--ink);color:#fff}
-    .btn.line{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:9px 18px}
-    .btn.line:hover{background:var(--gold);color:#fff}
-    .btn.sm{padding:9px 18px;font-size:10.5px;letter-spacing:2px}
-    .btn.danger{background:transparent;border:1px solid #a85b50;color:#a85b50}
-    .btn.danger:hover{background:#a85b50;color:#fff}
-    .btn.block{width:100%}
-
-.status-badge {
-	font-size: 11px;
-	color: var(--gold-d);
-	border: 1px solid var(--gold);
-	padding: 2px 8px;
-	border-radius: 4px;
+/* 返回按鈕滑鼠移入時反轉顏色 */
+a.btn.ghost:hover {
+    background-color: #23211c !important;
+    color: #ffffff !important;
 }

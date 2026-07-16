@@ -6,6 +6,7 @@
 <link rel="stylesheet" th:href="@{/css/roomTypeManage.css}">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	
 <style>
 :root {
 	--serif: 'Cormorant Garamond', 'Noto Serif TC', serif;
@@ -24,6 +25,17 @@
 
 * {
 	box-sizing: border-box
+}
+
+header {
+    position: relative; /* 或 sticky */
+    z-index: 1000;      /* 設定一個夠大的數值，確保它在最上層 */
+}
+
+/* 2. 確保 .admin-header 的 z-index 低於 header */
+.admin-header {
+    position: relative;
+    z-index: 1;         /* 讓它的層級小於 header */
 }
 
 html, body {
@@ -72,16 +84,9 @@ a {
 					Residences</small>
 			</div>
 			<nav class="menu">
-				<button>後台訂單</button>
-				<button>房務管理</button>
-				<button>房型管理</button>
+				<a th:href="@{/room/manage}">房間管理</a> <a
+					th:href="@{/roomtype/manage}">房型管理</a>
 			</nav>
-			<div class="hright">
-				<div class="ident">
-					<div>員工</div>
-				</div>
-				<button class="btn line">登出</button>
-			</div>
 		</div>
 	</header>
 	<div class="container">

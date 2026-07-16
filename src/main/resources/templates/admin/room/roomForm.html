@@ -2,12 +2,99 @@
 <html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>房間設定 | THE STAR</title>
+<title th:text="${roomVO.roomId == null} ? '新增房間' : '修改房間資訊'">房間設定</title>
 <link rel="stylesheet" th:href="@{/css/roomManage.css}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+<style>
+:root {
+	--serif: 'Cormorant Garamond', 'Noto Serif TC', serif;
+	--sans: 'Jost', 'Noto Serif TC', system-ui, sans-serif;
+	--ink: #23211c;
+	--soft: #5b564c;
+	--gold: #9c7c4f;
+	--line: #e0dcd5;
+}
+
+body {
+	font-family: var(--sans);
+	background: #f6f2ea;
+	color: var(--ink);
+	font-size: 15px;
+	line-height: 1.7;
+	margin: 0;
+}
+
+/* 移除容器白底，讓 header 與表單分開 */
+.container {
+	max-width: 600px;
+	margin: 40px auto;
+	background: transparent;
+	padding: 0;
+}
+
+/* 獨立的表單卡片區塊 */
+.admin-content {
+	background: white;
+	padding: 40px;
+	border: 1px solid var(--line);
+}
+
+.admin-header {
+	text-align: center;
+	margin-bottom: 40px; /* 創造 header 與表單的間隔 */
+	background: transparent !important;
+	border: none !important;
+}
+
+.admin-header h1 {
+	font-family: var(--serif);
+	margin-bottom: 10px;
+}
+
+.section-label {
+	color: var(--gold);
+	font-size: 11px;
+	letter-spacing: 4px;
+}
+
+.form-group {
+	margin-bottom: 25px;
+}
+
+.form-group label {
+	display: block;
+	margin-bottom: 8px;
+	color: #888;
+	font-size: 13px;
+	letter-spacing: 1px;
+	font-weight: bold;
+	text-transform: uppercase;
+}
+
+.form-group input, .form-group select {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid var(--line);
+	box-sizing: border-box;
+}
+
+/* 緊湊的 Checkbox 排版 */
+.status-row {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	margin-bottom: 25px;
+}
+
+.status-row label {
+	margin-bottom: 0;
+}
+</style>
+</head>
+
+<body>
 	<div class="container">
 		<header class="admin-header">
 			<h1 th:text="${roomVO.roomId == null} ? '新增房間' : '修改房間資訊'">房間設定</h1>
@@ -15,49 +102,48 @@
 		</header>
 
 		<main class="admin-content">
-			<!-- 加入 onsubmit 攔截，確保送出前做最終檢查 -->
 			<form id="roomForm" onsubmit="return validateForm()"
 				th:action="${roomVO.roomId == null} ? @{/room/insert} : @{/room/update}"
 				th:object="${roomVO}" method="post">
 
 				<div class="form-group">
 					<label>房間編號</label>
-					
-					<!-- 修改模式 -->
 					<th:block th:if="${roomVO.roomId != null}">
-						<span th:text="${roomVO.roomId}"></span>
+						<span style="font-weight: bold;" th:text="${roomVO.roomId}"></span>
 						<input type="hidden" th:field="*{roomId}" />
 					</th:block>
-
-					<!-- 新增模式 -->
 					<th:block th:if="${roomVO.roomId == null}">
 						<input type="text" id="roomIdInput" th:field="*{roomId}"
 							placeholder="請輸入 3 位數字" required oninput="validateRoom(this)"
 							maxlength="3" />
-						
-						<!-- 錯誤提示區塊 -->
-						<div id="roomError" style="color: #d9534f; font-size: 0.85em; margin-top: 5px; display: none;">
-							<i class="fa-solid fa-circle-exclamation"></i> <span id="errorText"></span>
+						<div id="roomError"
+							style="color: #a85b50; font-size: 12px; margin-top: 5px; display: none;">
+							<i class="fa-solid fa-circle-exclamation"></i> <span
+								id="errorText"></span>
 						</div>
 					</th:block>
 				</div>
 
 				<div class="form-group">
-					<label>選擇房型</label> 
-					<select th:field="*{roomTypeId}" required>
+					<label>選擇房型</label> <select th:field="*{roomTypeId}" required>
 						<option value="" disabled selected>請選擇房型</option>
 						<option th:each="type : ${roomTypeList}"
 							th:value="${type.roomTypeId}" th:text="${type.roomTypeName}"></option>
 					</select>
 				</div>
 
+				<!-- 上下架 -->
 				<div class="form-group">
-					<label>是否上架</label> <input type="checkbox" th:field="*{roomSwitchStatus}" />
+					<label>狀態 (是否上架)</label> <select th:field="*{roomSwitchStatus}"
+						required>
+						<option value="true">已上架</option>
+						<option value="false">未上架</option>
+					</select>
 				</div>
 
 				<div class="form-actions" style="margin-top: 30px;">
 					<button type="submit" class="btn">儲存設定</button>
-					<a th:href="@{/room/manage}" class="btn ghost">取消</a>
+					<a th:href="@{/room/manage}" class="btn ghost">返回列表</a>
 				</div>
 			</form>
 		</main>
@@ -65,15 +151,12 @@
 
 	<script th:inline="javascript">
 		const existingIds = /*[[${existingRoomIds}]]*/[];
-
 		function validateRoom(input) {
-			input.value = input.value.replace(/[^0-9]/g, ''); // 過濾非數字
-
+			input.value = input.value.replace(/[^0-9]/g, '');
 			const errorDiv = document.getElementById('roomError');
 			const errorText = document.getElementById('errorText');
 			const val = input.value;
 			const numVal = parseInt(val);
-
 			if (val === "") {
 				errorDiv.style.display = 'none';
 			} else if (val.length < 3) {
@@ -86,20 +169,17 @@
 				errorDiv.style.display = 'none';
 			}
 		}
-
 		function validateForm() {
 			const input = document.getElementById('roomIdInput');
-			if (!input) return true; // 如果是修改模式，沒有 input，直接通過
-
+			if (!input)
+				return true;
 			const val = input.value;
 			const numVal = parseInt(val);
-
-			// 最後防線：檢查長度與重複
 			if (val.length !== 3 || existingIds.includes(numVal)) {
 				alert("房間編號錯誤，請檢查後再儲存！");
-				return false; // 阻止表單送出
+				return false;
 			}
-			return true; // 通過檢查
+			return true;
 		}
 	</script>
 </body>

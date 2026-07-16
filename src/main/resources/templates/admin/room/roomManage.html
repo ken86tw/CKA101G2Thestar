@@ -3,57 +3,118 @@
 <head>
 <meta charset="UTF-8">
 <title>房間管理 | THE STAR</title>
+<!-- 統一引用同一個 CSS 檔案 -->
 <link rel="stylesheet" th:href="@{/css/roomManage.css}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-    /* 按鈕排列樣式 */
-    .actions {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        align-items: center;
-    }
-    .btn-icon {
-        color: #555;
-        font-size: 1.1em;
-        transition: color 0.3s;
-    }
-    .btn-icon:hover {
-        color: #d4af37;
-    }
+:root {
+	--serif: 'Cormorant Garamond', 'Noto Serif TC', serif;
+	--sans: 'Jost', 'Noto Serif TC', system-ui, sans-serif;
+	--cream: #f6f2ea;
+	--paper: #fbf9f4;
+	--ink: #23211c;
+	--soft: #5b564c;
+	--muted: #9b9486;
+	--gold: #9c7c4f;
+	--gold-d: #80623a;
+	--line: #e4ddd0;
+	--hero:
+		url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=80');
+}
+
+* {
+	box-sizing: border-box
+}
+
+header {
+    position: relative; /* 或 sticky */
+    z-index: 1000;      /* 設定一個夠大的數值，確保它在最上層 */
+}
+
+/* 2. 確保 .admin-header 的 z-index 低於 header */
+.admin-header {
+    position: relative;
+    z-index: 1;         /* 讓它的層級小於 header */
+}
+
+html, body {
+	margin: 0
+}
+
+body {
+	font-family: var(--sans);
+	background: var(--cream);
+	color: var(--ink);
+	font-weight: 300;
+	font-size: 15px;
+	line-height: 1.7
+}
+
+h1, h2, h3 {
+	font-family: var(--serif);
+	font-weight: 500;
+	margin: 0;
+	letter-spacing: .5px
+}
+
+.ser {
+	font-family: var(--serif)
+}
+
+.up {
+	text-transform: uppercase;
+	letter-spacing: 3px;
+	font-size: 11px;
+	font-weight: 400
+}
+
+a {
+	color: inherit;
+	text-decoration: none
+}
 </style>
+
 </head>
+
 <body>
 	<header>
 		<div class="hbar">
 			<div class="logo">
-				<span class="star">✦</span><b>THE STAR</b><small>Hotel &amp; Residences</small>
+				<span class="star">✦</span><b>THE STAR</b><small>Hotel &amp;
+					Residences</small>
 			</div>
 			<nav class="menu">
-				<button>後台訂單</button>
-				<button class="on">房間管理</button>
-				<button>房型管理</button>
+				<a th:href="@{/room/manage}">房間管理</a> <a
+					th:href="@{/roomtype/manage}">房型管理</a>
 			</nav>
-			<div class="hright">
-				<button class="btn line">登出</button>
-			</div>
 		</div>
 	</header>
 
 	<div class="container">
+		<!-- 與房型頁面一致的 Header 結構 -->
 		<header class="admin-header">
-			<p class="section-label">ROOM MANAGEMENT</p>
+			<p class="section-label">HOUSEKEEPING</p>
 			<h1>房間管理</h1>
-			<p class="section-desc">房間列表 · 狀態管理 · 房間維護</p>
+			<p class="section-desc">管理房間資訊 · 新增 · 修改 · 刪除</p>
 		</header>
 
 		<main class="admin-content">
+			<!-- 成功訊息區塊 -->
+			<div th:if="${successMessage}"
+				style="margin-bottom: 20px; padding: 15px; background-color: #f6f2ea; border: 1px solid #9c7c4f; color: #9c7c4f; text-align: center; border-radius: 4px;">
+				<i class="fa-solid fa-check-circle"></i> <span
+					th:text="${successMessage}"></span>
+			</div>
+
+			<!-- Toolbar 區塊 -->
 			<div class="toolbar">
 				<div class="admin-stats">
 					目前共有 <span th:text="${#lists.size(roomList)}">0</span> 間客房
 				</div>
-				<a th:href="@{/room/add}" class="btn"> 
-					<i class="fa-solid fa-plus"></i> 新增房間
+				<a th:href="@{/room/add}" class="btn btn-primary"> <i
+					class="fa-solid fa-plus"></i> 新增房間
 				</a>
 			</div>
 
@@ -70,37 +131,25 @@
 				<tbody>
 					<tr th:each="room : ${roomList}">
 						<td th:text="${room.roomId}"></td>
-						
-						<!-- 改為直接顯示後端補入的房型名稱，若為 null 顯示"未知" -->
-						<td th:text="${room.roomTypeName != null ? room.roomTypeName : '未知'}"></td>
-						
-						<td>
-							<span class="status-badge" th:text="${room.roomStatus == 0 ? '空房' : (room.roomStatus == 1 ? '已入住' : '待清潔')}"></span>
+						<td
+							th:text="${room.roomTypeName != null ? room.roomTypeName : '未知'}"></td>
+						<td><span class="status-badge"
+							th:text="${room.roomStatus == 0 ? '空房' : (room.roomStatus == 1 ? '已入住' : '待清潔')}"></span>
 						</td>
-						<td>
-							<span th:text="${room.roomSwitchStatus ? '已上架' : '未上架'}"></span>
-						</td>
-						
-						<td class="actions">
-							<!-- 編輯按鈕 -->
-							<a th:href="@{'/room/edit/' + ${room.roomId}}" class="btn-icon" title="修改">
-								<i class="fa-solid fa-pen"></i>
-							</a>
-							
-							<!-- 檢視詳細按鈕 -->
-							<a th:href="@{'/room/details/' + ${room.roomId}}" class="btn-icon" title="查看詳情">
-								<i class="fa-solid fa-eye"></i>
-							</a>
-							
-							<!-- 刪除按鈕 -->
-							<form th:action="@{/room/delete}" method="post" style="display: inline;">
+						<td th:text="${room.roomSwitchStatus ? '已上架' : '未上架'}"></td>
+						<td class="actions"><a
+							th:href="@{'/room/edit/' + ${room.roomId}}" class="btn-icon"
+							title="修改"><i class="fa-solid fa-pen"></i></a> <a
+							th:href="@{'/room/details/' + ${room.roomId}}" class="btn-icon"
+							title="查看詳情"><i class="fa-solid fa-eye"></i></a>
+							<form th:action="@{/room/delete}" method="post"
+								style="display: inline;">
 								<input type="hidden" name="roomId" th:value="${room.roomId}" />
-								<button type="submit" class="btn-icon" style="border: none; background: none; cursor: pointer;"
-										onclick="return confirm('確定刪除此房間嗎？')">
+								<button type="submit" class="btn-icon" title="刪除"
+									onclick="return confirm('確定刪除此房間嗎？')">
 									<i class="fa-solid fa-trash"></i>
 								</button>
-							</form>
-						</td>
+							</form></td>
 					</tr>
 				</tbody>
 			</table>
