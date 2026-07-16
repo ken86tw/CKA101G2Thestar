@@ -1331,3 +1331,134 @@ summary {
         text-align: left
     }
 }
+
+/* ===== 員工庫存查詢:熱度表 ===== */
+
+/* 圖例:三顆色塊 + 說明文字 */
+.invlegend {
+    display: flex;
+    gap: 22px;
+    margin: 4px 0 14px;
+    font-size: 12.5px;
+    color: var(--soft)
+}
+
+.invlegend .sw {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 7px;
+    vertical-align: -1px
+}
+
+.invlegend .sw.ok   { background: #dfe8d2 }
+.invlegend .sw.low  { background: #f0e3bd }
+.invlegend .sw.full { background: #f0d6d0 }
+
+/* 捲動容器:表格 31 列太長,限制高度讓它在框內捲,
+   sticky 的表頭/日期欄才有「釘住」的效果(sticky 是相對最近的捲動容器) */
+.invscroll {
+    max-height: 62vh;
+    overflow: auto;
+    border: 1px solid var(--line)
+}
+
+.invtable th, .invtable td {
+    text-align: center;
+    padding: 10px 12px
+}
+
+/* 表頭往下捲時釘在容器頂端;要給背景色,不然下面的字會透上來 */
+.invtable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--paper)
+}
+
+/* 日期欄(每列第一格)往右捲時釘在左邊 */
+.invtable .invdate {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--paper);
+    text-align: left;
+    white-space: nowrap;
+    min-width: 104px
+}
+
+/* 左上角「日期」那格同時是表頭又是第一欄,層級要最高才不會被壓過 */
+.invtable thead .invdate { z-index: 3 }
+
+.invtable .invdate b {
+    font-family: var(--serif);
+    font-size: 17px;
+    font-weight: 500
+}
+
+.invtable .invdate small {
+    color: var(--muted);
+    margin-left: 7px
+}
+
+/* 週末:日期整組改金色 */
+.invtable .invdate.wkend b,
+.invtable .invdate.wkend small { color: var(--gold) }
+
+/* 「今天」小標 */
+.invtable .invdate em {
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: #fff;
+    background: var(--gold);
+    border-radius: 9px;
+    padding: 2px 8px;
+    margin-left: 8px;
+    vertical-align: 2px
+}
+
+/* 數字格:大字剩餘量 + 小字總量,格子間用紙色細線隔開 */
+.invcell {
+    border-left: 1px solid var(--paper);
+    min-width: 86px
+}
+
+.invcell .n b {
+    font-family: var(--serif);
+    font-size: 19px;
+    font-weight: 500
+}
+
+.invcell .n small {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-left: 1px
+}
+
+/* 剩餘比例長條:外層灰軌道、內層依 invPct() 算出的寬度上色 */
+.invcell .bar {
+    height: 3px;
+    background: rgba(0, 0, 0, .07);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden
+}
+
+.invcell .bar i {
+    display: block;
+    height: 100%
+}
+
+/* 三種狀態的配色:底色淡、數字跟長條深,同色系呼應 */
+.invcell.ok         { background: #f0f4e8 }
+.invcell.ok .n b    { color: #5d7442 }
+.invcell.ok .bar i  { background: #8aa368 }
+
+.invcell.low        { background: #f7f0dd }
+.invcell.low .n b   { color: #9a7b32 }
+.invcell.low .bar i { background: #c8a04f }
+
+.invcell.full       { background: #f6e7e4 }
+.invcell.full .n b  { color: #a85b50 }

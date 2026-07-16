@@ -617,6 +617,42 @@ createApp({
             }
         },
 
+        // ===== 庫存表格的顯示小工具(只負責「算給畫面看」,不打 API)=====
+
+        // 依剩餘量決定格子顏色,回傳的字串會變成 td 的 class(對應 CSS 的三種底色)
+        // 滿房 → 'full'(紅) / 剩不到 1/3 → 'low'(金) / 其他 → 'ok'(綠)
+        invLevel(c) {
+            if (typeof c.remain !== 'number') return '';   // 防禦:資料缺漏('-')時不上色
+            if (c.remain === 0) return 'full';
+            return c.remain / c.total <= 1 / 3 ? 'low' : 'ok';
+        },
+        // 剩餘比例 → 長條寬度字串,例:剩 7/10 → '70%'
+        invPct(c) {
+            if (typeof c.remain !== 'number' || !c.total) return '0%';
+            return Math.round(c.remain / c.total * 100) + '%';
+        },
+        // '2026-07-17' → '7/17':整欄都是同一年,年份是雜訊,拿掉比較好掃
+        invMD(d) {
+            const [, m, day] = d.split('-');   // 解構陣列,第 0 格(年)用空位跳過
+            return `${+m}/${+day}`;            // 字串前加 + 轉成數字,順便把 '07' 的 0 去掉
+        },
+        // '2026-07-17' → '週五'。getDay() 回 0~6(0=週日),拿去查字串的第幾個字
+        invWD(d) {
+            return '週' + '日一二三四五六'[new Date(d).getDay()];
+        },
+        // 週末的日期字改金色,掃視 31 列時好抓住週節奏
+        invIsWeekend(d) {
+            const w = new Date(d).getDay();
+            return w === 0 || w === 6;
+        },
+        // 是不是今天?用本地時區自己組 'YYYY-MM-DD' 來比
+        // (不用 toISOString() 是因為它回 UTC,台灣早上八點前會差一天)
+        invIsToday(d) {
+            const t = new Date();
+            const local = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+            return d === local;
+        },
+
         async doRefund(r) {
             if (!confirm(`退款單 #${r.refundId} · $${r.amount} 確認執行退款？`)) return;
             try {
