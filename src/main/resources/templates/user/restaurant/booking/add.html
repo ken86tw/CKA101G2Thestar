@@ -38,24 +38,18 @@
 					<form th:action="@{/restaurant/booking/submit}"
 						th:object="${reservationVO}" method="POST">
 
-						<!-- members -->
 						<div class="mb-3">
 						    <label class="form-label">
 						        訂位會員
 						    </label>
-						
 						    <input type="text" class="form-control" 
 						    	th:value="${loginMember.memberName + '（' + loginMember.memberEmail + '）'}" readonly>
-						
-<!-- 						    <div class="form-text"> -->
-<!--  						        訂位會自動綁定目前登入會員，不需要輸入會員編號。 -->
-<!-- 						    </div> -->
 						</div>
 
 						<div class="mb-3">
 							<label class="form-label" for="guests">預約用餐人數</label> <select
 								id="guests" name="guests" class="form-select"
-								onchange="updateBookingOptions()">
+								>
 								<option value="1">1 位</option>
 								<option value="2">2 位</option>
 								<option value="3">3 位</option>
@@ -75,9 +69,9 @@
 
 								<div class="mb-3">
 									<label class="form-label">預約用餐日期</label> <select
-										class="form-select" name="date" required>
+										id="booking-date" class="form-select" name="date" required>
 										<option value="" th:selected="${reservationVO.date == null}">--
-											請選擇有空位的日期 --</option>
+											請選擇日期 --</option>
 										<option th:each="d : ${availableDates}" th:value="${d}"
 											th:text="${d}" th:selected="${d == reservationVO.date}">
 										</option>
@@ -88,23 +82,13 @@
 									<div class="error-text" th:if="${#fields.hasErrors('date')}"
 										th:errors="*{date}"></div>
 								</div>
-
+								
 								<div class="mb-3">
 									<label class="form-label">預約用餐時段</label> <select
 										class="form-select" th:field="*{businessHoursVO.sessionId}"
 										required>
 										<option value="">-- 請選擇時段 --</option>
-										<option th:each="item : ${availableSessions}"
-											th:value="${item.id.sessionId}"
-											th:text="${'時段 ' + item.id.sessionId + ' (' + item.businessHoursVO.startTime + ' - ' + item.businessHoursVO.endTime + ')'}">
-										</option>
 									</select>
-									<div class="form-text"
-										th:if="${#lists.isEmpty(availableSessions)}"
-										style="color: red;">當前日期無可用時段。</div>
-									<div class="error-text"
-										th:if="${#fields.hasErrors('businessHoursVO.sessionId')}"
-										th:errors="*{businessHoursVO.sessionId}"></div>
 								</div>
 
 							</div>
@@ -130,31 +114,66 @@
 
     <footer th:replace="~{user/restaurant/userNavBar :: front-footer}"></footer>
 
-	<script>
-function updateBookingOptions() {
-    const guests = document.getElementById("guests").value;
-    const wrapper = document.getElementById("booking-options-wrapper");
-
-    wrapper.style.opacity = "0.5";
-
-    fetch(`/restaurant/booking/api/options?guests=${guests}`, {
-        method: 'GET'
-    })
-    .then(response => {
-        if (!response.ok) throw new Error('網路回應錯誤');
-        return response.text();
-    })
-    .then(htmlFragment => {
-        wrapper.innerHTML = htmlFragment;
-        wrapper.style.opacity = "1";
-    })
-    .catch(error => {
-        console.error('局部更新出錯：', error);
-        wrapper.style.opacity = "1";
-    });
-}
-</script>
-
 <script src="/js/header-auth.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const guestsSelect = document.getElementById("guests");
+    const dateSelect = document.getElementById("booking-date");
+    const sessionSelect = document.querySelector("select[name='businessHoursVO.sessionId']");
+
+    guestsSelect.addEventListener("change", fetchSessions);
+    dateSelect.addEventListener("change", fetchSessions);
+
+    function fetchSessions() {
+        const guests = guestsSelect.value;
+        const date = dateSelect.value;
+
+        if (!guests || !date) {
+            resetSessionSelect();
+            return;
+        }
+
+        const url = `/restaurant/booking/api/session-status?guests=${guests}&date=${date}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error();
+                }
+                return response.json();
+            })
+            .then(sessions => {
+                updateSessionOptions(sessions);
+            })
+            .catch(() => {
+                resetSessionSelect();
+            });
+    }
+
+    function updateSessionOptions(sessions) {
+        sessionSelect.innerHTML = '<option value="">-- 請選擇時段 --</option>';
+
+        sessions.forEach(session => {
+            const option = document.createElement("option");
+            option.value = session.sessionId;
+            
+            const startTime = session.startTime.substring(0, 5);
+            const endTime = session.endTime.substring(0, 5);
+            option.textContent = `${startTime} ~ ${endTime}`;
+
+            if (!session.available) {
+                option.disabled = true;
+                option.textContent += " (已客滿)";
+            }
+
+            sessionSelect.appendChild(option);
+        });
+    }
+
+    function resetSessionSelect() {
+        sessionSelect.innerHTML = '<option value="">-- 請選擇時段 --</option>';
+    }
+});
+</script>
 </body>
 </html>

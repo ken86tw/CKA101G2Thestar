@@ -84,8 +84,11 @@ createApp({
         },
         // 目前選中的券物件(給預覽卡顯示用)
         selectedCoupon() {
-            if (this.form.memberCouponId == null) return null;
-            return this.coupons.find(c => c.memberCouponId === this.form.memberCouponId) || null;
+            if (this.form.memberCouponId == null) {
+                return null;
+            }
+            return this.coupons.find(c => Number(c.memberCouponId) === Number(this.form.memberCouponId) && c.displayStatus === 'AVAILABLE'
+            ) || null;
         }
     },
     // 重整後問會員登入狀態(首頁的真登入);員工登入不跨頁記憶,重整需重登
@@ -93,11 +96,6 @@ createApp({
         this.loadRoomTypes();   // 首屏房型展示卡用,不需登入
         try {
             const me = await this.api('/api/member/status');
-            if (me.loggedIn) {
-                this.member.id = me.memberId;
-                this.member.on = me.memberId;
-                this.connectWs();   // 會員身分確認後連線 訂閱自己專屬的通知頻道
-            }
             if (me.loggedIn) {
                 this.member.id = me.memberId;
                 this.member.on = me.memberId;
@@ -187,6 +185,8 @@ createApp({
             this.nav = 'book';
             this.orders.list = [];
             this.admin.list = [];
+            this.coupons = [];
+            this.form.memberCouponId = null;
             this.toast('warn', '已登出');
         },
         // 用「今天住到明天」查一次空房,拿到目前資料庫裡全部房型的名稱與價格
@@ -259,8 +259,11 @@ createApp({
                 setTimeout(() => location.href = '/login.html?redirect=/roombooking.html', 800);
                 return;
             }
-            this.loadCoupons();
-            this.book.step = 'confirm';
+            this.loadCoupons().then(success => {
+                if (success) {
+                    this.book.step = 'confirm';
+                }
+            });
         },
 
         async createOrder() {
@@ -583,10 +586,11 @@ createApp({
             try {
                 this.coupons = await
                     this.api('/api/member/coupons');
+                return true;
             } catch (e) {
                 this.coupons = [];
-                this.toast('err', '優惠券載入失敗', this.errMsg());
-
+                this.toast('err', '優惠券載入失敗', this.errMsg(e));
+                return false;
             } finally {
                 this.couponsLoading = false;
             }
