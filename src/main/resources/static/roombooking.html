@@ -137,13 +137,14 @@
                     </table>
                     <p class="money" style="font-size:24px">應付
                         ${{(confirmOrder.totalAmount - confirmOrder.discountAmount).toLocaleString()}}</p>
-                    <div style="margin-top: 26px">
+                    <div style="margin-top: 26px;display:flex;justify-content:center;align-items:center">
                         <button class="btn" @click="pay(confirmOrder.orderId)">立即付款</button>
                         <button class="btn ghost" style="margin-left:10px"
                                 @click="confirmOrder=null;nav='orders';orders.status=0;orders.page=0;loadOrders()">
-                            稍後付款，查看我的預訂
+                            略過金流
                         </button>
                     </div>
+                    <div class="hint" style="margin-top:40px;color: red">請於三分鐘內完成付款，否則將取消訂單</div>
                 </div>
                 <template v-else>
 
@@ -332,7 +333,7 @@
                                             前往結帳
                                         </button>
                                         <button v-if="o.orderStatus===0" class="btn ghost sm"
-                                                @click="devConfirm(o.orderId)" title="不經綠界直接標記已付款">模擬付款
+                                                @click="devConfirm(o.orderId)" title="不經綠界直接標記已付款">略過金流付款
                                         </button>
                                         <button v-if="o.orderStatus===1" class="btn danger sm"
                                                 @click="cancel(o.orderId)">取消訂單（退款）

@@ -104,6 +104,18 @@ createApp({
             }
         } catch { /* 沒登入就停在登入頁 */
         }
+        // 員工從自己的後台登入(Spring Security)後點連結進來:共用同一個 session,
+        // /thestar/admin/me 登入回員工資料、未登入回 401。認得員工就直接進後台,免走本頁登入閘門
+        try {
+            const emp = await this.api('/thestar/admin/me');
+            this.employee.id = emp.employeeId;
+            this.employee.on = emp.employeeId;
+            this.employee.name = emp.employeeName;
+            this.connectWs();   // 員工身分確認後連線 訂閱 rooms/orders/refunds 頻道
+            this.nav = 'admin';
+            this.loadAdmin();
+        } catch { /* 不是登入員工就略過,維持一般查房頁 */
+        }
         // 登入前有存下的訂房內容:重查空房(拿最新剩餘數)後還原選擇,直接跳回確認頁
         if (this.member.on && sessionStorage.getItem('pendingBooking')) {
             const p = JSON.parse(sessionStorage.getItem('pendingBooking'));
