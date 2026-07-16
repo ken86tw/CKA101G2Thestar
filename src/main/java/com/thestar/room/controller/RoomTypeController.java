@@ -31,6 +31,7 @@ public class RoomTypeController {
 	@Autowired
 	private RoomTypePhotoService photoService;
 
+	// 所有房型總覽
 	@GetMapping("/manage")
 	public String showRoomTypesPage(Model model) {
 		// 取得所有房型資料
@@ -47,6 +48,14 @@ public class RoomTypeController {
 		return "admin/room/roomTypeManage";
 	}
 
+	// 檢視房型詳細資料
+	@GetMapping("/details/{id}")
+	public String getRoomTypeDetails(@PathVariable("id") Integer id, Model model) {
+	    RoomTypeVO roomTypeVO = service.getOneRoomType(id); // 呼叫 Service
+	    model.addAttribute("roomTypeVO", roomTypeVO);
+	    return "admin/room/roomTypeDetails"; // 對應到剛才建立的 HTML 檔名
+	}
+	
 	// 進入新增頁面
 	@GetMapping("/add")
 	public String addRoomTypePage(Model model) {

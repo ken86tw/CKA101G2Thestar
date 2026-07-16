@@ -1,5 +1,8 @@
 package com.thestar.room.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.thestar.room.entity.RoomTypeVO;
 import com.thestar.room.entity.RoomVO;
 import com.thestar.room.service.RoomService;
 import com.thestar.room.service.RoomTypeService;
@@ -45,6 +47,10 @@ public class RoomController {
 	public String addInput(Model model) {
 		model.addAttribute("roomVO", new RoomVO());
 		model.addAttribute("roomTypeList", roomTypeService.getAllRoomTypes());
+
+		List<Integer> existingRoomIds = roomService.findAll().stream().map(RoomVO::getRoomId)
+				.collect(Collectors.toList());
+		model.addAttribute("existingRoomIds", existingRoomIds);
 		return "admin/room/roomForm";
 	}
 

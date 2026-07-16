@@ -152,7 +152,7 @@ public class UserShopOrderController {
 
 		// 發送訂單建立通知
 		memberNotifySvc.createNotification(loginMember.getMemberId(),
-				"您的訂單已成立，訂單編號：" + order.getShopOrderId() + "，請盡快完成付款！");
+				"您的購物訂單已成立，訂單編號：" + order.getShopOrderId() + "，請盡快完成付款！");
 
 		// 建立訂單明細
 		StringBuilder itemNames = new StringBuilder();
@@ -172,10 +172,12 @@ public class UserShopOrderController {
 			itemNames.append(item.getProduct().getProductName());
 
 			// 扣除庫存
-			ProductsVO product = item.getProduct();
-			int newQty = product.getProductQuantity() - item.getCartItemProdQty();
-			product.setProductQuantity(Math.max(newQty, 0)); // 最低為 0，不會變負數
-			productsSvc.updateProduct(product);
+			ProductsVO product = productsSvc.getOneProduct(item.getProductId());
+			if (product != null) {
+			    int newQty = product.getProductQuantity() - item.getCartItemProdQty();
+			    product.setProductQuantity(Math.max(newQty, 0));
+			    productsSvc.updateProduct(product);
+			}
 		}
 
 		// 清空購物車
@@ -245,7 +247,7 @@ public class UserShopOrderController {
 					shopOrderSvc.updateShopOrder(order);
 
 					// 發送付款成功通知
-					memberNotifySvc.createNotification(order.getMemberId(), "訂單編號 " + orderId + " 付款成功，感謝您的購買！");
+					memberNotifySvc.createNotification(order.getMemberId(), "購物訂單編號 " + orderId + " 付款成功，感謝您的購買！");
 				}
 			} catch (Exception e) {
 				// 解析失敗不影響回傳

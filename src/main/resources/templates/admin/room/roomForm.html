@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>房間設定 | THE STAR</title>
 <link rel="stylesheet" th:href="@{/css/roomManage.css}">
-<!-- 加入 Font Awesome 用於顯示警告圖示 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -16,11 +15,11 @@
 		</header>
 
 		<main class="admin-content">
-			<form id="roomForm"
+			<!-- 加入 onsubmit 攔截，確保送出前做最終檢查 -->
+			<form id="roomForm" onsubmit="return validateForm()"
 				th:action="${roomVO.roomId == null} ? @{/room/insert} : @{/room/update}"
 				th:object="${roomVO}" method="post">
 
-				<!-- 房間編號區塊 -->
 				<div class="form-group">
 					<label>房間編號</label>
 					
@@ -32,9 +31,11 @@
 
 					<!-- 新增模式 -->
 					<th:block th:if="${roomVO.roomId == null}">
-						<input type="number" id="roomIdInput" th:field="*{roomId}" 
-						       placeholder="請輸入3位整數" required oninput="validateRoom(this)" />
-						<!-- 錯誤提示 -->
+						<input type="text" id="roomIdInput" th:field="*{roomId}"
+							placeholder="請輸入 3 位數字" required oninput="validateRoom(this)"
+							maxlength="3" />
+						
+						<!-- 錯誤提示區塊 -->
 						<div id="roomError" style="color: #d9534f; font-size: 0.85em; margin-top: 5px; display: none;">
 							<i class="fa-solid fa-circle-exclamation"></i> <span id="errorText"></span>
 						</div>
@@ -55,7 +56,7 @@
 				</div>
 
 				<div class="form-actions" style="margin-top: 30px;">
-					<button type="submit" class="btn" id="submitBtn">儲存設定</button>
+					<button type="submit" class="btn">儲存設定</button>
 					<a th:href="@{/room/manage}" class="btn ghost">取消</a>
 				</div>
 			</form>
@@ -63,31 +64,42 @@
 	</div>
 
 	<script th:inline="javascript">
-		// 取得後端傳來的已存在編號陣列
-		const existingIds = /*[[${existingRoomIds}]]*/ [];
+		const existingIds = /*[[${existingRoomIds}]]*/[];
 
 		function validateRoom(input) {
+			input.value = input.value.replace(/[^0-9]/g, ''); // 過濾非數字
+
 			const errorDiv = document.getElementById('roomError');
 			const errorText = document.getElementById('errorText');
-			const submitBtn = document.getElementById('submitBtn');
 			const val = input.value;
 			const numVal = parseInt(val);
 
 			if (val === "") {
 				errorDiv.style.display = 'none';
-				submitBtn.disabled = false;
-			} else if (val.length !== 3) {
-				errorText.innerText = "請輸入 3 位整數";
+			} else if (val.length < 3) {
+				errorText.innerText = "請輸入 3 位數字";
 				errorDiv.style.display = 'block';
-				submitBtn.disabled = true;
 			} else if (existingIds.includes(numVal)) {
-				errorText.innerText = "此編號已存在，請重新輸入";
+				errorText.innerText = "輸入到重複編號，請重新輸入";
 				errorDiv.style.display = 'block';
-				submitBtn.disabled = true;
 			} else {
 				errorDiv.style.display = 'none';
-				submitBtn.disabled = false;
 			}
+		}
+
+		function validateForm() {
+			const input = document.getElementById('roomIdInput');
+			if (!input) return true; // 如果是修改模式，沒有 input，直接通過
+
+			const val = input.value;
+			const numVal = parseInt(val);
+
+			// 最後防線：檢查長度與重複
+			if (val.length !== 3 || existingIds.includes(numVal)) {
+				alert("房間編號錯誤，請檢查後再儲存！");
+				return false; // 阻止表單送出
+			}
+			return true; // 通過檢查
 		}
 	</script>
 </body>

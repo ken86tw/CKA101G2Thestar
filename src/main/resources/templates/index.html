@@ -203,7 +203,8 @@
 	<div id="app" v-cloak>
 		<header :class="currentPage === 'home' ? 'hero' : 'page-header'"
 			id="home">
-			<div th:replace="~{user/common/frontNavbar :: navbar('home', false, '', true)}"></div>
+			<div
+				th:replace="~{user/common/frontNavbar :: navbar('home', false, '', true)}"></div>
 
 			<div class="hero-content" v-if="currentPage === 'home'">
 				<h2>東方之星度假飯店</h2>
@@ -958,6 +959,11 @@
     	    location.href = '/coupons.html';
     	    return;
     	  }
+    	  
+    	  if (content.includes('購物訂單')) {
+    		  location.href = '/shop/order/myOrders';
+    		  return;
+    		}
 
     	  await this.loadNotifications();
     	},

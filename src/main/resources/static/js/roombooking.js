@@ -84,8 +84,11 @@ createApp({
         },
         // 目前選中的券物件(給預覽卡顯示用)
         selectedCoupon() {
-            if (this.form.memberCouponId == null) return null;
-            return this.coupons.find(c => c.memberCouponId === this.form.memberCouponId) || null;
+            if (this.form.memberCouponId == null) {
+                return null;
+            }
+            return this.coupons.find(c => Number(c.memberCouponId) === Number(this.form.memberCouponId) && c.displayStatus === 'AVAILABLE'
+            ) || null;
         }
     },
     // 重整後問會員登入狀態(首頁的真登入);員工登入不跨頁記憶,重整需重登
@@ -96,15 +99,23 @@ createApp({
             if (me.loggedIn) {
                 this.member.id = me.memberId;
                 this.member.on = me.memberId;
-                this.connectWs();   // 會員身分確認後連線 訂閱自己專屬的通知頻道
-            }
-            if (me.loggedIn) {
-                this.member.id = me.memberId;
-                this.member.on = me.memberId;
                 this.member.name = me.memberName;
                 this.connectWs();   // 會員身分確認後連線 訂閱自己專屬的通知頻道
             }
         } catch { /* 沒登入就停在登入頁 */
+        }
+        // 員工從自己的後台登入(Spring Security)後點連結進來:共用同一個 session,
+        // /thestar/admin/me 登入回員工資料、未登入回 401。認得員工就直接進後台,免走本頁登入閘門
+        try {
+            const emp = await this.api('/thestar/admin/me');
+            this.employee.id = emp.employeeId;
+            this.employee.on = emp.employeeId;
+            this.employee.name = emp.employeeName;
+            this.browsing = false;   // 關掉訪客瀏覽旗:員工不該看到「預訂客房」分頁與查房頁
+            this.connectWs();   // 員工身分確認後連線 訂閱 rooms/orders/refunds 頻道
+            this.nav = 'admin';
+            this.loadAdmin();
+        } catch { /* 不是登入員工就略過,維持一般查房頁 */
         }
         // 登入前有存下的訂房內容:重查空房(拿最新剩餘數)後還原選擇,直接跳回確認頁
         if (this.member.on && sessionStorage.getItem('pendingBooking')) {
@@ -187,6 +198,8 @@ createApp({
             this.nav = 'book';
             this.orders.list = [];
             this.admin.list = [];
+            this.coupons = [];
+            this.form.memberCouponId = null;
             this.toast('warn', '已登出');
         },
         // 用「今天住到明天」查一次空房,拿到目前資料庫裡全部房型的名稱與價格
@@ -259,8 +272,11 @@ createApp({
                 setTimeout(() => location.href = '/login.html?redirect=/roombooking.html', 800);
                 return;
             }
-            this.loadCoupons();
-            this.book.step = 'confirm';
+            this.loadCoupons().then(success => {
+                if (success) {
+                    this.book.step = 'confirm';
+                }
+            });
         },
 
         async createOrder() {
@@ -583,10 +599,11 @@ createApp({
             try {
                 this.coupons = await
                     this.api('/api/member/coupons');
+                return true;
             } catch (e) {
                 this.coupons = [];
-                this.toast('err', '優惠券載入失敗', this.errMsg());
-
+                this.toast('err', '優惠券載入失敗', this.errMsg(e));
+                return false;
             } finally {
                 this.couponsLoading = false;
             }

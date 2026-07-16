@@ -61,7 +61,7 @@ public class ShopOrderScheduler {
                 // 發送通知
                 memberNotifySvc.createNotification(
                     order.getMemberId(),
-                    "訂單編號 " + order.getShopOrderId() + " 因逾時未付款已自動取消。"
+                    "購物訂單編號 " + order.getShopOrderId() + " 因逾時未付款已自動取消。"
                 );
             }
         }

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>房間詳情 | THE STAR</title>
+    <!-- 建議使用與管理頁面相同的 CSS 以保持風格一致 -->
+    <link rel="stylesheet" th:href="@{/css/roomManage.css}">
+    <style>
+        .detail-card { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .detail-item { margin: 10px 0; font-size: 1.1em; }
+        .label { font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>房間詳細資料</h1>
+        
+        <div class="detail-card" th:if="${roomVO}">
+            <div class="detail-item">
+                <span class="label">房間編號:</span> 
+                <span th:text="${roomVO.roomId}"></span>
+            </div>
+            
+            <!-- 動態顯示房型 ID 與名稱 -->
+            <div class="detail-item">
+                <span class="label">房型:</span> 
+                <span th:text="'(' + ${roomVO.roomTypeId} + ') ' + (${roomVO.roomTypeName != null ? roomVO.roomTypeName : '未知房型'})"></span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="label">房間狀態:</span> 
+                <span th:text="'(' + ${roomVO.roomStatus} + ') ' + 
+                    (${roomVO.roomStatus == 0 ? '空房' : 
+                      (roomVO.roomStatus == 1 ? '已入住' : '待清潔')})">
+                </span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="label">啟用情況:</span> 
+                <span th:text="${roomVO.roomSwitchStatus ? '(1) 已上架' : '(0) 未上架'}"></span>
+            </div>
+        </div>
+        
+        <a th:href="@{/room/manage}" class="btn ghost">返回列表</a>
+    </div>
+</body>
+</html>

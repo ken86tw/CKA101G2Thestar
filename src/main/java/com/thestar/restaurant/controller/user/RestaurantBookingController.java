@@ -1,10 +1,11 @@
 package com.thestar.restaurant.controller.user;
 
-import java.time.LocalDate; // 👈 1. 換成新版的 LocalDate
+import java.time.LocalDate;
 import java.util.List;
-import jakarta.servlet.http.HttpSession;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,17 +14,23 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.thestar.member.entity.MemberVO;
+import com.thestar.member.service.MemberAuthService;
+import com.thestar.restaurant.dto.SessionStatusDTO;
 import com.thestar.restaurant.entity.AvailableTableVO;
+import com.thestar.restaurant.entity.BusinessHoursVO; // 👈 修正 2：補上 BusinessHoursVO 的匯入
 import com.thestar.restaurant.entity.ReservationStatus;
 import com.thestar.restaurant.entity.RestaurantReservationVO;
-import com.thestar.restaurant.entity.RestaurantTableVO; 
+import com.thestar.restaurant.entity.RestaurantTableVO;
 import com.thestar.restaurant.service.AvailableTableService;
+import com.thestar.restaurant.service.BusinessHoursService;
 import com.thestar.restaurant.service.RestaurantReservationService;
 import com.thestar.restaurant.service.RestaurantReviewService;
-import com.thestar.member.service.MemberAuthService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/restaurant/booking")
@@ -34,137 +41,121 @@ public class RestaurantBookingController {
 
 	@Autowired
 	private AvailableTableService availableTableService;
-	
+
 	@Autowired
 	private RestaurantReviewService reviewService;
-	
-//	members
+
+	@Autowired
+	private BusinessHoursService businessHoursService;
+
 	@Autowired
 	private MemberAuthService memberAuthService;
 
 	@GetMapping("/list")
 	public String listMemberBookings(Model model, HttpSession session) {
-		// 1. 依需求暫時寫死目前登入會員 ID 為 1
-//		Integer currentMemberId = 1; 
 		MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
 		if (loginMember == null) {
-	        return "redirect:/login.html" + "?redirect=/restaurant/booking/list";
-	    }
-	    Integer currentMemberId = loginMember.getMemberId();
-		
-		// 2. 呼叫 Service 取得該會員的所有訂位紀錄
+			return "redirect:/login.html" + "?redirect=/restaurant/booking/list";
+		}
+		Integer currentMemberId = loginMember.getMemberId();
+
 		List<RestaurantReservationVO> myReservations = reservationService.getByMemberId(currentMemberId);
-		
-		// 3. 建立一個 Map 用來存放「訂位ID -> 評論物件」的對應關係
+
 		java.util.Map<Integer, com.thestar.restaurant.entity.RestaurantReviewVO> reviewMap = new java.util.HashMap<>();
-		
+
 		for (RestaurantReservationVO res : myReservations) {
-			// 透過你提供的 getByReservationId 方法撈取評論
-			com.thestar.restaurant.entity.RestaurantReviewVO review = reviewService.getByReservationId(res.getReservationId());
+			com.thestar.restaurant.entity.RestaurantReviewVO review = reviewService
+					.getByReservationId(res.getReservationId());
 			if (review != null) {
 				reviewMap.put(res.getReservationId(), review);
 			}
 		}
-		
-		// 4. 將訂位列表與評論 Map 帶到前端
+
 		model.addAttribute("myReservations", myReservations);
 		model.addAttribute("reviewMap", reviewMap);
-		model.addAttribute("loginMember", loginMember);			//members
-		
-		// 5. 導向指定的網頁路徑
-		return "user/restaurant/booking/list"; 
+		model.addAttribute("loginMember", loginMember);
+
+		return "user/restaurant/booking/list";
 	}
-	
-	
+
 	@GetMapping("/add")
 	public String bookingPage(Model model, HttpSession session) {
 		availableTableService.initializeMonthlyTables();
-		
-		//members
+
 		MemberVO loginMember = getCurrentMember(session);
 		if (loginMember == null) {
-		    return "redirect:/login.html" + "?redirect=/restaurant/booking/add";
+			return "redirect:/login.html" + "?redirect=/restaurant/booking/add";
 		}
-		model.addAttribute("loginMember",loginMember);
-		
+		model.addAttribute("loginMember", loginMember);
+
 		if (!model.containsAttribute("reservationVO")) {
 			RestaurantReservationVO reservationVO = new RestaurantReservationVO();
-			
-//			MemberVO member = new MemberVO();
-//			member.setMemberId(1); // 預設目前登入會員
-//			reservationVO.setMemberVO(member);
-
-			//members
 			reservationVO.setMemberVO(loginMember);
-			
-			int defaultGuests = 2;
-			List<LocalDate> availableDates = availableTableService.getAvailableDatesByGuests(defaultGuests); // 👈 換成 LocalDate
+
+			LocalDate today = LocalDate.now();
+			List<LocalDate> availableDates = today.datesUntil(today.plusMonths(1)).collect(Collectors.toList());
+
 			model.addAttribute("availableDates", availableDates);
-
-			if (!availableDates.isEmpty()) {
-				LocalDate firstDate = availableDates.get(0); // 👈 換成 LocalDate
-				List<AvailableTableVO> availableSessions = availableTableService
-						.getAvailableSessionsByDateAndGuests(firstDate, defaultGuests);
-				model.addAttribute("availableSessions", availableSessions);
-			}
-
 			model.addAttribute("reservationVO", reservationVO);
 		}
 		return "user/restaurant/booking/add";
 	}
 
-	/**
-	 * 2. 處理「人數改變」的局部刷新 AJAX 請求
-	 */
-	@GetMapping("/api/options")
-	public String getBookingOptionsByGuests(@RequestParam("guests") int guests, Model model) {
-		List<LocalDate> availableDates = availableTableService.getAvailableDatesByGuests(guests); // 👈 換成 LocalDate
-		model.addAttribute("availableDates", availableDates);
-
-		if (!availableDates.isEmpty()) {
-			LocalDate firstDate = availableDates.get(0); // 👈 換成 LocalDate
-			List<AvailableTableVO> availableSessions = availableTableService
-					.getAvailableSessionsByDateAndGuests(firstDate, guests);
-			model.addAttribute("availableSessions", availableSessions);
-		}
-
-		return "user/restaurant/booking :: bookingOptions";
+	// 👈 修正 1：清除本區塊所有看不見的隱形空白字元，現在 @RequestParam 能夠被正常解析了
+	@GetMapping("/api/session-status")
+	@ResponseBody
+	public List<SessionStatusDTO> getSessionStatus(
+			@RequestParam("guests") int guests,
+			@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+		
+		List<BusinessHoursVO> allSessions = businessHoursService.getAll();
+		
+		List<AvailableTableVO> availableTables = availableTableService.getAvailableSessionsByDateAndGuests(date, guests);
+		
+		java.util.Set<Integer> availableSessionIds = availableTables.stream()
+				.map(table -> table.getId().getSessionId())
+				.collect(Collectors.toSet());
+		
+		return allSessions.stream()
+				.map(session -> {
+					boolean isAvailable = availableSessionIds.contains(session.getSessionId());
+					return new SessionStatusDTO(
+							session.getSessionId(), 
+							session.getStartTime(), 
+							session.getEndTime(), 
+							isAvailable
+					);
+				})
+				.collect(Collectors.toList());
 	}
 
-	/**
-	 * 3. 處理表單送出
-	 */
 	@PostMapping("/submit")
 	public String submitBooking(@ModelAttribute("reservationVO") RestaurantReservationVO reservationVO,
-			BindingResult result, 
-			@RequestParam("guests") int guests, 
-			Model model, 
-			RedirectAttributes redirectAttributes,
-	        HttpSession session) {
-		//members
-		//後端重新取得真正登入會員
+			BindingResult result, @RequestParam("guests") int guests, Model model,
+			RedirectAttributes redirectAttributes, HttpSession session) {
+
 		MemberVO loginMember = getCurrentMember(session);
-		if (loginMember == null) {return "redirect:/login.html" + "?redirect=/restaurant/booking/add";}
-		//前端0信任原則，資料丟回login帳號
+		if (loginMember == null) {
+			return "redirect:/login.html" + "?redirect=/restaurant/booking/add";
+		}
 		reservationVO.setMemberVO(loginMember);
 
-		// 🛠️ 1. 人數桌型分流判定並綁定到 Entity
 		RestaurantTableVO tableVO = new RestaurantTableVO();
 		if (guests >= 1 && guests <= 4) {
-			tableVO.setTableTypeId(2); 
+			tableVO.setTableTypeId(2);
 		} else if (guests >= 5 && guests <= 10) {
-			tableVO.setTableTypeId(1); 
+			tableVO.setTableTypeId(1);
 		} else {
 			model.addAttribute("errorMessage", "訂位人數不符合規範（限制 1-10 人）。");
-			
-			// 💡 如果 reservationVO.getDate() 回傳的是 java.sql.Date，轉成 LocalDate 再帶入
-			LocalDate localDate = (reservationVO.getDate() != null) ? ((java.sql.Date) reservationVO.getDate()).toLocalDate() : null;
+
+			LocalDate localDate = (reservationVO.getDate() != null)
+					? ((java.sql.Date) reservationVO.getDate()).toLocalDate()
+					: null;
 			prepareFormDropLists(model, guests, localDate);
 			return "user/restaurant/booking";
 		}
 		reservationVO.setRestaurantTableVO(tableVO);
 
-		// 🛠️ 2. 補足其餘必要的系統內定欄位
 		if (reservationVO.getReviewStatus() == null) {
 			reservationVO.setReviewStatus(false);
 		}
@@ -176,20 +167,18 @@ public class RestaurantBookingController {
 			}
 		}
 
-		// 🛠️ 3. 檢查欄位驗證錯誤
 		if (result.hasErrors()) {
 			model.addAttribute("errorMessage", "輸入資料有誤，請檢查欄位。");
-			LocalDate localDate = (reservationVO.getDate() != null) ? ((java.sql.Date) reservationVO.getDate()).toLocalDate() : null;
+			LocalDate localDate = (reservationVO.getDate() != null)
+					? ((java.sql.Date) reservationVO.getDate()).toLocalDate()
+					: null;
 			prepareFormDropLists(model, guests, localDate);
 			return "user/restaurant/booking";
 		}
 
 		try {
-			// 🛠️ 4. 執行寫入資料庫
 			reservationService.addReservation(reservationVO);
 
-			// 🛠️ 5. 寫入成功後，根據桌型扣減 AvailableTable 的庫存數量
-			// 💡 這裡將選取的日期安全轉為 LocalDate，以配合新的 Service 參數
 			LocalDate selectedDate = ((java.sql.Date) reservationVO.getDate()).toLocalDate();
 			Integer selectedSessionId = reservationVO.getBusinessHoursVO().getSessionId();
 
@@ -204,42 +193,34 @@ public class RestaurantBookingController {
 
 		} catch (Exception e) {
 			model.addAttribute("errorMessage", "訂位失敗：" + e.getMessage());
-			LocalDate localDate = (reservationVO.getDate() != null) ? ((java.sql.Date) reservationVO.getDate()).toLocalDate() : null;
+			LocalDate localDate = (reservationVO.getDate() != null)
+					? ((java.sql.Date) reservationVO.getDate()).toLocalDate()
+					: null;
 			prepareFormDropLists(model, guests, localDate);
 			return "user/restaurant/booking";
 		}
 	}
 
-	/**
-	 * 取得目前真正登入的會員members
-	 */
 	private MemberVO getCurrentMember(HttpSession session) {
-	    MemberVO loginMember =
-	            (MemberVO) session.getAttribute("loginMember");
+		MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
 
-	    if (loginMember == null
-	            || loginMember.getMemberId() == null) {
-	        return null;
-	    }
+		if (loginMember == null || loginMember.getMemberId() == null) {
+			return null;
+		}
 
-	    return memberAuthService.getMemberById(
-	            loginMember.getMemberId()
-	    );
+		return memberAuthService.getMemberById(loginMember.getMemberId());
 	}
-	
-	/**
-	 * 💡 抽取出來的私有方法：專門用來在流程失敗時重塞下拉選單資料
-	 */
-	private void prepareFormDropLists(Model model, int guests, LocalDate selectedDate) { // 👈 換成 LocalDate
-		List<LocalDate> availableDates = availableTableService.getAvailableDatesByGuests(guests); // 👈 換成 LocalDate
+
+	private void prepareFormDropLists(Model model, int guests, LocalDate selectedDate) {
+		List<LocalDate> availableDates = availableTableService.getAvailableDatesByGuests(guests);
 		model.addAttribute("availableDates", availableDates);
-		
+
 		if (selectedDate != null) {
-			model.addAttribute("availableSessions", 
-				availableTableService.getAvailableSessionsByDateAndGuests(selectedDate, guests));
+			model.addAttribute("availableSessions",
+					availableTableService.getAvailableSessionsByDateAndGuests(selectedDate, guests));
 		} else if (!availableDates.isEmpty()) {
-			model.addAttribute("availableSessions", 
-				availableTableService.getAvailableSessionsByDateAndGuests(availableDates.get(0), guests));
+			model.addAttribute("availableSessions",
+					availableTableService.getAvailableSessionsByDateAndGuests(availableDates.get(0), guests));
 		}
 	}
 }

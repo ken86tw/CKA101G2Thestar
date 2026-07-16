@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -25,27 +26,31 @@ public class RoomVO {
 	private Integer roomTypeId;
 
 	@Column(name = "ROOM_STATUS", columnDefinition = "TINYINT")
-	private Byte roomStatus = (byte)0;
+	private Byte roomStatus = (byte) 0;
 
-	public static final int STATUS_AVAILABLE = 0; // 未入住
+	public static final int STATUS_AVAILABLE = 0; // 空房
 	public static final int STATUS_OCCUPIED = 1; // 已入住
 	public static final int STATUS_CLEANING = 2; // 待清潔
 
 	@Column(name = "ROOM_SWITCH_STATUS", columnDefinition = "BIT(1)")
-	private Boolean roomSwitchStatus = false; // 預設為未啟用
+	private Boolean roomSwitchStatus = false; // 預設為未上架(0)，已上架為(1)
+
+	// 儲存自定義的房間名稱
+	@Transient
+	private String roomTypeName;
 
 	public RoomVO() {
 		super();
 	}
 
 	public Integer getRoomTypeId() {
-	    return roomTypeId;
+		return roomTypeId;
 	}
 
 	public void setRoomTypeId(Integer roomTypeId) {
-	    this.roomTypeId = roomTypeId;
+		this.roomTypeId = roomTypeId;
 	}
-	
+
 	public Integer getRoomId() {
 		return roomId;
 	}
@@ -53,14 +58,6 @@ public class RoomVO {
 	public void setRoomId(Integer roomId) {
 		this.roomId = roomId;
 	}
-
-//	public RoomTypeVO getRoomTypeVO() {
-//		return roomTypeVO;
-//	}
-//
-//	public void setRoomTypeVO(RoomTypeVO roomTypeVO) {
-//		this.roomTypeVO = roomTypeVO;
-//	}
 
 	public Byte getRoomStatus() {
 		return roomStatus;
@@ -76,6 +73,14 @@ public class RoomVO {
 
 	public void setRoomSwitchStatus(Boolean roomSwitchStatus) {
 		this.roomSwitchStatus = roomSwitchStatus;
+	}
+
+	public String getRoomTypeName() {
+		return roomTypeName;
+	}
+
+	public void setRoomTypeName(String roomTypeName) {
+		this.roomTypeName = roomTypeName;
 	}
 
 }

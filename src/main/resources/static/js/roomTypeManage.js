@@ -1,21 +1,23 @@
 /**
- * THE STAR Hotel - 房型管理系統互動模組
- * 專為飯店後台設計，強調流暢性與簡約美感
+ * THE STAR Hotel - 房型管理系統互動模組 (全功能整合版 v2.3)
  */
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("THE STAR 系統交互已啟動 (v2.0)");
+    console.log("THE STAR 系統交互已啟動");
 
-    // 1. 初始化導覽列與標籤狀態
+    // 1. 初始化導覽列
     initNavigation();
 
-    // 2. 優雅的刪除處理 (加入了 CSS 動畫延遲，體驗更平滑)
+    // 2. 刪除確認
     initDeleteConfirmations();
     
-    // 3. 即時圖片預覽 (結合透明度過渡，符合圖片細膩風格)
+    // 3. 即時圖片預覽
     initImagePreview();
+
+    // 4. 全表單驗證 (名稱、數量、價格、說明)
+    initFormValidations();
 });
 
-// 優化導覽列切換：加入 CSS 類別變更，讓樣式即時響應
+// 導覽列切換
 function initNavigation() {
     const navLinks = document.querySelectorAll('.nav-links a');
     navLinks.forEach(link => {
@@ -26,16 +28,13 @@ function initNavigation() {
     });
 }
 
-// 刪除確認：飯店後台不需要過多干擾，使用簡潔的確認機制
+// 刪除確認
 function initDeleteConfirmations() {
-    // 這裡對應我們 HTML 中的按鈕類別
-    const deleteButtons = document.querySelectorAll('.btn-del, .btn-icon');
-    
+    const deleteButtons = document.querySelectorAll('.btn-icon');
     deleteButtons.forEach(btn => {
         btn.addEventListener('click', function(e) {
-            // 若按鈕包含刪除圖示或相關 Class，則攔截並確認
-            if (this.querySelector('.fa-trash') || this.classList.contains('btn-del')) {
-                if (!confirm("確認執行此刪除操作？")) {
+            if (this.querySelector('.fa-trash')) {
+                if (!confirm("確定刪除此項目嗎？此操作無法復原。")) {
                     e.preventDefault();
                 }
             }
@@ -43,24 +42,92 @@ function initDeleteConfirmations() {
     });
 }
 
-// 即時圖片預覽：配合 THE STAR 的簡潔預覽區域
+// 即時圖片預覽
 function initImagePreview() {
-    const fileInput = document.querySelector('input[type="file"]');
-    const previewImg = document.querySelector('#previewImg'); // 建議在 HTML 表單給圖片 ID
-
+    const fileInput = document.getElementById('imageInput');
+    const previewImg = document.getElementById('previewImg');
     if (fileInput && previewImg) {
         fileInput.addEventListener('change', function() {
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    previewImg.style.opacity = 0; // 隱藏後淡入
                     previewImg.src = e.target.result;
-                    
-                    // 利用 CSS Transition 產生飯店等級的優雅過渡
+                    previewImg.style.display = 'block';
+                    previewImg.style.opacity = 0;
                     previewImg.style.transition = "opacity 0.6s ease-in-out";
                     setTimeout(() => { previewImg.style.opacity = 1; }, 50);
                 };
                 reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+}
+
+// 統一表單驗證：名稱、數量、價格、說明
+function initFormValidations() {
+    const form = document.querySelector('form');
+    
+    // 定義驗證規則
+    const fields = [
+        { id: 'roomTypeName', pattern: /^[\u4e00-\u9fa5a-zA-Z0-9]+$/, errorMsg: "請輸入中文、英文或數字，且不含特殊符號" },
+        { id: 'amountInput', pattern: /^[1-9][0-9]*$/, errorMsg: "請輸入大於 0 的有效整數" },
+        { id: 'priceInput', pattern: /^[1-9][0-9]*$/, errorMsg: "請輸入大於 0 的金額" },
+        { id: 'contentInput', pattern: /.+/, errorMsg: "房型說明不可為空" }
+    ];
+
+    fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (!input) return;
+
+        // 若尚未建立錯誤提示，則動態建立
+        if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('error-msg')) {
+            const errorSpan = document.createElement('span');
+            errorSpan.className = 'error-msg';
+            errorSpan.style.color = '#a85b50';
+            errorSpan.style.fontSize = '12px';
+            errorSpan.style.display = 'none';
+            errorSpan.innerText = field.errorMsg;
+            input.parentNode.insertBefore(errorSpan, input.nextSibling);
+        }
+
+        // 輸入監聽
+        input.addEventListener('input', function() {
+            // 若為數字欄位，強制濾除非數字字元
+            if (field.id === 'amountInput' || field.id === 'priceInput') {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                // 額外防止輸入0
+                if (this.value === '0') this.value = '';
+            }
+
+            const isValid = field.pattern.test(this.value.trim());
+            const errorSpan = input.nextElementSibling;
+            
+            if (this.value !== "" && !isValid) {
+                errorSpan.style.display = 'block';
+                this.style.borderColor = '#a85b50';
+            } else {
+                errorSpan.style.display = 'none';
+                this.style.borderColor = '#e0dcd5';
+            }
+        });
+    });
+
+    // 表單送出前的總防禦
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            let hasError = false;
+            fields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input && (!input.value.trim() || !field.pattern.test(input.value.trim()))) {
+                    hasError = true;
+                    input.style.borderColor = '#a85b50';
+                    if (input.nextElementSibling) input.nextElementSibling.style.display = 'block';
+                }
+            });
+
+            if (hasError) {
+                e.preventDefault();
+                alert("表單驗證未通過：請確保所有欄位已填寫正確數值，且房型說明不可為空。");
             }
         });
     }
