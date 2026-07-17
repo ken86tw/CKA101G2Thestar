@@ -27,7 +27,10 @@ public class CouponAdminPageController {
     @GetMapping
     public String list(
             Model model,
-            @AuthenticationPrincipal EmployeeUserDetails principal
+            @AuthenticationPrincipal EmployeeUserDetails principal,
+            @RequestParam(required = false) Integer memberCouponFilterCouponId,
+            @RequestParam(required = false) String memberCouponFilterName,
+            @RequestParam(required = false) String memberCouponFilterEmail
     ) {
         model.addAttribute("coupons", memberCouponService.getAllCoupons());
         model.addAttribute("couponForm", new CouponAdminForm());
@@ -37,7 +40,28 @@ public class CouponAdminPageController {
         );
         model.addAttribute(
                 "memberCoupons",
-                memberCouponService.getAllMemberCouponsForAdmin()
+                memberCouponService.getMemberCouponsForAdmin(
+                        memberCouponFilterCouponId,
+                        memberCouponFilterName,
+                        memberCouponFilterEmail
+                )
+        );
+        model.addAttribute("memberCouponFilterCouponId", memberCouponFilterCouponId);
+        model.addAttribute(
+                "memberCouponFilterName",
+                memberCouponFilterName == null ? "" : memberCouponFilterName.trim()
+        );
+        model.addAttribute(
+                "memberCouponFilterEmail",
+                memberCouponFilterEmail == null ? "" : memberCouponFilterEmail.trim()
+        );
+        model.addAttribute(
+                "memberCouponFilterActive",
+                memberCouponFilterCouponId != null
+                        || (memberCouponFilterName != null
+                        && !memberCouponFilterName.isBlank())
+                        || (memberCouponFilterEmail != null
+                        && !memberCouponFilterEmail.isBlank())
         );
         model.addAttribute(
                 "birthdayCouponIssuable",

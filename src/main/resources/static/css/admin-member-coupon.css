@@ -1204,3 +1204,74 @@ tbody tr:hover {
         width: 100%;
     }
 }
+
+/* ===== 會員持有優惠券篩選 ===== */
+
+.member-coupon-filter-form {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) minmax(260px, 1.1fr) auto;
+    align-items: end;
+    gap: 14px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(167, 131, 79, .035);
+}
+
+.member-coupon-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.member-coupon-filter-actions .button {
+    white-space: nowrap;
+}
+
+.member-coupon-filter-note {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 11px 24px;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.member-coupon-filter-note strong {
+    color: var(--gold-dark);
+    font-weight: 500;
+}
+
+@media (max-width: 900px) {
+    .member-coupon-filter-form {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .member-coupon-filter-actions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 620px) {
+    .member-coupon-filter-form {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    .member-coupon-filter-actions {
+        grid-column: auto;
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .member-coupon-filter-actions .button {
+        width: 100%;
+    }
+
+    .member-coupon-filter-note {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 11px 16px;
+    }
+}

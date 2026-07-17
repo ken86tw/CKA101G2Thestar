@@ -137,7 +137,8 @@ public class MemberCouponService {
 		 */
 		memberCouponRepository.save(memberCoupon);
 
-		String notificationContent = "您的「" + coupon.getCouponName() + "」已發送至會員帳戶，" + "請於 " + usageEndTime.toLocalDate() + " 前使用。";
+		String notificationContent = "您的「" + coupon.getCouponName() + "」已發送至會員帳戶，" + "請於 " + usageEndTime.toLocalDate()
+				+ " 前使用。";
 
 		memberNotifyService.createNotification(memberId, notificationContent);
 
@@ -233,18 +234,10 @@ public class MemberCouponService {
 
 			memberCouponRepository.save(memberCoupon);
 
-			String notificationContent =
-			        "您的「"
-			        + birthdayCoupon.getCouponName()
-			        + "」已發送至會員帳戶，"
-			        + "請於 "
-			        + usageEndTime.toLocalDate()
-			        + " 前使用。";
+			String notificationContent = "您的「" + birthdayCoupon.getCouponName() + "」已發送至會員帳戶，" + "請於 "
+					+ usageEndTime.toLocalDate() + " 前使用。";
 
-			memberNotifyService.createNotification(
-			        member.getMemberId(),
-			        notificationContent
-			);
+			memberNotifyService.createNotification(member.getMemberId(), notificationContent);
 
 			issuedCount++;
 
@@ -358,122 +351,100 @@ public class MemberCouponService {
 
 		memberCouponRepository.save(memberCoupon);
 
-		String notificationContent =
-		        "您的「"
-		        + birthdayCoupon.getCouponName()
-		        + "」已發送至會員帳戶，"
-		        + "請於 "
-		        + usageEndTime.toLocalDate()
-		        + " 前使用。";
+		String notificationContent = "您的「" + birthdayCoupon.getCouponName() + "」已發送至會員帳戶，" + "請於 "
+				+ usageEndTime.toLocalDate() + " 前使用。";
 
-		memberNotifyService.createNotification(
-		        memberId,
-		        notificationContent
-		);
+		memberNotifyService.createNotification(memberId, notificationContent);
 
 		/*
 		 * 有設定限量時才扣除數量。
 		 */
 		if (remainingQuantity != null) {
 
-		    birthdayCoupon.setRemainingQuantity(
-		            remainingQuantity - 1
-		    );
+			birthdayCoupon.setRemainingQuantity(remainingQuantity - 1);
 
-		    couponRepository.save(birthdayCoupon);
+			couponRepository.save(birthdayCoupon);
 		}
 		return true;
 	}
-	
+
 	@Transactional
-	public int useCouponForRoomOrder(
-	        Integer memberId,
-	        Integer memberCouponId,
-	        int totalAmount
-	) {
-	    if (memberId == null || memberCouponId == null) {
-	        throw new IllegalArgumentException("會員與優惠券編號不可為空");
-	    }
+	public int useCouponForRoomOrder(Integer memberId, Integer memberCouponId, int totalAmount) {
+		if (memberId == null || memberCouponId == null) {
+			throw new IllegalArgumentException("會員與優惠券編號不可為空");
+		}
 
-	    if (totalAmount <= 0) {
-	        throw new IllegalArgumentException("訂單金額不正確");
-	    }
+		if (totalAmount <= 0) {
+			throw new IllegalArgumentException("訂單金額不正確");
+		}
 
-	    MemberCouponVO memberCoupon =
-	            memberCouponRepository
-	                    .findByIdForUpdate(memberCouponId)
-	                    .orElseThrow(() ->
-	                            new IllegalArgumentException("找不到指定的會員優惠券")
-	                    );
+		MemberCouponVO memberCoupon = memberCouponRepository.findByIdForUpdate(memberCouponId)
+				.orElseThrow(() -> new IllegalArgumentException("找不到指定的會員優惠券"));
 
-	    if (!memberId.equals(memberCoupon.getMemberId())) {
-	        throw new IllegalArgumentException("這張優惠券不屬於目前登入會員");
-	    }
+		if (!memberId.equals(memberCoupon.getMemberId())) {
+			throw new IllegalArgumentException("這張優惠券不屬於目前登入會員");
+		}
 
-	    if (memberCoupon.getUsedStatus() == null
-	            || memberCoupon.getUsedStatus() != NOT_USED) {
+		if (memberCoupon.getUsedStatus() == null || memberCoupon.getUsedStatus() != NOT_USED) {
 
-	        throw new IllegalArgumentException("這張優惠券已使用或已被其他訂單占用");
-	    }
+			throw new IllegalArgumentException("這張優惠券已使用或已被其他訂單占用");
+		}
 
-	    LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+		LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
-	    if (now.isBefore(memberCoupon.getUsageStartTime())) {
-	        throw new IllegalArgumentException("這張優惠券尚未開始使用");
-	    }
+		if (now.isBefore(memberCoupon.getUsageStartTime())) {
+			throw new IllegalArgumentException("這張優惠券尚未開始使用");
+		}
 
-	    if (now.isAfter(memberCoupon.getUsageEndTime())) {
-	        throw new IllegalArgumentException("這張優惠券已過期");
-	    }
-	    CouponVO coupon = memberCoupon.getCoupon();
-	    int discountAmount;
-	    if (coupon.getDiscountType() != null
-	            && coupon.getDiscountType() == 1) {
-	        Integer fixedAmount = coupon.getDiscountAmount();
-	        if (fixedAmount == null || fixedAmount <= 0) {
-	            throw new IllegalStateException("固定金額優惠券設定錯誤");
-	        }
-	        /*
-	         * 固定金額券的訂單金額必須大於折抵金額，
-	         * 避免應付金額變成 0 元。
-	         */
-	        if (totalAmount <= fixedAmount) {
-	            throw new IllegalArgumentException("此優惠券需消費滿 " + (fixedAmount + 1) + " 元才能使用");
-	        }
-	        discountAmount = Math.min(totalAmount, fixedAmount);
-	    } else if (coupon.getDiscountType() != null
-	            && coupon.getDiscountType() == 2) {
+		if (now.isAfter(memberCoupon.getUsageEndTime())) {
+			throw new IllegalArgumentException("這張優惠券已過期");
+		}
+		CouponVO coupon = memberCoupon.getCoupon();
+		int discountAmount;
+		if (coupon.getDiscountType() != null && coupon.getDiscountType() == 1) {
+			Integer fixedAmount = coupon.getDiscountAmount();
+			if (fixedAmount == null || fixedAmount <= 0) {
+				throw new IllegalStateException("固定金額優惠券設定錯誤");
+			}
+			/*
+			 * 固定金額券的訂單金額必須大於折抵金額， 避免應付金額變成 0 元。
+			 */
+			if (totalAmount <= fixedAmount) {
+				throw new IllegalArgumentException("此優惠券需消費滿 " + (fixedAmount + 1) + " 元才能使用");
+			}
+			discountAmount = Math.min(totalAmount, fixedAmount);
+		} else if (coupon.getDiscountType() != null && coupon.getDiscountType() == 2) {
 
-	        Integer payPercent = coupon.getDiscountPercent();
+			Integer payPercent = coupon.getDiscountPercent();
 
-	        if (payPercent == null
-	                || payPercent <= 0
-	                || payPercent > 100) {
-	            throw new IllegalStateException("百分比優惠券設定錯誤");
-	        }
-	        int paidAfterDiscount = (int) Math.round(totalAmount * (payPercent / 100.0));
-	        discountAmount = totalAmount - paidAfterDiscount;
-	    } else {
-	        throw new IllegalStateException("優惠券折扣類型錯誤");
-	    }
-	    memberCoupon.setUsedStatus(USED);
-	    memberCoupon.setUsedTime(now);
-	    memberCouponRepository.save(memberCoupon);
-	    return discountAmount;
+			if (payPercent == null || payPercent <= 0 || payPercent > 100) {
+				throw new IllegalStateException("百分比優惠券設定錯誤");
+			}
+			int paidAfterDiscount = (int) Math.round(totalAmount * (payPercent / 100.0));
+			discountAmount = totalAmount - paidAfterDiscount;
+		} else {
+			throw new IllegalStateException("優惠券折扣類型錯誤");
+		}
+		memberCoupon.setUsedStatus(USED);
+		memberCoupon.setUsedTime(now);
+		memberCouponRepository.save(memberCoupon);
+		return discountAmount;
 	}
-	
+
 	@Transactional
-	public void restoreCouponForUnpaidOrder(
-	        Integer memberCouponId
-	) {
-	    if (memberCouponId == null) { return; }
+	public void restoreCouponForUnpaidOrder(Integer memberCouponId) {
+		if (memberCouponId == null) {
+			return;
+		}
 
-	    MemberCouponVO memberCoupon = memberCouponRepository.findByIdForUpdate(memberCouponId).orElse(null);
+		MemberCouponVO memberCoupon = memberCouponRepository.findByIdForUpdate(memberCouponId).orElse(null);
 
-	    if (memberCoupon == null) { return; }
-	    memberCoupon.setUsedStatus(NOT_USED);
-	    memberCoupon.setUsedTime(null);
-	    memberCouponRepository.save(memberCoupon);
+		if (memberCoupon == null) {
+			return;
+		}
+		memberCoupon.setUsedStatus(NOT_USED);
+		memberCoupon.setUsedTime(null);
+		memberCouponRepository.save(memberCoupon);
 	}
 
 	@Transactional(readOnly = true)
@@ -483,9 +454,7 @@ public class MemberCouponService {
 
 	@Transactional(readOnly = true)
 	public boolean isBirthdayCouponIssuable() {
-		return couponRepository
-				.findByCouponCodeAndIssueStatus(BIRTHDAY_CODE, ISSUE_ACTIVE)
-				.isPresent();
+		return couponRepository.findByCouponCodeAndIssueStatus(BIRTHDAY_CODE, ISSUE_ACTIVE).isPresent();
 	}
 
 	@Transactional
@@ -502,8 +471,6 @@ public class MemberCouponService {
 
 		couponRepository.save(coupon);
 	}
-	
-
 
 	@Transactional
 	public void deleteCoupon(Integer couponId) {
@@ -590,8 +557,7 @@ public class MemberCouponService {
 				throw new IllegalArgumentException("固定金額券必須填寫大於 0 的折抵金額");
 			}
 		} else {
-			if (form.getDiscountPercent() == null
-					|| form.getDiscountPercent() <= 0
+			if (form.getDiscountPercent() == null || form.getDiscountPercent() <= 0
 					|| form.getDiscountPercent() > 100) {
 				throw new IllegalArgumentException("百分比券的折後支付比例必須介於 1 到 100");
 			}
@@ -605,8 +571,7 @@ public class MemberCouponService {
 			throw new IllegalArgumentException("預設有效天數必須大於 0");
 		}
 
-		if (form.getIssueStatus() == null
-				|| (form.getIssueStatus() != 0 && form.getIssueStatus() != 1)) {
+		if (form.getIssueStatus() == null || (form.getIssueStatus() != 0 && form.getIssueStatus() != 1)) {
 			throw new IllegalArgumentException("發放狀態不正確");
 		}
 	}
@@ -614,9 +579,7 @@ public class MemberCouponService {
 	private void applyCouponForm(CouponVO coupon, CouponAdminForm form) {
 		coupon.setCouponName(form.getCouponName().trim());
 
-		String description = form.getDescription() == null
-				? null
-				: form.getDescription().trim();
+		String description = form.getDescription() == null ? null : form.getDescription().trim();
 		coupon.setDescription(description == null || description.isBlank() ? null : description);
 
 		coupon.setDiscountType(form.getDiscountType());
@@ -634,11 +597,8 @@ public class MemberCouponService {
 	}
 
 	private String normalizeCouponCode(String couponCode) {
-		return couponCode == null
-				? ""
-				: couponCode.trim().toUpperCase(Locale.ROOT);
+		return couponCode == null ? "" : couponCode.trim().toUpperCase(Locale.ROOT);
 	}
-
 
 	@Transactional(readOnly = true)
 	public List<MemberVO> getEnabledMembersForCouponIssue() {
@@ -646,30 +606,29 @@ public class MemberCouponService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<MemberCouponAdminDTO> getAllMemberCouponsForAdmin() {
-		List<MemberCouponVO> memberCoupons =
-				memberCouponRepository.findAllByOrderByClaimedTimeDesc();
+	public List<MemberCouponAdminDTO> getMemberCouponsForAdmin(Integer couponId, String memberNameKeyword,
+			String memberEmailKeyword) {
+		List<MemberCouponVO> memberCoupons = memberCouponRepository.findAllByOrderByClaimedTimeDesc();
 
-		Set<Integer> memberIds = memberCoupons.stream()
-				.map(MemberCouponVO::getMemberId)
-				.collect(Collectors.toSet());
+		Set<Integer> memberIds = memberCoupons.stream().map(MemberCouponVO::getMemberId).collect(Collectors.toSet());
 
-		Map<Integer, MemberVO> membersById = memberRepository
-				.findAllById(memberIds)
-				.stream()
-				.collect(Collectors.toMap(
-						MemberVO::getMemberId,
-						Function.identity()
-				));
+		Map<Integer, MemberVO> membersById = memberRepository.findAllById(memberIds).stream()
+				.collect(Collectors.toMap(MemberVO::getMemberId, Function.identity()));
 
+		String normalizedMemberNameKeyword = memberNameKeyword == null ? ""
+				: memberNameKeyword.trim().toLowerCase(Locale.ROOT);
+
+		String normalizedMemberEmailKeyword = memberEmailKeyword == null ? ""
+				: memberEmailKeyword.trim().toLowerCase(Locale.ROOT);
 		LocalDateTime now = nowTaipei();
 
 		return memberCoupons.stream()
-				.map(memberCoupon -> toAdminDTO(
-						memberCoupon,
-						membersById.get(memberCoupon.getMemberId()),
-						now
-				))
+				.map(memberCoupon -> toAdminDTO(memberCoupon, membersById.get(memberCoupon.getMemberId()), now))
+				.filter(dto -> couponId == null || couponId.equals(dto.getCouponId()))
+				.filter(dto -> normalizedMemberNameKeyword.isBlank()
+						|| containsIgnoreCase(dto.getMemberName(), normalizedMemberNameKeyword))
+				.filter(dto -> normalizedMemberEmailKeyword.isBlank()
+						|| containsIgnoreCase(dto.getMemberEmail(), normalizedMemberEmailKeyword))
 				.toList();
 	}
 
@@ -693,19 +652,24 @@ public class MemberCouponService {
 	@Transactional
 	public int issueCouponToAllEnabledMembers(Integer couponId) {
 		CouponVO coupon = getIssuableCampaignCoupon(couponId);
-		List<MemberVO> members =
-				memberRepository.findByMemberStatusOrderByMemberIdAsc((byte) 1);
+		List<MemberVO> members = memberRepository.findByMemberStatusOrderByMemberIdAsc((byte) 1);
+		String issuePeriod = manualIssuePeriod(coupon);
+
+		List<MemberVO> membersToIssue = members.stream().filter(
+				member -> !memberCouponRepository.existsByMemberIdAndCoupon_CouponIdAndIssuePeriod(member.getMemberId(),
+						coupon.getCouponId(), issuePeriod))
+				.toList();
+
+		Integer remainingQuantity = coupon.getRemainingQuantity();
+		if (remainingQuantity != null && remainingQuantity < membersToIssue.size()) {
+			throw new IllegalArgumentException(
+					"剩餘數量不足，尚有 " + membersToIssue.size() + " 位會員需要發放，目前只剩 " + remainingQuantity + " 張，因此未執行任何發放");
+		}
 
 		int issuedCount = 0;
 		LocalDateTime now = nowTaipei();
 
-		for (MemberVO member : members) {
-			Integer remainingQuantity = coupon.getRemainingQuantity();
-
-			if (remainingQuantity != null && remainingQuantity <= 0) {
-				break;
-			}
-
+		for (MemberVO member : membersToIssue) {
 			if (issueCampaignCoupon(coupon, member, now)) {
 				issuedCount++;
 			}
@@ -714,19 +678,11 @@ public class MemberCouponService {
 		return issuedCount;
 	}
 
-	private boolean issueCampaignCoupon(
-			CouponVO coupon,
-			MemberVO member,
-			LocalDateTime now
-	) {
-		String issuePeriod = "MANUAL-" + coupon.getCouponId();
+	private boolean issueCampaignCoupon(CouponVO coupon, MemberVO member, LocalDateTime now) {
+		String issuePeriod = manualIssuePeriod(coupon);
 
-		boolean alreadyIssued = memberCouponRepository
-				.existsByMemberIdAndCoupon_CouponIdAndIssuePeriod(
-						member.getMemberId(),
-						coupon.getCouponId(),
-						issuePeriod
-				);
+		boolean alreadyIssued = memberCouponRepository.existsByMemberIdAndCoupon_CouponIdAndIssuePeriod(
+				member.getMemberId(), coupon.getCouponId(), issuePeriod);
 
 		if (alreadyIssued) {
 			return false;
@@ -742,9 +698,7 @@ public class MemberCouponService {
 			throw new IllegalArgumentException("請先設定預設有效天數，才能發放優惠券");
 		}
 
-		LocalDateTime usageEndTime = now.toLocalDate()
-				.plusDays(validDays - 1L)
-				.atTime(23, 59, 59);
+		LocalDateTime usageEndTime = now.toLocalDate().plusDays(validDays - 1L).atTime(23, 59, 59);
 
 		MemberCouponVO memberCoupon = new MemberCouponVO();
 		memberCoupon.setMemberId(member.getMemberId());
@@ -763,14 +717,8 @@ public class MemberCouponService {
 			couponRepository.save(coupon);
 		}
 
-		memberNotifyService.createNotification(
-				member.getMemberId(),
-				"您獲得「"
-						+ coupon.getCouponName()
-						+ "」，請於 "
-						+ usageEndTime.toLocalDate()
-						+ " 前使用。"
-		);
+		memberNotifyService.createNotification(member.getMemberId(),
+				"您獲得「" + coupon.getCouponName() + "」，請於 " + usageEndTime.toLocalDate() + " 前使用。");
 
 		return true;
 	}
@@ -780,7 +728,7 @@ public class MemberCouponService {
 			throw new IllegalArgumentException("優惠券編號不可為空");
 		}
 
-		CouponVO coupon = couponRepository.findById(couponId)
+		CouponVO coupon = couponRepository.findByIdForUpdate(couponId)
 				.orElseThrow(() -> new IllegalArgumentException("找不到指定的優惠券"));
 
 		if (isSystemCoupon(coupon.getCouponCode())) {
@@ -794,16 +742,19 @@ public class MemberCouponService {
 		return coupon;
 	}
 
-	private boolean isSystemCoupon(String couponCode) {
-		return NEW_MEMBER_CODE.equalsIgnoreCase(couponCode)
-				|| BIRTHDAY_CODE.equalsIgnoreCase(couponCode);
+	private String manualIssuePeriod(CouponVO coupon) {
+		return "MANUAL-" + coupon.getCouponId();
 	}
 
-	private MemberCouponAdminDTO toAdminDTO(
-			MemberCouponVO memberCoupon,
-			MemberVO member,
-			LocalDateTime now
-	) {
+	private boolean containsIgnoreCase(String value, String normalizedKeyword) {
+		return value != null && value.toLowerCase(Locale.ROOT).contains(normalizedKeyword);
+	}
+
+	private boolean isSystemCoupon(String couponCode) {
+		return NEW_MEMBER_CODE.equalsIgnoreCase(couponCode) || BIRTHDAY_CODE.equalsIgnoreCase(couponCode);
+	}
+
+	private MemberCouponAdminDTO toAdminDTO(MemberCouponVO memberCoupon, MemberVO member, LocalDateTime now) {
 		CouponVO coupon = memberCoupon.getCoupon();
 		MemberCouponAdminDTO dto = new MemberCouponAdminDTO();
 
@@ -825,73 +776,43 @@ public class MemberCouponService {
 	}
 
 	private LocalDateTime nowTaipei() {
-		return LocalDateTime.now(TAIPEI_ZONE)
-				.truncatedTo(ChronoUnit.SECONDS);
+		return LocalDateTime.now(TAIPEI_ZONE).truncatedTo(ChronoUnit.SECONDS);
 	}
 
 	@Transactional
 	public int createExpiringCouponNotifications() {
 
-	    LocalDate targetDate =
-	            LocalDate.now(
-	                    ZoneId.of("Asia/Taipei")
-	            ).plusDays(7);
+		LocalDate targetDate = LocalDate.now(ZoneId.of("Asia/Taipei")).plusDays(7);
 
-	    LocalDateTime startTime =
-	            targetDate.atStartOfDay();
+		LocalDateTime startTime = targetDate.atStartOfDay();
 
-	    LocalDateTime endTime =
-	            targetDate.atTime(
-	                    23,
-	                    59,
-	                    59
-	            );
+		LocalDateTime endTime = targetDate.atTime(23, 59, 59);
 
-	    List<MemberCouponVO> expiringCoupons =
-	            memberCouponRepository
-	                    .findByUsedStatusAndUsageEndTimeBetween(
-	                            NOT_USED,
-	                            startTime,
-	                            endTime
-	                    );
+		List<MemberCouponVO> expiringCoupons = memberCouponRepository.findByUsedStatusAndUsageEndTimeBetween(NOT_USED,
+				startTime, endTime);
 
-	    int notificationCount = 0;
+		int notificationCount = 0;
 
-	    for (MemberCouponVO memberCoupon
-	            : expiringCoupons) {
+		for (MemberCouponVO memberCoupon : expiringCoupons) {
 
-	        CouponVO coupon =
-	                memberCoupon.getCoupon();
+			CouponVO coupon = memberCoupon.getCoupon();
 
-	        String notificationContent =
-	                "您的「"
-	                + coupon.getCouponName()
-	                + "」將於 "
-	                + memberCoupon
-	                        .getUsageEndTime()
-	                        .toLocalDate()
-	                + " 到期，請記得於期限內使用。";
+			String notificationContent = "您的「" + coupon.getCouponName() + "」將於 "
+					+ memberCoupon.getUsageEndTime().toLocalDate() + " 到期，請記得於期限內使用。";
 
-	        boolean alreadyNotified =
-	                memberNotifyService
-	                        .notificationExists(
-	                                memberCoupon.getMemberId(),
-	                                notificationContent
-	                        );
+			boolean alreadyNotified = memberNotifyService.notificationExists(memberCoupon.getMemberId(),
+					notificationContent);
 
-	        if (alreadyNotified) {
-	            continue;
-	        }
+			if (alreadyNotified) {
+				continue;
+			}
 
-	        memberNotifyService.createNotification(
-	                memberCoupon.getMemberId(),
-	                notificationContent
-	        );
+			memberNotifyService.createNotification(memberCoupon.getMemberId(), notificationContent);
 
-	        notificationCount++;
-	    }
+			notificationCount++;
+		}
 
-	    return notificationCount;
+		return notificationCount;
 	}
 
 	private MemberCouponDTO toDTO( // 轉換會員優惠券資料
