@@ -1,24 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>文章專欄｜東方之星 The Star</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;family=Noto+Sans+TC:wght@300;400;500;700&amp;family=Cormorant+Garamond:ital,wght@1,400;1,600&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/common.css">
   <link rel="stylesheet" href="/css/articles.css">
 </head>
 <body>
 <header class="article-header">
-  <nav class="navbar">
-    <a href="/" class="navbar-brand"><span class="brand-zh">東方之星</span><span class="brand-en">The Star</span></a>
-    <div class="nav-links">
-      <a href="/">首頁</a><a href="/#about-preview">關於我們</a><a class="active" href="/articles.html">文章</a>
-      <a href="/roombooking.html">訂房</a><a href="/restaurant">餐廳</a><a href="/facilities.html">設施</a><a href="/shop">購物</a>
-    </div>
-  </nav>
+  <div th:replace="~{user/common/frontNavbar :: navbar('articles', false, '', false)}"></div>
   <div class="article-hero"><p>THE STAR JOURNAL</p><h1>旅遊文章與最新消息</h1><div class="gold-line"></div></div>
 </header>
 
@@ -48,7 +43,8 @@
   </article>
 </main>
 
-<footer class="article-footer"><a href="/">東方之星 The Star</a><span>享受每一段值得記錄的旅程</span></footer>
+<footer class="article-footer"><a href="/index.html">東方之星 The Star</a><span>享受每一段值得記錄的旅程</span></footer>
+<script src="/js/header-auth.js"></script>
 <script src="/js/articles.js"></script>
 </body>
 </html>

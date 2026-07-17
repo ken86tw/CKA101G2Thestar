@@ -25,6 +25,11 @@ public class FrontPageController {
         return "facilities";
     }
 
+    @GetMapping("/articles.html")
+    public String articles() {
+        return "articles";
+    }
+
     @GetMapping("/coupons.html")
     public String coupons() {
         return "coupons";
