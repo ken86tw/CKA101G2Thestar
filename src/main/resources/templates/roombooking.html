@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<!-- xmlns:th 宣告 Thymeleaf 命名空間,th: 開頭的屬性才會被伺服器處理 -->
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE STAR — Hotel &amp; Residences</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+    <!-- Font Awesome:共用導覽列的鈴鐺、會員頭像圖示需要它 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;500;600&display=swap"
+          rel="stylesheet">
+    <!-- common.css 是共用導覽列的樣式,要放在 roombooking.css「前面」:
+         兩邊都有 body、a 的全域設定,CSS 同分時後載入的贏,這樣你自己的字體、底色才不會被蓋掉 -->
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/roombooking.css">
+</head>
+<body>
+<!-- 共用導覽列(只給會員/訪客;員工登入時 Controller 會把 isEmployee 設成 true 就不顯示):
+     1. navbar('booking', ...) 的 'booking' 讓導覽列上的「訂房」保持高亮
+     2. 'site-navbar-dark room-navbar':site-navbar-dark 給尺寸排版,room-navbar 是本頁專屬配色
+        (定義在 roombooking.css 檔尾),跟購物頁帶 'shop-navbar site-navbar-dark' 同一招
+     3. 最後的 false = 非 Vue 模式,登入狀態由 header-auth.js 處理
+     4. 用 th:block 包 th:if 是因為 th:replace 的處理順序比 th:if 早,寫在同一個標籤上會失效
+     5. 放在 #app「外面」——#app 裡面歸 Vue 管,header-auth.js 直接改 DOM 會跟 Vue 打架 -->
+<th:block th:if="${!isEmployee}">
+    <div th:replace="~{user/common/frontNavbar :: navbar('booking', false, 'site-navbar-dark room-navbar', false)}"></div>
+</th:block>
+
+<div id="app">
+
+    <!-- ============ 主站（登入頁已統一：貴賓走 /login.html，員工走 Spring Security 的 /thestar/admin/login） ============ -->
+        <!-- 員工專用功能列:會員/訪客只看上面的共用導覽列,不出現這條(避免雙導覽列)。
+             會員的「我的預訂」走導覽列會員選單的「我的訂房預訂」(?tab=orders),訂房走導覽列的「訂房」。
+             員工登入時共用導覽列不顯示,所以這條要有 logo 和身分顯示 -->
+        <header v-if="employee.on">
+            <div class="hbar">
+                <a class="logo" href="/index.html"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp;
+                    Residences</small></a>
+                <nav class="menu">
+                    <button :class="{on:nav==='admin'}" @click="nav='admin';loadAdmin()">後台訂單
+                    </button>
+                    <button :class="{on:nav==='stay'}" @click="nav='stay'">房務管理</button>
+                    <button :class="{on:nav==='refund'}" @click="nav='refund';loadRefunds()">
+                        退款管理
+                    </button>
+                    <button :class="{on:nav==='inv'}" @click="nav='inv';loadInventory()">
+                        庫存查詢
+                    </button>
+                </nav>
+                <div class="hright">
+                    <div class="ident">
+                        <div>員工，
+                            <b>{{ employee.name ? employee.name + '（#' + employee.on + '）' : '#' + employee.on }}</b></div>
+                    </div>
+                    <!-- 員工登出在後台做,這頁只給「回後台」 -->
+                    <a class="btn line" href="/thestar/admin/home">回後台</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- ===== 預訂客房 ===== -->
+        <section v-if="(member.on || browsing) && nav==='book'">
+            <!-- 首屏:滿版背景+置中搜尋(步驟一) -->
+            <div v-if="!confirmOrder && book.step==='search'" class="herofull">
+                <div class="inner">
+                    <div class="up">Reservations</div>
+                    <h1>BOOK NOW</h1>
+                    <div class="rule"></div>
+                    <div class="searchbar">
+                        <div class="sfield"><label>入住日 · Arrival</label>
+                            <input type="date" v-model="form.checkInDate"></div>
+                        <div class="sdiv"></div>
+                        <div class="sfield"><label>退房日 · Departure</label>
+                            <input type="date" v-model="form.checkOutDate"></div>
+                        <button class="btn" @click="searchRooms">搜尋空房</button>
+                    </div>
+
+                    <!-- 房型展示:填滿首屏下方空間 -->
+                    <div class="showcase">
+                        <div class="show" v-for="t in roomTypes" :key="t.id">
+                            <img :src="'/roomtypephoto/display/room/' + t.id" :alt="t.name" loading="lazy">
+                            <div class="cap">
+                                <h3>{{ t.name }}</h3>
+                                <p>每晚 ${{ t.price.toLocaleString() }} 起</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-else class="wrap">
+                <div class="sechead">
+                    <div class="up">Booking</div>
+                </div>
+                <div v-if="confirmOrder" class="panel" style="max-width: 760px;margin:0 auto;text-align: center"><h3
+                        style="font-size: 28px">Your booking is confirmed!</h3>
+                    <p class="oid" style="margin-top: 14px">Reference No. {{confirmOrder.orderId}}</p>
+                    <p>{{confirmOrder.checkInDate}} 入住 - {{confirmOrder.checkOutDate}} 退房</p>
+                    <table style="margin-top:20px;text-align:left">
+                        <thead>
+                        <tr>
+                            <th>房型</th>
+                            <th>每晚</th>
+                            <th>數量</th>
+                            <th>小計</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(d,k) in confirmDetail" :key="k">
+                            <td>{{ d.roomTypeName }}</td>
+                            <td>${{ d.roomPrice.toLocaleString() }}</td>
+                            <td>×{{ d.QTY }}</td>
+                            <td class="money">${{ d.subtotal.toLocaleString() }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <p class="money" style="font-size:24px">應付
+                        ${{(confirmOrder.totalAmount - confirmOrder.discountAmount).toLocaleString()}}</p>
+                    <div style="margin-top: 26px;display:flex;justify-content:center;align-items:center">
+                        <button class="btn" @click="pay(confirmOrder.orderId)">立即付款</button>
+                        <button class="btn ghost" style="margin-left:10px"
+                                @click="confirmOrder=null;nav='orders';orders.status=0;orders.page=0;loadOrders()">
+                            略過金流
+                        </button>
+                    </div>
+                    <div class="hint" style="margin-top:40px;color: red">請於三分鐘內完成付款，否則將取消訂單</div>
+                </div>
+                <template v-else>
+
+                    <!-- 三步驟進度指示 -->
+                    <div class="steps">
+                        <div class="step" :class="{on: book.step==='search', done: book.step!=='search'}">
+                            <span class="no">1</span><span class="lb">選擇日期</span>
+                        </div>
+                        <div class="bar"></div>
+                        <div class="step" :class="{on: book.step==='list', done: book.step==='confirm'}">
+                            <span class="no">2</span><span class="lb">挑選客房</span>
+                        </div>
+                        <div class="bar"></div>
+                        <div class="step" :class="{on: book.step==='confirm'}">
+                            <span class="no">3</span><span class="lb">確認訂房</span>
+                        </div>
+                    </div>
+
+                    <!-- 步驟二:房型列表 -->
+                    <div v-if="book.step==='list'" style="max-width:860px;margin:0 auto">
+                        <p class="staybrief">
+                            <span class="ser">{{ form.checkInDate }}</span> 入住 —
+                            <span class="ser">{{ form.checkOutDate }}</span> 退房 · 共 {{ book.nights }} 晚
+                        </p>
+                        <div class="roomcard" v-for="r in book.results" :key="r.roomTypeId"
+                             :class="{soldout: r.remaining<=0}">
+                            <img class="rc-photo" :src="'/roomtypephoto/display/room/' + r.roomTypeId"
+                                 :alt="r.roomTypeName" loading="lazy">
+                            <div class="rc-body">
+                                <div class="rc-info">
+                                    <h3>{{ r.roomTypeName }}</h3>
+                                    <span v-if="r.remaining<=0" class="rc-tag out">已售完</span>
+                                    <span v-else-if="r.remaining>5" class="rc-tag lot">還剩 {{ r.remaining }} 間</span>
+                                    <span v-else-if="r.remaining<=5" class="rc-tag few">僅剩 {{ r.remaining }} 間</span>
+                                </div>
+                                <div class="rc-price">
+                                    <div class="per">每晚 ${{ r.price.toLocaleString() }}</div>
+                                    <div class="total">${{ (r.price * book.nights).toLocaleString() }}</div>
+                                    <div class="per">{{ book.nights }} 晚房價</div>
+                                </div>
+                                <div class="rc-qty">
+                                    <label>數量</label>
+                                    <select v-model.number="book.sel[r.roomTypeId]" :disabled="r.remaining<=0">
+                                        <option v-for="n in qtyOptions(r)" :key="n" :value="n">{{ n }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rc-foot">
+                            <button class="btn ghost" @click="book.step='search'">‹ 更改日期</button>
+                            <div class="rc-foot-right">
+                                <span class="money" v-if="bookTotal>0">合計 ${{ bookTotal.toLocaleString() }}</span>
+                                <button class="btn" :disabled="bookTotal<=0" @click="goConfirm">現在就預訂</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 步驟三:確認訂單 -->
+                    <div v-if="book.step==='confirm'" class="panel" style="max-width:760px;margin:0 auto">
+                        <h3 style="font-size:24px;margin-bottom:6px">Reservation Details</h3>
+                        <p class="staybrief" style="text-align:left;margin-bottom:10px">
+                            <span class="ser">{{ form.checkInDate }}</span> 入住 —
+                            <span class="ser">{{ form.checkOutDate }}</span> 退房 · 共 {{ book.nights }} 晚
+                        </p>
+                        <table style="margin-top:20px">
+                            <thead>
+                            <tr>
+                                <th>房型</th>
+                                <th>每晚</th>
+                                <th>數量</th>
+                                <th>小計</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="it in bookItems" :key="it.roomTypeId">
+                                <td>{{ it.roomTypeName }}</td>
+                                <td>${{ it.price.toLocaleString() }}</td>
+                                <td>×{{ it.qty }}</td>
+                                <td class="money">${{ it.subtotal.toLocaleString() }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div style="margin-top:24px;text-align:left">
+                            <label>優惠券 Coupon</label>
+                            <select v-model.number="form.memberCouponId" :disabled="couponsLoading">
+                                <option :value="null">
+                                    {{ couponsLoading ? '優惠券載入中…' : '不使用優惠券' }}
+                                </option>
+                                <option
+                                        v-for="c in coupons.filter(c => c.displayStatus === 'AVAILABLE')"
+                                        :key="c.memberCouponId"
+                                        :value="c.memberCouponId">
+                                    {{ c.couponName }} ｜{{ couponDiscountText(c) }} ｜{{ couponEndDate(c.usageEndTime) }} 到期
+                                </option>
+                            </select>
+                            <p v-if="!couponsLoading && coupons.filter(c => c.displayStatus === 'AVAILABLE').length === 0"
+                               class="coupon-note">
+                                目前沒有可使用的優惠券， <a href="/coupons.html">查看我的優惠券</a>
+                            </p>
+                        </div>
+
+                        <!-- 選中的券:預覽卡 -->
+                        <div v-if="selectedCoupon" class="coupon-preview">
+                            <div>
+                                <span class="coupon-preview-label">Selected Coupon</span>
+                                <strong>{{ selectedCoupon.couponName }}</strong>
+                                <p>{{ selectedCoupon.description || '此優惠券可套用於本次訂房' }}</p>
+                            </div>
+                            <div class="coupon-preview-value">
+                                <b>{{ couponDiscountText(selectedCoupon) }}</b>
+                                <small>有效至 {{ couponEndDate(selectedCoupon.usageEndTime) }}</small>
+                            </div>
+                        </div>
+
+                        <!-- 金額明細 -->
+                        <div class="booking-summary">
+                            <div><span>住宿天數</span> <b>{{ book.nights }} 晚</b></div>
+                            <div><span>房價總額</span> <b>${{ bookTotal.toLocaleString() }}</b></div>
+                            <div v-if="couponDiscount > 0" class="discount-row">
+                                <span>優惠券折抵</span> <b>－${{ couponDiscount.toLocaleString() }}</b>
+                            </div>
+                            <div class="payable-row"><span>應付金額</span> <b>${{ (bookTotal - couponDiscount).toLocaleString() }}</b></div>
+                        </div>
+                        <p class="hint" style="text-align:right">實際金額以訂單成立後為準</p>
+                        <div style="margin-top:26px;display:flex;justify-content:space-between">
+                            <button class="btn ghost" @click="book.step='list'">‹ 返回修改</button>
+                            <button class="btn" @click="createOrder">確認預訂</button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+        <!-- ===== 我的預訂 ===== -->
+        <section v-if="member.on && nav==='orders'">
+            <div class="wrap">
+                <div class="sechead">
+                    <div class="up">My Stay</div>
+                    <h2>我的預訂</h2>
+                    <p>檢視並管理您的訂房</p></div>
+                <div class="stab">
+                    <div v-for="s in STATUS" :key="s.v" class="box" :class="{on:orders.status===s.v}"
+                         @click="orders.status=s.v;orders.page=0;loadOrders()">
+                        <div class="num">{{ orders.counts[s.v] || 0 }}</div>
+                        <div class="lb">{{ s.label }}</div>
+                    </div>
+                </div>
+                <div class="panel" style="border-top:0;padding:14px 30px 30px">
+                    <table v-if="orders.list.length">
+                        <thead>
+                        <tr>
+                            <th>預訂編號</th>
+                            <th>狀態</th>
+                            <th>退款</th>
+                            <th>入住</th>
+                            <th>退房</th>
+                            <th>應付</th>
+                            <th style="text-align:right">服務</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template v-for="o in orders.list" :key="o.orderId">
+                            <tr>
+                                <td><span class="oid">No. {{ o.orderId }}</span></td>
+                                <td><span class="badge" :class="'b'+o.orderStatus">{{ STATUS[o.orderStatus].label
+                                    }}</span>
+                                </td>
+                                <td>
+                                    <span v-if="o.orderStatus===3 && o.refundvo">
+                                        {{o.refundvo.refundStatus === 1 ? '已退款' : '退款處理中'}}
+                                    </span>
+                                    <span v-else>-</span>
+                                </td>
+
+                                <td>{{ o.checkInDate }}</td>
+                                <td>{{ o.checkOutDate }}</td>
+                                <td><span class="money">${{ (o.totalAmount - o.discountAmount).toLocaleString()
+                                    }}</span>
+                                    <span v-if="o.discountAmount>0" class="strike">${{ o.totalAmount.toLocaleString()
+                                        }}</span></td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="btn line sm" @click="toggleDetail(orders,o.orderId,'member')">
+                                            {{ orders.open[o.orderId] ? '收合' : '明細' }}
+                                        </button>
+                                        <button v-if="o.orderStatus===0" class="btn sm" @click="pay(o.orderId)">
+                                            前往結帳
+                                        </button>
+                                        <button v-if="o.orderStatus===0" class="btn ghost sm"
+                                                @click="devConfirm(o.orderId)" title="不經綠界直接標記已付款">略過金流付款
+                                        </button>
+                                        <button v-if="o.orderStatus===1" class="btn danger sm"
+                                                @click="cancel(o.orderId)">取消訂單（退款）
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr v-if="orders.open[o.orderId]" class="det">
+                                <td colspan="7">
+                                    <table>
+                                        <thead>
+                                        <tr>
+                                            <th>房型</th>
+                                            <th>每晚</th>
+                                            <th>數量</th>
+                                            <th>小計</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="(d,k) in orders.detail[o.orderId]" :key="k">
+                                            <td>{{ d.roomTypeName }}</td>
+                                            <td>${{ d.roomPrice.toLocaleString() }}</td>
+                                            <td>×{{ d.QTY }}</td>
+                                            <td class="money">${{ d.subtotal.toLocaleString() }}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </template>
+                        </tbody>
+                    </table>
+                    <div v-else class="empty">
+                        <div class="big">尚無此類預訂</div>
+                        <p>切換上方分類，或前往「預訂客房」</p></div>
+                    <div class="pager" v-if="orders.totalPages>1">
+                        <button class="reslink" :disabled="orders.page<=0" @click="orders.page--;loadOrders()">‹
+                            上一頁
+                        </button>
+                        <span>{{ orders.page + 1 }} / {{ orders.totalPages }}</span>
+                        <button class="reslink" :disabled="orders.page>=orders.totalPages-1"
+                                @click="orders.page++;loadOrders()">下一頁 ›
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 後台訂單 ===== -->
+        <section v-if="employee.on && nav==='admin'">
+            <div class="wrap">
+                <div class="sechead">
+                    <div class="up">Back Office</div>
+                    <h2>全站訂單</h2>
+                    <p>需員工身分</p></div>
+                <div class="stab">
+                    <div v-for="s in STATUS" :key="s.v" class="box" :class="{on:admin.status===s.v}"
+                         @click="admin.status=s.v;admin.page=0;loadAdmin()">
+                        <div class="num">{{ admin.counts[s.v] || 0 }}</div>
+                        <div class="lb">{{ s.label }}</div>
+                    </div>
+                </div>
+                <div class="panel" style="border-top:0;padding:14px 30px 30px">
+                    <table v-if="admin.list.length">
+                        <thead>
+                        <tr>
+                            <th>編號</th>
+                            <th>會員</th>
+                            <th>狀態</th>
+                            <th>入住</th>
+                            <th>退房</th>
+                            <th>金額</th>
+                            <th style="text-align:right">明細</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <template v-for="o in admin.list" :key="o.orderId">
+                            <tr>
+                                <td><span class="oid">No. {{ o.orderId }}</span></td>
+                                <td>#{{ o.memberId }}</td>
+                                <td><span class="badge" :class="'b'+o.orderStatus">{{ STATUS[o.orderStatus].label
+                                    }}</span></td>
+                                <td>{{ o.checkInDate }}</td>
+                                <td>{{ o.checkOutDate }}</td>
+                                <td class="money">${{ (o.totalAmount - o.discountAmount).toLocaleString() }}</td>
+                                <td style="text-align:right">
+                                    <button class="btn line sm" @click="toggleDetail(admin,o.orderId,'admin')">
+                                        {{ admin.open[o.orderId] ? '收合' : '明細' }}
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr v-if="admin.open[o.orderId]" class="det">
+                                <td colspan="7">
+                                    <table>
+                                        <thead>
+                                        <tr>
+                                            <th>房型</th>
+                                            <th>每晚</th>
+                                            <th>數量</th>
+                                            <th>小計</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr v-for="(d,k) in admin.detail[o.orderId]" :key="k">
+                                            <td>{{ d.roomTypeName }}</td>
+                                            <td>${{ d.roomPrice.toLocaleString() }}</td>
+                                            <td>×{{ d.QTY }}</td>
+                                            <td class="money">${{ d.subtotal.toLocaleString() }}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </template>
+                        </tbody>
+                    </table>
+                    <div v-else class="empty">
+                        <div class="big">{{ employee.on ? '此分類無訂單' : '請以員工身分登入' }}</div>
+                    </div>
+                    <div class="pager" v-if="admin.totalPages>1">
+                        <button class="reslink" :disabled="admin.page<=0" @click="admin.page--;loadAdmin()">‹ 上一頁
+                        </button>
+                        <span>{{ admin.page + 1 }} / {{ admin.totalPages }}</span>
+                        <button class="reslink" :disabled="admin.page>=admin.totalPages-1"
+                                @click="admin.page++;loadAdmin()">下一頁 ›
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 房務管理 ===== -->
+        <section v-if="employee.on && nav==='stay'">
+            <div class="wrap">
+                <div class="sechead">
+                    <div class="up">Housekeeping</div>
+                    <h2>房務管理</h2>
+                    <p>輸入訂單查明細 · 配房入住 / 退房 · 住宿紀錄</p></div>
+
+                <!-- 房務兩大入口:點了各自打開彈窗並自動載入清單 -->
+                <div class="grid g2">
+                    <button class="bigact" @click="openCheckinModal">辦理入住</button>
+                    <button class="bigact" @click="openCheckoutModal">辦理退房</button>
+                </div>
+
+                <div class="panel" style="margin-top:30px">
+                    <h3 style="font-size:24px;margin-bottom:24px">住宿紀錄查詢</h3>
+                    <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">
+                        <div class="field"><label>房號</label><input type="number" v-model.number="stay.find.roomId">
+                        </div>
+                        <div class="field"><label>旅客姓名</label><input v-model="stay.find.stayCustomer"></div>
+                        <div class="field"><label>入住日（起）</label><input type="date" v-model="stay.find.checkInTime">
+                        </div>
+                        <div class="field"><label>退房日（迄）</label><input type="date" v-model="stay.find.checkOutTime">
+                        </div>
+                    </div>
+                    <button class="btn ghost sm" @click="findStay" :disabled="!employee.on">查詢</button>
+                    <!-- 純前端過濾 勾了立即生效不用重新查詢
+                         label的inline style是為了蓋掉全域label樣式(display:block/大寫字距那套)
+                         checkbox的width:auto是為了蓋掉全域input的width:100% 不然勾選框會被拉到整排寬 -->
+                    <label style="display:inline-flex;align-items:center;gap:8px;margin-left:18px;font-size:13px;letter-spacing:normal;text-transform:none;cursor:pointer">
+                        <input type="checkbox" v-model="stay.find.hideCheckedOut" style="width:auto;margin:0">
+                        隱藏已退房
+                    </label>
+                    <table v-if="stayRecordsFiltered.length" style="margin-top:24px">
+                        <thead>
+                        <tr>
+                            <th>紀錄</th>
+                            <th>房號</th>
+                            <th>旅客</th>
+                            <th>入住時間</th>
+                            <th>退房時間</th>
+                            <th>詳情</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="r in stayRecordsFiltered" :key="r.stayId">
+                            <td class="oid">{{ r.stayId }}</td>
+                            <td>{{ r.roomId }}</td>
+                            <td>{{ r.stayCustomer }}</td>
+                            <td>{{ fmt(r.checkInTime) }}</td>
+                            <td>{{ r.checkOutTime ? fmt(r.checkOutTime) : '在住中' }}</td>
+                            <td>
+                                <button class="btn ghost sm" @click="openStayDetail(r)">詳情</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <details>
+                    <summary>API 回應紀錄</summary>
+                    <div class="log">{{ logText }}</div>
+                </details>
+
+                <!-- 配房入住彈窗:點遮罩空白處或 × 關閉,全部配滿會自動關閉 -->
+                <div v-if="stay.showModal" class="overlay" @click.self="stay.showModal=false">
+                    <div class="modal">
+                        <button class="close" @click="stay.showModal=false">×</button>
+                        <h3 style="font-size:24px;margin-bottom:20px">
+                            辦理入住{{ stay.orderId ? ' — 訂單 #' + stay.orderId : '' }}</h3>
+
+                        <div class="roomrow" style="margin-bottom:0">
+                            <div class="field" style="width:220px"><label>訂單 ID</label>
+                                <input type="number" v-model.number="stay.orderId" placeholder="輸入訂單編號">
+                            </div>
+                            <button class="btn sm" style="margin-bottom:2px" @click="loadCheckInLines">查詢明細</button>
+                        </div>
+
+                        <!-- 未入住訂單清單:點一列自動帶入訂單 ID 並查明細 -->
+                        <button class="reslink" style="margin-top:20px" @click="loadPending">↻ 查看未入住訂單</button>
+                        <table v-if="stay.pending.length" style="margin-top:12px">
+                            <thead>
+                            <tr>
+                                <th>訂單</th>
+                                <th>會員</th>
+                                <th>入住日</th>
+                                <th>退房日</th>
+                                <th>實付</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="o in stay.pending" :key="o.orderId"
+                                @click="stay.orderId=o.orderId;loadCheckInLines()"
+                                :style="{cursor:'pointer',background: stay.orderId===o.orderId?'#f2ebdd':''}">
+                                <td class="oid">#{{ o.orderId }}</td>
+                                <td>{{ o.memberId }}</td>
+                                <td>{{ o.checkInDate }}</td>
+                                <td>{{ o.checkOutDate }}</td>
+                                <td>${{ o.paidAmount }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <table v-if="stay.lines.length" style="margin-top:24px">
+                            <thead>
+                            <tr>
+                                <th>房型</th>
+                                <th>訂房數</th>
+                                <th>已入住</th>
+                                <th>剩餘</th>
+                                <th style="text-align:right">配房</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="l in stay.lines" :key="l.orderListId">
+                                <td>{{ l.roomTypeName }}</td>
+                                <td>{{ l.quantity }}</td>
+                                <td>{{ l.checkedIn }}</td>
+                                <td>{{ l.remaining }}</td>
+                                <td style="text-align:right">
+                                    <button class="btn ghost sm" @click="openRooms(l)" :disabled="l.remaining<=0">
+                                        {{ l.remaining > 0 ? '配房' : '已配滿' }}
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div v-if="stay.rooms.length" style="margin-top:24px">
+                            <p class="hint" style="margin-bottom:12px">選房間 — {{ stay.activeTypeName }}（綠＝可選 ·
+                                紅＝入住中／停用）</p>
+                            <div class="roomgrid">
+                                <div class="rchip" v-for="r in stay.rooms" :key="r.roomId" @click="pickRoom(r)"
+                                     :style="{outline: stay.checkin.roomId===r.roomId?'2px solid #ffd54a':'none', opacity:(r.roomStatus===1||r.roomSwitchStatus===false)?0.5:1, cursor:(r.roomStatus===1||r.roomSwitchStatus===false)?'not-allowed':'pointer'}">
+                                    <span class="dot"
+                                          :class="(r.roomStatus===0&&r.roomSwitchStatus!==false)?'free':'busy'"></span>
+                                    <span class="no">{{ r.roomId }}</span>
+                                    <small>{{ r.roomSwitchStatus === false ? '停用' : (r.roomStatus === 0 ? '空閒' : '入住中')
+                                        }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="stay.checkin.roomId" class="roomrow" style="margin-top:26px">
+                            <div class="field" style="flex:1"><label>入住貴賓</label>
+                                <input v-model="stay.checkin.stayCustomer" placeholder="姓名"></div>
+                            <div class="field" style="flex:1"><label>旅客照片（選填）</label>
+                                <input type="file" accept="image/*" ref="photoInput" style="display:none"
+                                       @change="pickStayPhoto">
+                                <button class="btn ghost sm" @click="$refs.photoInput.click()">
+                                    {{ stay.checkinPhoto ? '📷 ' + stay.checkinPhoto.name : '選擇照片' }}
+                                </button>
+                                <img v-if="stay.checkinPhotoUrl" :src="stay.checkinPhotoUrl"
+                                     style="max-height:80px;margin-top:8px;border-radius:6px;display: block">
+                            </div>
+
+                            <button class="btn sm" style="margin-bottom:2px" @click="checkIn">
+                                確認入住 · 房號 {{ stay.checkin.roomId }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 退房彈窗:輸入房號或點在住清單帶入 -->
+                <div v-if="stay.showCheckout" class="overlay" @click.self="stay.showCheckout=false">
+                    <div class="modal">
+                        <button class="close" @click="stay.showCheckout=false">×</button>
+                        <h3 style="font-size:24px;margin-bottom:20px">辦理退房</h3>
+
+                        <div class="roomrow" style="margin-bottom:0">
+                            <div class="field" style="width:220px"><label>退房房號</label>
+                                <input type="number" v-model.number="stay.checkoutRoomId">
+                            </div>
+                            <button class="btn danger sm" style="margin-bottom:2px" @click="checkOut">確認退房</button>
+                        </div>
+
+                        <!-- 在住房間清單:點一列自動帶入退房房號 -->
+                        <button class="reslink" style="margin-top:20px" @click="loadStaying">↻ 查看在住房間</button>
+                        <table v-if="stay.staying.length" style="margin-top:12px">
+                            <thead>
+                            <tr>
+                                <th>房號</th>
+                                <th>旅客</th>
+                                <th>入住時間</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="s in stay.staying" :key="s.stayId" @click="stay.checkoutRoomId=s.roomId"
+                                :style="{cursor:'pointer',background: stay.checkoutRoomId===s.roomId?'#f2ebdd':''}">
+                                <td class="oid">{{ s.roomId }}</td>
+                                <td>{{ s.stayCustomer }}</td>
+                                <td>{{ fmt(s.checkInTime) }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div v-if="stay.showDetail" class="overlay" @click.self="stay.showDetail=false">
+                    <div class="modal">
+                        <button class="close" @click="stay.showDetail=false">x</button>
+                        <h3 style="font-size:24px;margin-bottom:20px">住宿詳情 — 紀錄 #{{ stay.detailRecord.stayId
+                            }}</h3>
+                        <div class="grid g2">
+                            <div>
+                                <p>房號 <b>{{ stay.detailRecord.roomId }}</b> · {{ stay.detailRecord.stayCustomer }}</p>
+                                <p class="hint">{{ fmt(stay.detailRecord.checkInTime) }} 入住</p>
+                                <p class="hint">
+                                    {{ stay.detailRecord.checkOutTime ? fmt(stay.detailRecord.checkOutTime) + ' 退房' : '在住中'
+                                    }}</p>
+                            </div>
+                            <div>
+                                <img v-if="stay.detailPhotoOk"
+                                     :src="'/thestar/admin/stayrecord/find/photo/' + stay.detailRecord.stayId"
+                                     @error="stay.detailPhotoOk=false"
+                                     style="max-height:300px;max-width:100%;border-radius:6px;display:block">
+                                <p v-else class="hint">（無旅客照片）</p>
+                            </div>
+                        </div>
+                        <template v-if="stay.detail">
+                            <p class="oid" style="margin-top:20px">
+                                訂單 No.{{ stay.detail.orderId }} · 會員 #{{ stay.detail.memberId }} ·
+                                {{ (STATUS[stay.detail.orderStatus] || {}).label }}   <!-- 檔案最上面現成的STATUS陣列 數字轉中文 -->
+                            </p>
+                            <p class="hint">{{ stay.detail.checkInDate }} 入住 — {{ stay.detail.checkOutDate }} 退房</p>
+
+                            <!-- 明細表格:欄位跟「預定完成」畫面那張一樣 只是資料來源換成stay.detailLines -->
+                            <table v-if="stay.detailLines.length" style="margin-top:12px">
+                                <thead>
+                                <tr>
+                                    <th>房型</th>
+                                    <th>每晚</th>
+                                    <th>數量</th>
+                                    <th>小計</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr v-for="(d,k) in stay.detailLines" :key="k">
+                                    <td>{{ d.roomTypeName }}</td>
+                                    <td>${{ d.roomPrice.toLocaleString() }}</td>
+                                    <td>×{{ d.QTY }}</td>
+                                    <td class="money">${{ d.subtotal.toLocaleString() }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <p class="money" style="font-size:20px;margin-top:10px">
+                                實付 ${{ (stay.detail.paidAmount || 0).toLocaleString() }}
+                            </p>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section v-if="employee.on && nav==='refund'">
+            <div class="wrap">
+                <div class="sechead">
+                    <div class="up">Refund</div>
+                    <h2>退款管理</h2>
+                    <p>未退款訂單查詢 ， 退款</p></div>
+                <div class="panel">
+                    <table v-if="refund.list.length">
+                        <thead>
+                        <tr>
+                            <th>退款單號</th>
+                            <th>訂單</th>
+                            <th>會員</th>
+                            <th>金額</th>
+                            <th>原因</th>
+                            <th>申請時間</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="r in refund.list" :key="r.refundId">
+                            <td>{{ r.refundId }}</td>
+                            <td>{{ r.orderId }}</td>
+                            <td>{{ r.memberId }}</td>
+                            <td>${{r.amount.toLocaleString()}}</td>
+                            <td>{{r.reason}}</td>
+                            <td>{{fmt(r.createdTime)}}</td>
+                            <td>
+                                <button class="btn danger sm" @click="doRefund(r)">執行退款</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <p v-else class="hint">目前沒有待處理的退款</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 員工庫存查詢:自查詢日起 31 天,每房型每日的 剩餘/總數 -->
+        <section v-if="employee.on && nav==='inv'">
+            <div class="wrap">
+                <div class="sechead">
+                    <div class="up">Inventory</div>
+                    <h2>庫存查詢</h2>
+                    <p>各房型未來 31 天的剩餘房量</p></div>
+                <div class="panel">
+                    <div class="row" style="margin-bottom:14px;display:flex;gap:10px;align-items:center">
+                        <label>查詢起日</label>
+                        <input type="date" v-model="inv.date">
+                        <button class="btn sm" @click="loadInventory()">查詢</button>
+                    </div>
+
+                    <!-- 圖例:告訴使用者三種顏色代表什麼,跟下面 invLevel() 回傳的三個 class 一一對應 -->
+                    <div v-if="invRows.length" class="invlegend">
+                        <span><i class="sw ok"></i>充足</span>
+                        <span><i class="sw low"></i>緊張（剩 1/3 以下）</span>
+                        <span><i class="sw full"></i>滿房</span>
+                    </div>
+
+                    <!-- 外面包一層 .invscroll:31 列太長,讓表格在框內捲動,
+                         表頭跟日期欄用 CSS sticky 釘住,捲到哪都看得到欄位名稱 -->
+                    <div v-if="invRows.length" class="invscroll">
+                        <table class="invtable">
+                            <thead>
+                            <tr>
+                                <th class="invdate">日期</th>
+                                <th v-for="t in invTypes" :key="t">{{ t }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="row in invRows" :key="row.date">
+                                <!-- 日期欄:大字月/日 + 小字星期,今天多一顆金色小標 -->
+                                <td class="invdate" :class="{wkend: invIsWeekend(row.date)}">
+                                    <b>{{ invMD(row.date) }}</b>
+                                    <small>{{ invWD(row.date) }}</small>
+                                    <em v-if="invIsToday(row.date)">今天</em>
+                                </td>
+                                <!-- 每一格:invLevel(c) 回傳 ok/low/full 決定底色,
+                                     滿房直接顯示「滿」字比 0/10 更好認;
+                                     底下的細長條是剩餘比例(70% 剩就畫 70% 寬) -->
+                                <td v-for="(c, i) in row.cells" :key="i"
+                                    class="invcell" :class="invLevel(c)">
+                                    <div class="n">
+                                        <b>{{ c.remain === 0 ? '滿' : c.remain }}</b><small
+                                            v-if="c.remain !== 0">/{{ c.total }}</small>
+                                    </div>
+                                    <div class="bar"><i :style="{width: invPct(c)}"></i></div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p v-else class="hint">選擇日期後按查詢</p>
+                </div>
+            </div>
+        </section>
+
+    <div class="toasts">
+        <transition-group name="fade">
+            <div v-for="t in toasts" :key="t.id" class="toast" :class="t.type"><b>{{ t.title }}</b><small>{{ t.msg
+                }}</small></div>
+        </transition-group>
+    </div>
+</div>
+
+<!-- header-auth.js:共用導覽列的大腦——問後端登入了沒,決定顯示「登入」還是會員頭像/通知鈴鐺 -->
+<script src="/js/header-auth.js"></script>
+<script src="/js/roombooking.js"></script>
+</body>
+</html>
