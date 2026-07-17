@@ -301,6 +301,23 @@ createApp({
             this.loadCoupons().then(success => {
                 if (success) {
                     this.book.step = 'confirm';
+                    // 進確認頁時重驗先前選的券:券被用掉/過期,或這次金額未達門檻就自動取消
+                    if (this.form.memberCouponId != null) {
+                        const selectedCoupon = this.selectedCoupon;
+                        if (
+                            !selectedCoupon ||
+                            selectedCoupon.displayStatus !== 'AVAILABLE' ||
+                            !this.couponCanUse(selectedCoupon)
+                        ) {
+                            this.form.memberCouponId = null;
+
+                            this.toast(
+                                'warn',
+                                '優惠券已取消',
+                                '目前訂單金額未達消費門檻，請重新選擇優惠券'
+                            );
+                        }
+                    }
                 }
             });
         },
@@ -625,14 +642,14 @@ createApp({
 
         // ===== 庫存表格的顯示小工具(只負責「算給畫面看」,不打 API)=====
 
-        // 依剩餘量決定格子顏色,回傳的字串會變成 td 的 class(對應 CSS 的三種底色)
-        // 滿房 → 'full'(紅) / 剩不到 1/3 → 'low'(金) / 其他 → 'ok'(綠)
+        // 依剩餘量決定格子顏色,回傳的字串會變成 td 的 class(對應 CSS 的三種水色)
+        // 滿房 → 'full'(紅) / 有預訂(水位下降)→ 'low'(金) / 完全沒訂(滿水位)→ 'ok'(綠)
         invLevel(c) {
             if (typeof c.remain !== 'number') return '';   // 防禦:資料缺漏('-')時不上色
             if (c.remain === 0) return 'full';
-            return c.remain / c.total <= 1 / 3 ? 'low' : 'ok';
+            return c.remain < c.total ? 'low' : 'ok';
         },
-        // 剩餘比例 → 長條寬度字串,例:剩 7/10 → '70%'
+        // 水位 = 剩餘比例,例:剩 7/10 → '70%',跟「剩 X 間」的字直接對得上
         invPct(c) {
             if (typeof c.remain !== 'number' || !c.total) return '0%';
             return Math.round(c.remain / c.total * 100) + '%';
@@ -691,8 +708,15 @@ createApp({
             const coupon = this.coupons.find(c => c.memberCouponId === memberCouponId);
             if (!coupon) return 0;
 
-            if (coupon.discountType === 1) {                              // 固定金額
-                return Math.min(totalAmount, coupon.discountAmount || 0);
+            if (Number(coupon.discountType) === 1) {                      // 固定金額:金額須超過折抵才有折扣
+                const discountAmount =
+                    Number(coupon.discountAmount || 0);
+
+                if (totalAmount <= discountAmount) {
+                    return 0;
+                }
+
+                return discountAmount;
             }
             if (coupon.discountType === 2) {                              // 百分比(實付比例)
                 const paid = Math.round(totalAmount * (coupon.discountPercent || 100) / 100);
@@ -714,6 +738,17 @@ createApp({
         // 到期日只取 yyyy-MM-dd
         couponEndDate(value) {
             return value ? String(value).slice(0, 10) : '';
+        },
+        // 這張券現在能不能用:訂單金額要「超過」折抵金額(= 至少折抵+1)才算達門檻
+        // 百分比券沒有 discountAmount(視為 0),一律可用
+        couponCanUse(coupon) {
+            if (!coupon) return false;
+            return this.bookTotal >= Number(coupon.discountAmount || 0) + 1;
+        },
+        // 下拉選項文字:未達門檻的券會被 disabled 反灰,文字尾端加註原因
+        couponOptionText(coupon) {
+            const base = `${coupon.couponName} ｜${this.couponDiscountText(coupon)} ｜${this.couponEndDate(coupon.usageEndTime)} 到期`;
+            return this.couponCanUse(coupon) ? base : `${base}（未達門檻）`;
         },
 
 

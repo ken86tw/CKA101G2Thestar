@@ -1368,8 +1368,8 @@ summary {
     vertical-align: -1px
 }
 
-.invlegend .sw.ok   { background: #dfe8d2 }
-.invlegend .sw.low  { background: #f0e3bd }
+.invlegend .sw.ok   { background: #aec39a }
+.invlegend .sw.low  { background: #d9b464 }
 .invlegend .sw.full { background: #f0d6d0 }
 
 /* 捲動容器:表格 31 列太長,限制高度讓它在框內捲,
@@ -1435,49 +1435,65 @@ summary {
     vertical-align: 2px
 }
 
-/* 數字格:大字剩餘量 + 小字總量,格子間用紙色細線隔開 */
+/* 數字格:一根粗的「水管」量表,格子間用紙色細線隔開 */
 .invcell {
     border-left: 1px solid var(--paper);
-    min-width: 86px
+    min-width: 128px;
+    padding: 16px 14px
 }
 
-.invcell .n b {
-    font-family: var(--serif);
-    font-size: 19px;
-    font-weight: 500
-}
-
-.invcell .n small {
-    font-size: 11.5px;
-    color: var(--muted);
-    margin-left: 1px
-}
-
-/* 剩餘比例長條:外層灰軌道、內層依 invPct() 算出的寬度上色 */
-.invcell .bar {
-    height: 3px;
-    background: rgba(0, 0, 0, .07);
-    border-radius: 2px;
-    margin-top: 6px;
+/* 管身:灰色軌道,圓頭像管子的剖面 */
+.invcell .pipe {
+    position: relative;
+    height: 34px;
+    background: rgba(0, 0, 0, .055);
+    border-radius: 17px;
     overflow: hidden
 }
 
-.invcell .bar i {
+/* 水位:寬度 = 剩餘比例(invPct),直直的實色水面,跟「剩 X 間」直接對應 */
+.invcell .pipe .fill {
     display: block;
-    height: 100%
+    height: 100%;
+    transition: width .35s ease
 }
 
-/* 三種狀態的配色:底色淡、數字跟長條深,同色系呼應 */
-.invcell.ok         { background: #f0f4e8 }
-.invcell.ok .n b    { color: #5d7442 }
-.invcell.ok .bar i  { background: #8aa368 }
+/* 文字疊在管子正中間;淡淡的白暈讓字壓在斜紋上也讀得清楚 */
+.invcell .pipe .lbl {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 13px;
+    letter-spacing: .5px;
+    color: var(--soft);
+    text-shadow: 0 0 5px rgba(255, 255, 255, .75)
+}
 
-.invcell.low        { background: #f7f0dd }
-.invcell.low .n b   { color: #9a7b32 }
-.invcell.low .bar i { background: #c8a04f }
+.invcell .pipe .lbl b {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ink)
+}
 
-.invcell.full       { background: #f6e7e4 }
-.invcell.full .n b  { color: #a85b50 }
+/* 水色:滿水位(沒人訂)綠 → 一有預訂轉金 → 放光了紅字滿房;
+   有預訂是常態,所以黃色只上在水,格子不上底色,只有滿房才給紅底跳出來 */
+.invcell.ok .pipe .fill  { background: #aec39a }
+
+.invcell.low .pipe .fill { background: #d9b464 }
+.invcell.low .pipe .lbl,
+.invcell.low .pipe .lbl b { color: #7d6222 }
+
+/* 滿房:水放光了,整根管子染淡紅配紅字,顏色只留在管內、格子不上底色 */
+.invcell.full .pipe { background: #f2d9d4 }
+.invcell.full .pipe .lbl.full-txt {
+    color: #a85b50;
+    font-weight: 600;
+    letter-spacing: 4px
+}
 
 /* ===== 共用導覽列:本頁專屬配色(room-navbar) =====
    共用導覽列 fragment 的第三個參數帶 'site-navbar-dark room-navbar':

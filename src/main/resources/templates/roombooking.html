@@ -210,17 +210,32 @@
                         </table>
                         <div style="margin-top:24px;text-align:left">
                             <label>優惠券 Coupon</label>
-                            <select v-model.number="form.memberCouponId" :disabled="couponsLoading">
+                            <select v-model.number="form.memberCouponId"
+                                    :disabled="couponsLoading">
+
                                 <option :value="null">
                                     {{ couponsLoading ? '優惠券載入中…' : '不使用優惠券' }}
                                 </option>
+
                                 <option
                                         v-for="c in coupons.filter(c => c.displayStatus === 'AVAILABLE')"
                                         :key="c.memberCouponId"
-                                        :value="c.memberCouponId">
-                                    {{ c.couponName }} ｜{{ couponDiscountText(c) }} ｜{{ couponEndDate(c.usageEndTime) }} 到期
+                                        :value="c.memberCouponId"
+                                        :disabled="!couponCanUse(c)">
+
+                                    {{ couponOptionText(c) }}
                                 </option>
                             </select>
+                            <p
+                                v-if="!couponsLoading &&
+                                    coupons.some(c =>
+                                        c.displayStatus === 'AVAILABLE' &&
+                                        !couponCanUse(c)
+                                    )"
+                                class="coupon-threshold-note">
+
+                                灰色優惠券代表目前訂單金額未達消費門檻，暫時無法選擇。
+                            </p>
                             <p v-if="!couponsLoading && coupons.filter(c => c.displayStatus === 'AVAILABLE').length === 0"
                                class="coupon-note">
                                 目前沒有可使用的優惠券， <a href="/coupons.html">查看我的優惠券</a>
@@ -755,8 +770,8 @@
 
                     <!-- 圖例:告訴使用者三種顏色代表什麼,跟下面 invLevel() 回傳的三個 class 一一對應 -->
                     <div v-if="invRows.length" class="invlegend">
-                        <span><i class="sw ok"></i>充足</span>
-                        <span><i class="sw low"></i>緊張（剩 1/3 以下）</span>
+                        <span><i class="sw ok"></i>無預訂</span>
+                        <span><i class="sw low"></i>已有預訂</span>
                         <span><i class="sw full"></i>滿房</span>
                     </div>
 
@@ -778,16 +793,17 @@
                                     <small>{{ invWD(row.date) }}</small>
                                     <em v-if="invIsToday(row.date)">今天</em>
                                 </td>
-                                <!-- 每一格:invLevel(c) 回傳 ok/low/full 決定底色,
-                                     滿房直接顯示「滿」字比 0/10 更好認;
-                                     底下的細長條是剩餘比例(70% 剩就畫 70% 寬) -->
+                                <!-- 每一格是一根「水管」量表:水位 = 剩餘房量(invPct),跟「剩 X 間」直接對應;
+                                     文字置中疊在管子上;invLevel(c) 回傳 ok/low/full 決定水色:
+                                     滿水位(沒人訂)綠 → 一有預訂水位下降轉金 → 放光了紅字「滿房」 -->
                                 <td v-for="(c, i) in row.cells" :key="i"
                                     class="invcell" :class="invLevel(c)">
-                                    <div class="n">
-                                        <b>{{ c.remain === 0 ? '滿' : c.remain }}</b><small
-                                            v-if="c.remain !== 0">/{{ c.total }}</small>
+                                    <div class="pipe">
+                                        <i class="fill" :style="{width: invPct(c)}"></i>
+                                        <span v-if="typeof c.remain !== 'number'" class="lbl">－</span>
+                                        <span v-else-if="c.remain === 0" class="lbl full-txt">滿房</span>
+                                        <span v-else class="lbl">剩 <b>{{ c.remain }}</b> 間</span>
                                     </div>
-                                    <div class="bar"><i :style="{width: invPct(c)}"></i></div>
                                 </td>
                             </tr>
                             </tbody>
