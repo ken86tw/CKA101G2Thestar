@@ -6,3 +6,4 @@
 | [food.zhang@hotel.com](mailto:food.zhang@hotel.com)   | 餐廳人員   |
 | [product.li@hotel.com](mailto:product.li@hotel.com)   | 商品管理員  |
 | [member.wang@hotel.com](mailto:member.wang@hotel.com) | 會員管理員  |
+| [content.chen@hotel.com](mailto:content.chen@hotel.com) | 會員管理員  |
