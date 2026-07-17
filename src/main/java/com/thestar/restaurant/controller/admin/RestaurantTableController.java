@@ -25,12 +25,6 @@ public class RestaurantTableController {
         return "admin/restaurant/table/list";
     }
 
-    // 前往新增頁面
-    @GetMapping("/addPage")
-    public String addPage(Model model) {
-        model.addAttribute("restaurantTableVO", new RestaurantTableVO());
-        return "admin/restaurant/table/add";
-    }
 
     // 處理新增或修改
     @PostMapping("/save")
@@ -38,7 +32,7 @@ public class RestaurantTableController {
         if (result.hasErrors()) {
             return "admin/restaurant/table/add";
         }
-        tableService.addRestaurantTable(tableVO); // save方法兼具新增與修改
+        tableService.updateRestaurantTable(tableVO); // save方法兼具新增與修改
         return "redirect:/admin/restaurant/table/list";
     }
 

@@ -15,12 +15,10 @@ public class RestaurantTableService {
     @Autowired
     RestaurantTableRepository repository;
 
-    public void addRestaurantTable(RestaurantTableVO restaurantTableVO) {
-        repository.save(restaurantTableVO);
-    }
 
     public void updateRestaurantTable(RestaurantTableVO restaurantTableVO) {
         repository.save(restaurantTableVO);
+        
     }
 
     public void deleteRestaurantTable(Integer tableType) {

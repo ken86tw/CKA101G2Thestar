@@ -10,17 +10,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.thestar.restaurant.entity.AvailableTableId;
 import com.thestar.restaurant.entity.AvailableTableVO;
+import com.thestar.restaurant.entity.BusinessHoursVO;
 import com.thestar.restaurant.repository.AvailableTableRepository;
 import com.thestar.restaurant.repository.BusinessHoursRepository;
+import com.thestar.restaurant.repository.RestaurantTableRepository;
 
 @Service
 public class AvailableTableService {
 
     @Autowired
-    AvailableTableRepository repository;
+    private AvailableTableRepository repository;
 
     @Autowired
     private BusinessHoursRepository businessHoursRepository; 
+    
+    @Autowired
+    private RestaurantTableRepository restaurantTableRepository;
 
     public void addAvailableTable(AvailableTableVO availableTableVO) {
         repository.save(availableTableVO);
@@ -122,24 +127,39 @@ public class AvailableTableService {
     @Transactional
     public void initializeMonthlyTables() {
         LocalDate today = LocalDate.now(); // 👈 取得今天的 LocalDate
+        List<BusinessHoursVO> businessHours = businessHoursRepository.findAll();
+        
+        
         
         for (int i = 0; i < 30; i++) {
             LocalDate targetDate = today.plusDays(i); // 👈 直接加天數，一行搞定！
             
-            for (int sessionId = 1; sessionId <= 3; sessionId++) {
+            for (int sessionId = 1; sessionId <= businessHours.size(); sessionId++) {
                 AvailableTableId id = new AvailableTableId(targetDate, sessionId);
                 boolean exists = repository.existsById(id);
                 
                 if (!exists) {
+                	
                     AvailableTableVO newTable = new AvailableTableVO();
                     newTable.setId(id); 
                     
-                    com.thestar.restaurant.entity.BusinessHoursVO bhVO = businessHoursRepository.findById(sessionId).orElse(null);
+                    BusinessHoursVO bhVO = businessHoursRepository.findById(sessionId).orElse(null);
+                    
+                    Integer largeTableCount = restaurantTableRepository.findById(1)
+                    	    .orElseThrow(() -> new RuntimeException("找不到該桌況資料"))
+                    	    .getTableTypeCount();    
+                    
+                    Integer smallTableCount = restaurantTableRepository.findById(2)
+                    	    .orElseThrow(() -> new RuntimeException("找不到該桌況資料"))
+                    	    .getTableTypeCount();    
+                    
+                    
                     
                     if (bhVO != null) {
                         newTable.setBusinessHoursVO(bhVO);
-                        newTable.setSmallTableCount(5);  // 預設每天每時段有 5 桌小桌
-                        newTable.setLargeTableCount(3);  // 預設每天每時段有 3 桌大桌
+                        newTable.setLargeTableCount(largeTableCount);  
+                        newTable.setSmallTableCount(smallTableCount);  
+                        
                         
                         repository.save(newTable);
                     } else {
