@@ -29,7 +29,6 @@ public class RoomInventoryController {
                                                                      @RequestParam LocalDate checkOutDate){
 
        return ResponseEntity.ok().body(roomInventoryQueryService.findAllAvailableRoom(checkInDate, checkOutDate));
-
     }
 
 
