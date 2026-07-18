@@ -148,20 +148,39 @@ public class RoomTypeController {
 	        @RequestParam(value = "imageFiles", required = false) MultipartFile[] imageFiles, 
 	        Model model, RedirectAttributes redirectAttributes) {
 
-	    // 1. 錯誤處理
+	    // 1. 錯誤處理 (如果有 @Valid 驗證錯誤)
 	    if (result.hasErrors()) {
-            // 【補強】確保 VO 物件顯式放入 model，以防萬一
-            model.addAttribute("roomTypeVO", roomTypeVO);
-            // 確保頁面所需資訊回填
+	        model.addAttribute("roomTypeVO", roomTypeVO);
 	        model.addAttribute("photoList", photoService.getPhotosByRoomTypeId(roomTypeVO.getRoomTypeId()));
 	        model.addAttribute("minAllowedAmount", (int) roomService.countRoomsByTypeId(roomTypeVO.getRoomTypeId()));
 	        return "admin/room/roomTypeForm";
 	    }
 
+	    // 2. [新增邏輯] 取得資料庫中原本的資料進行比對
+	    RoomTypeVO exist = service.getOneRoomType(roomTypeVO.getRoomTypeId());
+	    
+	    // 比對欄位 (名稱, 說明, 價格, 狀態)
+	    boolean isNameSame = exist.getRoomTypeName().equals(roomTypeVO.getRoomTypeName());
+	    boolean isContentSame = (exist.getRoomTypeContent() == null ? "" : exist.getRoomTypeContent())
+	                            .equals(roomTypeVO.getRoomTypeContent() == null ? "" : roomTypeVO.getRoomTypeContent());
+	    boolean isPriceSame = exist.getRoomTypePrice().equals(roomTypeVO.getRoomTypePrice());
+	    boolean isStatusSame = exist.getRoomTypeStatus().equals(roomTypeVO.getRoomTypeStatus());
+	    
+	    // 檢查是否有新圖片上傳
+	    boolean hasNewImages = (imageFiles != null && java.util.Arrays.stream(imageFiles).anyMatch(f -> !f.isEmpty()));
+
+	    // 如果所有欄位都一樣，且沒有上傳新圖片，則視為「未修改」
+	    if (isNameSame && isContentSame && isPriceSame && isStatusSame && !hasNewImages) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "資料未變更！請修改後再儲存！");
+	        return "redirect:/roomtype/manage";
+	    }
+
+	    // 3. 有變動，執行更新
 	    try {
 	        service.updateRoomType(roomTypeVO);
 
-	        if (imageFiles != null) {
+	        // 處理新圖片
+	        if (hasNewImages) {
 	            for (MultipartFile file : imageFiles) {
 	                if (file != null && !file.isEmpty()) {
 	                    RoomTypePhotoDTO photoDTO = new RoomTypePhotoDTO();
@@ -173,8 +192,7 @@ public class RoomTypeController {
 	        }
 	        redirectAttributes.addFlashAttribute("successMessage", "房型更新成功！");
 	    } catch (Exception e) {
-            // 異常處理時也要確保 VO 回填，讓使用者看到剛才輸入的內容，不用重打
-            model.addAttribute("roomTypeVO", roomTypeVO); 
+	        model.addAttribute("roomTypeVO", roomTypeVO); 
 	        model.addAttribute("errorMessage", "更新失敗：" + e.getMessage());
 	        model.addAttribute("photoList", photoService.getPhotosByRoomTypeId(roomTypeVO.getRoomTypeId()));
 	        return "admin/room/roomTypeForm";

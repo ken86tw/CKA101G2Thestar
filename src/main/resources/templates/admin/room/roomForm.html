@@ -12,84 +12,108 @@
 	--serif: 'Cormorant Garamond', 'Noto Serif TC', serif;
 	--sans: 'Jost', 'Noto Serif TC', system-ui, sans-serif;
 	--ink: #23211c;
-	--soft: #5b564c;
 	--gold: #9c7c4f;
 	--line: #e0dcd5;
+	--cream: #f6f2ea;
+	--bg-header: #fbf9f4;
 }
 
 body {
 	font-family: var(--sans);
-	background: #f6f2ea;
+	background: var(--cream);
 	color: var(--ink);
-	font-size: 15px;
-	line-height: 1.7;
 	margin: 0;
+	padding: 40px 0;
 }
 
-/* 移除容器白底，讓 header 與表單分開 */
 .container {
 	max-width: 600px;
-	margin: 40px auto;
-	background: transparent;
-	padding: 0;
+	margin: 0 auto;
 }
 
-/* 獨立的表單卡片區塊 */
-.admin-content {
-	background: white;
-	padding: 40px;
-	border: 1px solid var(--line);
-}
-
+/* Header 風格 */
 .admin-header {
 	text-align: center;
-	margin-bottom: 40px; /* 創造 header 與表單的間隔 */
-	background: transparent !important;
-	border: none !important;
+	margin-bottom: 40px;
+	padding: 30px;
+	background: var(--bg-header);
+	position: static;
 }
 
 .admin-header h1 {
 	font-family: var(--serif);
-	margin-bottom: 10px;
+	font-size: 32px;
+	margin: 0 0 10px 0;
+	font-weight: 500;
 }
 
 .section-label {
 	color: var(--gold);
 	font-size: 11px;
 	letter-spacing: 4px;
+	text-transform: uppercase;
+	margin: 0;
 }
 
+/* 內容區塊 */
+.admin-content {
+	background: white;
+	padding: 40px;
+	border: 1px solid var(--line);
+}
+
+/* 表單群組 (與詳情頁的 .detail-group 風格統一) */
 .form-group {
 	margin-bottom: 25px;
 }
 
 .form-group label {
 	display: block;
-	margin-bottom: 8px;
+	margin-bottom: 8px; /* 同步為 8px */
 	color: #888;
 	font-size: 13px;
-	letter-spacing: 1px;
-	font-weight: bold;
-	text-transform: uppercase;
+	font-weight: 500;
 }
 
 .form-group input, .form-group select {
 	width: 100%;
-	padding: 12px;
+	padding: 12px; /* 同步為 12px */
 	border: 1px solid var(--line);
+	background: #fbfbfb; /* 同步背景色 */
+	font-size: 14px;
+	color: #333;
 	box-sizing: border-box;
 }
 
-/* 緊湊的 Checkbox 排版 */
-.status-row {
-	display: flex;
-	align-items: center;
-	gap: 15px;
-	margin-bottom: 25px;
+.id-display {
+	padding: 12px;
+	border: 1px solid var(--line);
+	background: #fbfbfb;
+	display: block;
+	font-size: 14px;
+	color: #333;
 }
 
-.status-row label {
-	margin-bottom: 0;
+/* 按鈕樣式 (同步) */
+.btn-row {
+	margin-top: 30px;
+}
+
+.btn {
+	display: inline-block;
+	padding: 12px 30px;
+	text-decoration: none;
+	font-size: 14px;
+	border: 1px solid var(--ink);
+	background: transparent;
+	color: var(--ink);
+	cursor: pointer;
+	transition: 0.3s;
+}
+
+.btn:hover {
+	background: var(--ink);
+	color: white;
 }
 </style>
 </head>
@@ -97,9 +121,10 @@ body {
 <body>
 	<div class="container">
 		<header class="admin-header">
-			<p class="section-label">ROOM CONFIGURATION</p>
-			<h1 th:text="${roomVO.roomId == null} ? '新增房間' : '修改房間資訊'">房間設定</h1>
-
+			<p class="section-label"
+				th:text="${roomVO.roomId == null ? 'CREATE ROOM' : 'EDIT ROOM'}">ROOM
+				CONFIGURATION</p>
+			<h1 th:text="${roomVO.roomId == null ? '新增房間' : '修改房間資訊'}">房間設定</h1>
 		</header>
 
 		<main class="admin-content">
@@ -107,10 +132,11 @@ body {
 				th:action="${roomVO.roomId == null} ? @{/room/insert} : @{/room/update}"
 				th:object="${roomVO}" method="post">
 
+				<!-- 房間編號 -->
 				<div class="form-group">
 					<label>房間編號</label>
 					<th:block th:if="${roomVO.roomId != null}">
-						<span style="font-weight: bold;" th:text="${roomVO.roomId}"></span>
+						<span class="id-display" th:text="${roomVO.roomId}"></span>
 						<input type="hidden" th:field="*{roomId}" />
 					</th:block>
 					<th:block th:if="${roomVO.roomId == null}">
@@ -125,6 +151,7 @@ body {
 					</th:block>
 				</div>
 
+				<!-- 選擇房型 -->
 				<div class="form-group">
 					<label>選擇房型</label> <select th:field="*{roomTypeId}" required>
 						<option value="" disabled selected>請選擇房型</option>
@@ -133,7 +160,7 @@ body {
 					</select>
 				</div>
 
-				<!-- 上下架 -->
+				<!-- 狀態 -->
 				<div class="form-group">
 					<label>狀態 (是否上架)</label> <select th:field="*{roomSwitchStatus}"
 						required>
@@ -142,9 +169,9 @@ body {
 					</select>
 				</div>
 
-				<div class="form-actions" style="margin-top: 30px;">
+				<div class="btn-row">
 					<button type="submit" class="btn">儲存設定</button>
-					<a th:href="@{/room/manage}" class="btn ghost">返回列表</a>
+					<a th:href="@{/room/manage}" class="btn">返回列表</a>
 				</div>
 			</form>
 		</main>
