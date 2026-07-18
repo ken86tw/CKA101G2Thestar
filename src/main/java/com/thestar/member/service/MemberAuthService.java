@@ -8,7 +8,6 @@ import com.thestar.member.entity.MemberVO;
 import com.thestar.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -33,18 +32,14 @@ public class MemberAuthService {
 
     private final MemberCouponService
             memberCouponService;
-
-    private final PasswordEncoder passwordEncoder;
     
     public MemberAuthService(
             MemberRepository memberRepository,
             MemberVerificationMailService verificationMailService,
-            MemberCouponService memberCouponService,
-            PasswordEncoder passwordEncoder) {
+            MemberCouponService memberCouponService) {
         this.memberRepository = memberRepository;
         this.verificationMailService = verificationMailService;
         this.memberCouponService = memberCouponService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -78,7 +73,7 @@ public class MemberAuthService {
         MemberVO member = new MemberVO();
         member.setMemberName(memberName);
         member.setMemberEmail(memberEmail);
-        member.setMemberPassword(passwordEncoder.encode(memberPassword));
+        member.setMemberPassword(memberPassword);
         member.setMemberPhone(memberPhone);
         member.setMemberAddress(memberAddress);
         member.setMemberBirthday(request.getMemberBirthday());
@@ -196,7 +191,7 @@ public class MemberAuthService {
         return new MemberRegisterResponse(true, message, mailSent, verifyUrl);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public MemberVO login(String email, String password) {
         String cleanEmail = email == null ? "" : email.trim();
         String cleanPassword = password == null ? "" : password.trim();
@@ -208,13 +203,7 @@ public class MemberAuthService {
         MemberVO member = memberRepository.findByMemberEmailIgnoreCase(cleanEmail)
                 .orElseThrow(() -> new IllegalArgumentException("信箱或密碼錯誤"));
 
-        String storedPassword = member.getMemberPassword();
-        boolean encodedPassword = storedPassword != null && storedPassword.startsWith("$2");
-        boolean passwordMatches = encodedPassword
-                ? passwordEncoder.matches(cleanPassword, storedPassword)
-                : cleanPassword.equals(storedPassword);
-
-        if (!passwordMatches) {
+        if (!cleanPassword.equals(member.getMemberPassword())) {
             throw new IllegalArgumentException("信箱或密碼錯誤");
         }
 
@@ -224,13 +213,6 @@ public class MemberAuthService {
 
         if (member.getMemberStatus() == 2) {
             throw new IllegalStateException("帳號已停用，請聯絡客服");
-        }
-
-        // Existing installations may still contain legacy plaintext passwords.
-        // Upgrade them after the first successful login without forcing a reset.
-        if (!encodedPassword) {
-            member.setMemberPassword(passwordEncoder.encode(cleanPassword));
-            memberRepository.save(member);
         }
 
         return member;
