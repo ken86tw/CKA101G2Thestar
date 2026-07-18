@@ -33,15 +33,22 @@ public class EmployeeUserDetails implements UserDetails {
             if (role.getStatus() == null || role.getStatus() != 1) {
                 continue;
             }
-            authorities.add(new SimpleGrantedAuthority(role.getRoleCode()));
+            addAuthority(authorities, role.getRoleCode());
             for (PermissionVO permission : role.getPermissions()) {
                 if (permission.getStatus() == null || permission.getStatus() != 1) {
                     continue;
                 }
-                authorities.add(new SimpleGrantedAuthority(permission.getPermissionCode()));
+                addAuthority(authorities, permission.getPermissionCode());
             }
         }
         return authorities;
+    }
+
+    private void addAuthority(Set<GrantedAuthority> authorities, String code) {
+        if (code == null || code.isBlank()) {
+            return;
+        }
+        authorities.add(new SimpleGrantedAuthority(code.trim().toUpperCase()));
     }
 
     @Override

@@ -698,6 +698,20 @@ td {
     background: rgba(156, 124, 79, .1);
 }
 
+.side-link.locked,
+.side-link.locked:hover {
+    color: var(--muted);
+    background: transparent;
+    opacity: .48;
+    cursor: not-allowed;
+    pointer-events: none;
+    user-select: none;
+}
+
+.side-link.locked .side-icon {
+    color: var(--muted);
+}
+
 .side-icon {
     width: 20px;
     text-align: center;

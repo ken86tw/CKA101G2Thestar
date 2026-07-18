@@ -3,6 +3,7 @@ package com.thestar.employee.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -18,8 +19,6 @@ import org.springframework.security.web.context.SecurityContextRepository;
 
 /**
  * 後台員工 API / 頁面專用的 SecurityFilterChain。
- * 只匹配 /thestar/admin/login、/logout、/me、/employee/**、/role/**、/permission/**，
- * 其餘既有路徑（訂單、住宿、會員、金流等）完全不受影響，交給 {@link DefaultSecurityConfig} 放行。
  *
  * 登入採真正的表單登入（比照 security.md guideline 的 SecurityFilterChain 表單登入設計），
  * 而非 AJAX/JSON 登入：GET /thestar/admin/login 顯示登入頁，
@@ -51,9 +50,12 @@ public class AdminApiSecurityConfig {
                                                      RestAuthenticationEntryPoint restAuthenticationEntryPoint,
                                                      RestAccessDeniedHandler restAccessDeniedHandler) throws Exception {
         http
-                .securityMatcher("/thestar/admin/login", "/thestar/admin/logout", "/thestar/admin/home", "/thestar/admin/me",
-                        "/thestar/admin/content/**",
-                        "/thestar/admin/employee/**", "/thestar/admin/role/**", "/thestar/admin/permission/**")
+                .securityMatcher(
+                        "/thestar/admin", "/thestar/admin/**",
+                        "/admin/restaurant/**", "/admin/shop/**",
+                        "/admin/members/**", "/admin/coupons/**",
+                        "/room/**", "/roomtype/**", "/roomtypephoto/delete/**",
+                        "/find/admin/room")
                 .authenticationManager(adminAuthenticationManager)
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement((SessionManagementConfigurer<HttpSecurity> sm) ->
@@ -61,17 +63,29 @@ public class AdminApiSecurityConfig {
                 .securityContext(ctx -> ctx.securityContextRepository(securityContextRepository))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/thestar/admin/login").permitAll()
-                        .requestMatchers("/thestar/admin/home").authenticated()
-                        .requestMatchers("/thestar/admin/content/**").authenticated()
-                        .requestMatchers("/thestar/admin/me").authenticated()
-                        // 指派角色屬於權限提升操作，必須比一般員工管理更嚴格，只給 SUPER_ADMIN，
-                        // 避免只有 EMPLOYEE_MANAGE 權限的人資主管把自己升級成 SUPER_ADMIN。
-                        .requestMatchers("/thestar/admin/employee/*/roles").hasRole("SUPER_ADMIN")
-                        .requestMatchers("/thestar/admin/role/**", "/thestar/admin/permission/**")
-                            .hasRole("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/admin/restaurant/menu/DBGifReader").permitAll()
+                        .requestMatchers("/thestar/admin", "/thestar/admin/home",
+                                "/thestar/admin/me", "/thestar/admin/logout").authenticated()
+                        .requestMatchers("/thestar/admin/order/**", "/thestar/admin/stayrecord/**",
+                                "/thestar/admin/refund/**", "/room/**", "/roomtype/**",
+                                "/roomtypephoto/delete/**", "/find/admin/room")
+                            .hasAnyAuthority(RoleCodes.FRONT_DESK, RoleCodes.SUPER_ADMIN)
+                        .requestMatchers("/admin/restaurant/**")
+                            .hasAnyAuthority(RoleCodes.RESTAURANT_STAFF, RoleCodes.SUPER_ADMIN)
+                        .requestMatchers("/admin/shop/**")
+                            .hasAnyAuthority(RoleCodes.PRODUCT_ADMIN, RoleCodes.SUPER_ADMIN)
+                        .requestMatchers("/thestar/admin/content/**")
+                            .hasAnyAuthority(RoleCodes.CONTENT_ADMIN, RoleCodes.SUPER_ADMIN)
+                        .requestMatchers("/admin/members/**", "/admin/coupons/**")
+                            .hasAnyAuthority(RoleCodes.MEMBER_ADMIN, RoleCodes.SUPER_ADMIN)
+                        .requestMatchers("/thestar/admin/access",
+                                "/thestar/admin/employee/*/roles",
+                                "/thestar/admin/employee/*/delete",
+                                "/thestar/admin/role/**", "/thestar/admin/permission/**")
+                            .hasAuthority(RoleCodes.SUPER_ADMIN)
                         .requestMatchers("/thestar/admin/employee/**")
-                            .hasAuthority(PermissionCodes.EMPLOYEE_MANAGE)
-                        .anyRequest().authenticated()
+                            .hasAnyAuthority(RoleCodes.HR, RoleCodes.SUPER_ADMIN)
+                        .anyRequest().denyAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/thestar/admin/login")

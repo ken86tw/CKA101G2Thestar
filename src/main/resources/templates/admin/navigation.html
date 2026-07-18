@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside class="admin-sidebar" th:fragment="sidebar(active)">
+    <div class="side-section">
+        <a class="side-link" th:classappend="${active == 'home' ? ' active' : ''}"
+           th:href="@{/thestar/admin/home}"><span class="side-icon">⌂</span>控制中心</a>
+    </div>
+    <div class="side-section">
+        <p class="side-title">用戶管理</p>
+        <a class="side-link"
+           th:classappend="${(active == 'employee' ? ' active' : '') + (!canManageEmployees ? ' locked' : '')}"
+           th:href="${canManageEmployees ? '/thestar/admin/employee/list' : null}"
+           th:attr="aria-disabled=${!canManageEmployees},tabindex=${canManageEmployees ? null : '-1'},title=${canManageEmployees ? null : '沒有員工管理權限'}"><span class="side-icon">◎</span>員工管理</a>
+        <a class="side-link"
+           th:classappend="${(active == 'members' ? ' active' : '') + (!canUseMembers ? ' locked' : '')}"
+           th:href="${canUseMembers ? '/admin/members' : null}"
+           th:attr="aria-disabled=${!canUseMembers},tabindex=${canUseMembers ? null : '-1'},title=${canUseMembers ? null : '沒有會員管理權限'}"><span class="side-icon">◉</span>會員管理</a>
+        <a class="side-link"
+           th:classappend="${(active == 'coupons' ? ' active' : '') + (!canUseMembers ? ' locked' : '')}"
+           th:href="${canUseMembers ? '/admin/coupons' : null}"
+           th:attr="aria-disabled=${!canUseMembers},tabindex=${canUseMembers ? null : '-1'},title=${canUseMembers ? null : '沒有優惠券管理權限'}"><span class="side-icon">◇</span>優惠券管理</a>
+    </div>
+    <div class="side-section">
+        <p class="side-title">內容管理</p>
+        <a class="side-link" th:classappend="${(active == 'news' ? ' active' : '') + (!canUseContent ? ' locked' : '')}"
+           th:href="${canUseContent ? '/thestar/admin/content/news' : null}"
+           th:attr="aria-disabled=${!canUseContent},tabindex=${canUseContent ? null : '-1'},title=${canUseContent ? null : '沒有內容管理權限'}"><span class="side-icon">▤</span>最新消息管理</a>
+        <a class="side-link" th:classappend="${(active == 'article' ? ' active' : '') + (!canUseContent ? ' locked' : '')}"
+           th:href="${canUseContent ? '/thestar/admin/content/article' : null}"
+           th:attr="aria-disabled=${!canUseContent},tabindex=${canUseContent ? null : '-1'},title=${canUseContent ? null : '沒有內容管理權限'}"><span class="side-icon">✎</span>文章管理</a>
+        <a class="side-link" th:classappend="${(active == 'review' ? ' active' : '') + (!canUseContent ? ' locked' : '')}"
+           th:href="${canUseContent ? '/thestar/admin/content/review' : null}"
+           th:attr="aria-disabled=${!canUseContent},tabindex=${canUseContent ? null : '-1'},title=${canUseContent ? null : '沒有內容管理權限'}"><span class="side-icon">☰</span>文章評論管理</a>
+    </div>
+    <div class="side-section">
+        <p class="side-title">營運管理</p>
+        <a class="side-link" th:classappend="${!canUseShop ? ' locked' : ''}"
+           th:href="${canUseShop ? '/admin/shop' : null}"
+           th:attr="aria-disabled=${!canUseShop},tabindex=${canUseShop ? null : '-1'},title=${canUseShop ? null : '沒有購物管理權限'}"><span class="side-icon">◇</span>購物管理</a>
+        <a class="side-link" th:classappend="${!canUseFrontDesk ? ' locked' : ''}"
+           th:href="${canUseFrontDesk ? '/roombooking.html' : null}"
+           th:attr="aria-disabled=${!canUseFrontDesk},tabindex=${canUseFrontDesk ? null : '-1'},title=${canUseFrontDesk ? null : '沒有訂房管理權限'}"><span class="side-icon">▱</span>訂房管理</a>
+        <a class="side-link" th:classappend="${!canUseRestaurant ? ' locked' : ''}"
+           th:href="${canUseRestaurant ? '/admin/restaurant' : null}"
+           th:attr="aria-disabled=${!canUseRestaurant},tabindex=${canUseRestaurant ? null : '-1'},title=${canUseRestaurant ? null : '沒有餐廳管理權限'}"><span class="side-icon">♢</span>餐廳管理</a>
+    </div>
+</aside>
+</body>
+</html>
