@@ -625,16 +625,32 @@ body {
   transform: scale(1.045);
 }
 
+/* .attraction-street { */
+/*   background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=86'); */
+/* } */
 .attraction-street {
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/2/2a/Kenting_Night_Market_10.jpg');
+}
+
+/* .attraction-bay { */
+/*   background-image: url('https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=1000&q=86'); */
+/* } */
+.attraction-bay {
   background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=86');
 }
 
-.attraction-bay {
-  background-image: url('https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=1000&q=86');
+/* .attraction-longpan { */
+/*   background-image: url('https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1000&q=86'); */
+/* } */
+.attraction-longpan {
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/f/f6/Panorama_at_Longpan_Park.jpg');
 }
 
-.attraction-longpan {
-  background-image: url('https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1000&q=86');
+.photo-credit {
+    margin-top: 16px;
+    text-align: right;
+    font-size: 12px;
+    color: #8b8b83;
 }
 
 .attraction-copy {
