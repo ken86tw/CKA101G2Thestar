@@ -17,7 +17,7 @@ import com.thestar.shop.service.ShopOrderService;
 
 @Controller
 @RequestMapping("/admin/shop")
-public class AdminShopIndexController {
+public class AdminShopIndexController extends AdminShopBaseController{
 
 	@Autowired
 	ProductsService productsSvc;

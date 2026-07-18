@@ -25,7 +25,7 @@
                             <th>價格</th>
                             <th>數量</th>
                             <th>狀態</th>
-                            <th width="160">操作</th>
+                            <th width="100">操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -51,13 +51,6 @@
                                    class="btn btn-info btn-sm">
                                     <i class="fa-solid fa-images"></i>
                                 </a>
-                                <form th:action="@{/admin/shop/delete}" method="post" style="display:inline;"
-                                      onsubmit="return confirm('確定要刪除此商品嗎？');">
-                                    <input type="hidden" name="productId" th:value="${product.productId}">
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
                             </td>
                         </tr>
                     </tbody>

@@ -7,43 +7,46 @@
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link
-	href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@1,400;1,600&display=swap"
+	href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap"
 	rel="stylesheet">
 <style>
 * {
-	font-family: 'Noto Sans TC', sans-serif;
+	font-family: 'Jost', 'Noto Sans TC', sans-serif;
 }
 
 body {
 	display: flex;
 	min-height: 100vh;
-	background-color: #faf5ec;
+	background-color: #f5f0e8;
 	overflow-x: hidden;
 }
 
-/* Sidebar */
+/* ===== Sidebar ===== */
 .sidebar {
 	width: 260px;
-	background-color: #2d5a6b;
-	color: #fff;
+	background-color: #ede8df;
+	color: #3a3226;
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
+	border-right: 1px solid #ddd5c5;
 }
 
 .sidebar .logo {
 	padding: 28px 20px;
 	text-align: center;
-	background-color: #1e3f4d;
-	border-bottom: 1px solid #3a6d80;
+	background-color: #e5ddd0;
+	border-bottom: 1px solid #ddd5c5;
 }
 
 .sidebar .logo-en {
 	font-family: 'Cormorant Garamond', serif;
 	font-style: italic;
 	font-size: 1.6rem;
-	color: #c9a84c;
+	color: #9c7c4f;
 	letter-spacing: 2px;
 	margin-bottom: 4px;
 }
@@ -51,15 +54,15 @@ body {
 .sidebar .logo-title {
 	font-family: 'Noto Serif TC', serif;
 	font-size: 1rem;
-	font-weight: 700;
-	color: #e8f0f3;
+	font-weight: 600;
+	color: #3a3226;
 	letter-spacing: 4px;
 	margin: 0;
 }
 
 .sidebar .logo-subtitle {
 	font-size: 11px;
-	color: #7fafc0;
+	color: #8a7a65;
 	letter-spacing: 1px;
 	margin-top: 6px;
 }
@@ -67,13 +70,14 @@ body {
 .sidebar .nav-section {
 	padding: 16px 12px 4px;
 	font-size: 10px;
-	color: #5a9aaf;
+	color: #9a8a75;
 	letter-spacing: 2px;
 	text-transform: uppercase;
+	font-family: 'Jost', sans-serif;
 }
 
 .sidebar .nav-link {
-	color: #b8d4de;
+	color: #5a4e3e;
 	padding: 11px 16px;
 	display: flex;
 	align-items: center;
@@ -85,31 +89,87 @@ body {
 }
 
 .sidebar .nav-link:hover {
-	background-color: rgba(201, 168, 76, 0.15);
-	color: #e8d5a0;
+	background-color: rgba(156, 124, 79, 0.12);
+	color: #7a5c30;
 	text-decoration: none;
+	border-radius: 20px;
 }
 
 .sidebar .nav-link.active {
-	background-color: #c9a84c;
-	color: #fff;
+	background-color: #e0d8cc;
+	color: #7a5c30;
 	text-decoration: none;
+	border-left: 0;
+	font-weight: 500;
+	border-radius: 20px;
+	margin: 2px 8px;
 }
 
 .sidebar .nav-link i {
 	width: 16px;
 	text-align: center;
-	opacity: 0.85;
+	opacity: 0.7;
+}
+
+/* sidebar 下拉選單 */
+.sidebar .nav-dropdown-btn {
+	color: #5a4e3e;
+	padding: 11px 16px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	transition: all 0.2s;
+	border-radius: 6px;
+	margin: 2px 8px;
+	font-size: 14px;
+	background: transparent;
+	border: 0;
+	width: calc(100% - 16px);
+	cursor: pointer;
+	text-align: left;
+}
+
+.sidebar .nav-dropdown-btn:hover {
+	background-color: rgba(156, 124, 79, 0.12);
+	color: #7a5c30;
+	border-radius: 20px;
+}
+
+.sidebar .nav-dropdown-btn.active {
+	background-color: #e0d8cc;
+	color: #7a5c30;
+	border-left: 0;
+	font-weight: 500;
+	border-radius: 8px;
+}
+
+.sidebar .nav-dropdown-menu {
+	display: none;
+	padding-left: 12px;
+}
+
+.sidebar .nav-dropdown-menu.show {
+	display: block;
+}
+
+.sidebar .nav-dropdown-menu .nav-link {
+	font-size: 13px;
+	padding: 8px 16px;
+	color: #7a6e5a;
+}
+
+.sidebar .nav-dropdown-menu .nav-link:hover {
+	color: #7a5c30;
 }
 
 .sidebar-footer {
 	padding: 16px;
-	border-top: 1px solid #3a6d80;
+	border-top: 1px solid #ddd5c5;
 	margin-top: auto;
 }
 
 .sidebar-footer a {
-	color: #5a9aaf;
+	color: #8a7a65;
 	font-size: 13px;
 	text-decoration: none;
 	display: flex;
@@ -118,10 +178,10 @@ body {
 }
 
 .sidebar-footer a:hover {
-	color: #b8d4de;
+	color: #5a4e3e;
 }
 
-/* Main content */
+/* ===== Main content ===== */
 .main-content {
 	flex: 1;
 	display: flex;
@@ -130,9 +190,9 @@ body {
 }
 
 .top-navbar {
-	background-color: #fffdf7;
+	background-color: #f8f4ee;
 	padding: 16px 32px;
-	border-bottom: 1px solid #e5d5b5;
+	border-bottom: 1px solid #e8e0d0;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -140,47 +200,48 @@ body {
 
 .top-navbar h4 {
 	font-family: 'Noto Serif TC', serif;
-	color: #5c3d1e;
+	color: #3a3226;
 	font-size: 1.1rem;
 	letter-spacing: 2px;
+	font-weight: 500;
 }
 
 .page-body {
 	padding: 32px;
 	flex: 1;
-	background-color: #faf5ec;
+	background-color: #f5f0e8;
 }
 
-/* Card */
+/* ===== Card ===== */
 .card {
-	border: 1px solid #e5d5b5;
-	box-shadow: 0 2px 12px rgba(92, 61, 30, 0.08);
+	border: 1px solid #e8e0d0;
+	box-shadow: 0 2px 12px rgba(42, 36, 25, 0.06);
 	border-radius: 8px;
-	background: #fffdf7;
+	background: #fffdf8;
 }
 
-/* Table */
+/* ===== Table ===== */
 .table thead {
-	background-color: #f5ead5;
+	background-color: #f0e8d8;
 }
 
 .table thead th {
-	color: #7a5c30;
+	color: #6a5030;
 	font-size: 13px;
 	font-weight: 600;
-	border-color: #e5d5b5;
+	border-color: #e8e0d0;
 	letter-spacing: 1px;
 }
 
 .table tbody tr {
-	border-color: #f0e4cc;
+	border-color: #ede5d5;
 }
 
 .table tbody tr:hover {
-	background-color: #fdf5e6;
+	background-color: #faf5ec;
 }
 
-/* Buttons */
+/* ===== Buttons ===== */
 .btn-gold {
 	background-color: #c9a84c;
 	color: #fff;
@@ -194,12 +255,12 @@ body {
 
 .btn-outline-gold {
 	background: transparent;
-	color: #c9a84c;
-	border: 1px solid #c9a84c;
+	color: #9c7c4f;
+	border: 1px solid #9c7c4f;
 }
 
 .btn-outline-gold:hover {
-	background-color: #c9a84c;
+	background-color: #9c7c4f;
 	color: #fff;
 }
 
@@ -229,6 +290,7 @@ body {
 				th:classappend="${activePage == 'home'} ? 'active'"> <i
 				class="fa-solid fa-gauge fa-fw"></i> 後台控制台
 			</a>
+
 			<div class="nav-section">商品管理</div>
 			<a href="/admin/shop/listAllProducts" class="nav-link"
 				th:classappend="${activePage == 'shop'} ? 'active'"> <i
@@ -237,7 +299,9 @@ body {
 				th:classappend="${activePage == 'category'} ? 'active'"> <i
 				class="fa-solid fa-tags fa-fw"></i> 商品類別
 			</a>
-			<div class="nav-section">訂單 & 評論</div>
+
+			<div class="nav-section">訂單 &amp; 評論</div>
+
 			<a href="/admin/shop/order/listAllOrders" class="nav-link"
 				th:classappend="${activePage == 'order'} ? 'active'"> <i
 				class="fa-solid fa-cart-shopping fa-fw"></i> 訂單管理
@@ -247,20 +311,24 @@ body {
 			</a>
 		</div>
 		<div class="sidebar-footer">
-			<a href="/thestar/admin/login"><i class="fa-solid fa-arrow-left"></i> 回後台</a>
+			<a href="/thestar/admin/home"> <i class="fa-solid fa-arrow-left"></i>
+				回後台
+			</a>
 		</div>
 	</div>
 
 	<div th:fragment="topbar(pageTitle)" class="top-navbar">
 		<h4 class="m-0 fw-bold" th:text="${pageTitle}">分頁標題</h4>
 		<div class="d-flex align-items-center gap-3">
-			<span style="color: #7a5c30; font-size: 13px"><i
-				class="fa-solid fa-user-shield me-1"></i> 管理員</span> <a href="/thestar/admin/login"
-				class="btn btn-outline-gold btn-sm"> <i
-				class="fa-solid fa-house me-1"></i>後台首頁
+			<span style="color: #6a5030; font-size: 13px;"> <i
+				class="fa-solid fa-user-shield me-1"></i> <span
+				th:text="${employeeName != null ? employeeName : '管理員'}"></span>
+			</span> <a href="/thestar/admin/home" class="btn btn-outline-gold btn-sm">
+				<i class="fa-solid fa-house me-1"></i>後台首頁
 			</a>
 		</div>
 	</div>
+
 
 </body>
 </html>

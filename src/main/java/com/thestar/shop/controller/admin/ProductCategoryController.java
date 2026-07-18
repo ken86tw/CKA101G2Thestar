@@ -13,7 +13,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/admin/shop/category")
-public class ProductCategoryController {
+public class ProductCategoryController extends AdminShopBaseController{
 
     @Autowired
     ProductCategoryService productCategorySvc;

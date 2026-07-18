@@ -27,7 +27,7 @@ import com.thestar.shop.service.ProductsService;
 
 @Controller
 @RequestMapping("/admin/shop/image")
-public class ProductImageController {
+public class ProductImageController extends AdminShopBaseController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProductImageController.class);
 

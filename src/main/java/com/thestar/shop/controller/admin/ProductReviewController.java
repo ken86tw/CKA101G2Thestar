@@ -11,7 +11,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/admin/shop/review")
-public class ProductReviewController {
+public class ProductReviewController extends AdminShopBaseController {
 
     @Autowired
     ProductReviewService productReviewSvc;

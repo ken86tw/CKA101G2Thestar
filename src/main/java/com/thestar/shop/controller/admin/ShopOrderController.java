@@ -17,29 +17,58 @@ import com.thestar.shop.service.ProductOrderItemService;
 
 @Controller
 @RequestMapping("/admin/shop/order")
-public class ShopOrderController {
+public class ShopOrderController extends AdminShopBaseController {
 
 	@Autowired
 	ShopOrderService shopOrderSvc;
 
 	// 顯示所有訂單
 	@GetMapping("listAllOrders")
-	public String listAllOrders(@RequestParam(value = "paymentStatus", required = false) Byte paymentStatus,
-			ModelMap model) {
-		List<ShopOrderVO> list = shopOrderSvc.getAll();
+	public String listAllOrders(
+	        @RequestParam(value = "paymentStatus", required = false) Byte paymentStatus,
+	        @RequestParam(value = "filter", required = false) String filter,
+	        ModelMap model) {
+	    
+	    List<ShopOrderVO> list = shopOrderSvc.getAll();
 
-		// 若有傳 paymentStatus 就篩選
-		if (paymentStatus != null) {
-		    list = list.stream()
-		            .filter(o -> o.getShopPaymentStatus() != null 
-		                      && o.getShopPaymentStatus().equals(paymentStatus)
-		                      && o.getShopOrderStatus() != 3) // 排除已取消
-		            .collect(java.util.stream.Collectors.toList());
-		}
+	    // 付款狀態篩選（待付款）
+	    if (paymentStatus != null) {
+	        list = list.stream()
+	                .filter(o -> o.getShopPaymentStatus() != null
+	                          && o.getShopPaymentStatus().equals(paymentStatus)
+	                          && o.getShopOrderStatus() != null
+	                          && o.getShopOrderStatus() != 3)
+	                .collect(java.util.stream.Collectors.toList());
+	    }
 
-		model.addAttribute("orderListData", list);
-		model.addAttribute("selectedPaymentStatus", paymentStatus);
-		return "admin/shop/order/listAllOrders";
+	    // 訂單狀態篩選
+	    if ("pending".equals(filter)) {
+	        // 待出貨：已付款 + 訂單成立
+	        list = list.stream()
+	                .filter(o -> o.getShopPaymentStatus() != null && o.getShopPaymentStatus() == 1
+	                          && o.getShopOrderStatus() != null && o.getShopOrderStatus() == 0)
+	                .collect(java.util.stream.Collectors.toList());
+	    } else if ("shipping".equals(filter)) {
+	        // 出貨中
+	        list = list.stream()
+	                .filter(o -> o.getShopOrderStatus() != null && o.getShopOrderStatus() == 1)
+	                .collect(java.util.stream.Collectors.toList());
+	    } else if ("delivered".equals(filter)) {
+	        // 已送達
+	        list = list.stream()
+	                .filter(o -> o.getShopOrderStatus() != null && o.getShopOrderStatus() == 2)
+	                .collect(java.util.stream.Collectors.toList());
+	    } else if ("cancelled".equals(filter)) {
+	        // 已取消
+	        list = list.stream()
+	                .filter(o -> o.getShopOrderStatus() != null && o.getShopOrderStatus() == 3)
+	                .collect(java.util.stream.Collectors.toList());
+	    }
+
+	    model.addAttribute("orderListData", list);
+	    model.addAttribute("selectedPaymentStatus", paymentStatus);
+	    model.addAttribute("selectedFilter", filter);
+	    return "admin/shop/order/listAllOrders";
 	}
 
 	// 顯示單筆訂單
