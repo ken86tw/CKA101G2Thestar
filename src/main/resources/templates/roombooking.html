@@ -9,6 +9,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
     <!-- Font Awesome:共用導覽列的鈴鐺、會員頭像圖示需要它 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- flatpickr:日期範圍選擇器套件(Booking.com 那種「點入住日→滑過去反白→點退房日」的雙月日曆)。
+         三個檔案缺一不可:css=日曆外觀、js=主程式、zh-tw.js=繁中語系(把 Su Mo 變成 週日 週一)。
+         @4.6.13 是鎖版本號:不鎖的話 CDN 永遠給最新版,哪天大改版網站就突然壞了 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/zh-tw.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;500;600&display=swap"
@@ -70,12 +76,26 @@
                     <div class="up">Reservations</div>
                     <h1>BOOK NOW</h1>
                     <div class="rule"></div>
+                    <!-- 日期改成單一欄位:flatpickr 的範圍模式會在這個框下方彈出雙月日曆,
+                         點第一下=入住日、滑鼠掃過去反白、點第二下=退房日,選完框內顯示「入住日 至 退房日」。
+                         三個重點:
+                         1. ref="dateRange":給 JS 一個把手,initDatePicker() 用 this.$refs.dateRange 找到這個 input 掛上日曆
+                         2. 「不用 v-model」:input 的值歸 flatpickr 管,選好的日期由它的 onChange 回呼寫進 form,
+                            兩邊同時管同一個 input 會互相蓋來蓋去
+                         3. readonly:擋手打。使用者亂打「7/40」後端會炸,readonly 逼所有人都走日曆選,日期保證合法 -->
+                    <!-- 日期欄的版面:入住日靠左、「至」置中、退房日靠右。
+                         一個 input 只能顯示「一串文字」,排不出三段式版面,所以拆成兩層:
+                         1. 三個 span 負責「顯示」——直接綁 Vue 的 form,日曆一選完 onChange 寫進 form,這裡就自動更新
+                         2. input 負責「互動」——它還是 flatpickr 掛日曆的把手(ref),
+                            用 CSS 攤平成透明層蓋滿整個欄位,點欄位任何地方都等於點到它,日曆就會彈出 -->
                     <div class="searchbar">
-                        <div class="sfield"><label>入住日 · Arrival</label>
-                            <input type="date" v-model="form.checkInDate"></div>
-                        <div class="sdiv"></div>
-                        <div class="sfield"><label>退房日 · Departure</label>
-                            <input type="date" v-model="form.checkOutDate"></div>
+                        <div class="sfield dateview">
+                            <!-- dateZh 把 form 裡的 2026-07-22 轉成 2026年7月22日(只轉顯示,form 內容不動) -->
+                            <span class="dv">{{ dateZh(form.checkInDate) }}</span>
+                            <span class="dsep">—</span>
+                            <span class="dv">{{ dateZh(form.checkOutDate) }}</span>
+                            <input type="text" ref="dateRange" readonly>
+                        </div>
                         <button class="btn" @click="searchRooms">搜尋空房</button>
                     </div>
 
@@ -126,7 +146,19 @@
                             略過金流
                         </button>
                     </div>
-                    <div class="hint" style="margin-top:40px;color: red">請於三分鐘內完成付款，否則將取消訂單</div>
+                    <!-- payLeft>0 倒數中;歸零後計時器已停 v-else 換成逾時提示 等後端排程取消+WS通知收頁 -->
+                    <div style="margin-top:40px">
+                        <template v-if="payLeft > 0">
+                            <!-- tabular-nums:讓每個數字等寬 跳秒時整排才不會左右抖動 -->
+                            <div style="font-size:64px;font-weight:700;color:red;font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1">
+                                {{payLeftText}}
+                            </div>
+                            <div class="hint" style="margin-top:16px;color: red">請於三分鐘內完成付款，逾時將自動取消訂單</div>
+                        </template>
+                        <template v-else>
+                            <div class="hint" style="color: red">付款時間已截止，訂單即將自動取消</div>
+                        </template>
+                    </div>
                 </div>
                 <template v-else>
 
@@ -307,6 +339,11 @@
                                 <td><span class="oid">No. {{ o.orderId }}</span></td>
                                 <td><span class="badge" :class="'b'+o.orderStatus">{{ STATUS[o.orderStatus].label
                                     }}</span>
+                                    <!-- 待付款的單掛個小倒數 歸零後等後端排程取消+WS通知重查 狀態就會變已取消 -->
+                                    <div v-if="o.orderStatus===0"
+                                         style="color:red;font-size:12px;margin-top:4px;font-variant-numeric:tabular-nums">
+                                        {{ payLeftOf(o) > 0 ? '剩 ' + mmss(payLeftOf(o)) : '逾時，取消處理中' }}
+                                    </div>
                                 </td>
                                 <td>
                                     <span v-if="o.orderStatus===3 && o.refundvo">
@@ -325,9 +362,6 @@
                                     <div class="actions">
                                         <button class="btn line sm" @click="toggleDetail(orders,o.orderId,'member')">
                                             {{ orders.open[o.orderId] ? '收合' : '明細' }}
-                                        </button>
-                                        <button v-if="o.orderStatus===0" class="btn sm" @click="pay(o.orderId)">
-                                            前往結帳
                                         </button>
                                         <button v-if="o.orderStatus===0" class="btn ghost sm"
                                                 @click="devConfirm(o.orderId)" title="不經綠界直接標記已付款">略過金流付款

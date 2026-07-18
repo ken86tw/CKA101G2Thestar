@@ -1535,3 +1535,131 @@ summary {
 .room-navbar .navbar-brand .brand-zh {
     color: var(--ink);
 }
+
+/* ===== flatpickr 日期範圍日曆(搜尋列用) =====
+   套件自帶的 flatpickr.min.css 已經把日曆的排版都做好了,
+   這裡只「蓋顏色」:把它預設的藍色系換成網站的金色調。
+   (跟檔頭 common.css 的道理一樣:同分時後載入的贏,所以這些規則能蓋過套件的預設值) */
+
+/* 日曆整體:直角+陰影,跟搜尋列同一種質感;字體換成網站的 */
+.flatpickr-calendar {
+    font-family: var(--sans);
+    border-radius: 0;
+    border: 1px solid var(--line);
+    box-shadow: 0 18px 44px rgba(35, 33, 28, .14);
+}
+
+/* 「2026年7月」月份標題與星期列 */
+.flatpickr-current-month {
+    font-size: 16px;
+}
+
+.flatpickr-weekday {
+    color: var(--muted);
+}
+
+/* 選中的入住日(startRange)和退房日(endRange):金底白字的實心方塊。
+   光寫 .flatpickr-day.selected 還不夠,:hover、:focus、.inRange 的組合都要一起寫——
+   套件對這些狀態各有一條「更具體」的藍色規則(CSS 打架先比誰更具體、再比誰後載入),
+   少寫哪個狀態,那個狀態就會閃回套件預設的藍色。
+   實際踩過的坑::focus 那三行一開始沒寫,結果「點下去的那格」是藍的——
+   因為滑鼠點擊會讓那格拿到鍵盤焦點,套件的 .selected:focus(2 class+1 偽類)就壓過我們的 2 class */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover,
+.flatpickr-day.selected:focus,
+.flatpickr-day.startRange:focus,
+.flatpickr-day.endRange:focus,
+.flatpickr-day.selected.inRange,
+.flatpickr-day.startRange.inRange,
+.flatpickr-day.endRange.inRange {
+    background: var(--gold);
+    border-color: var(--gold);
+    border-radius: 0;
+}
+
+/* 入住日與退房日「中間」的日期(含點了第一下後滑鼠掃過的即時預覽):淺金底。
+   box-shadow 是 flatpickr 用來把相鄰兩格之間的縫隙補滿顏色的招,顏色要跟底色一致才不會有直線縫 */
+.flatpickr-day.inRange {
+    background: #f1ebe2;
+    border-color: #f1ebe2;
+    border-radius: 0;
+    box-shadow: -5px 0 0 #f1ebe2, 5px 0 0 #f1ebe2;
+}
+
+/* 起迄日和中間段交界處的補縫顏色也換掉(套件預設補灰色會露餡) */
+.flatpickr-day.selected.startRange + .flatpickr-day.inRange,
+.flatpickr-day.startRange.startRange + .flatpickr-day.inRange {
+    box-shadow: -10px 0 0 #f1ebe2;
+}
+
+/* 今天:預設是藍框,改成金框呼應主色 */
+.flatpickr-day.today {
+    border-color: var(--gold);
+}
+
+/* 滑鼠掃到還沒選的日期:淡淡的底色回饋 */
+.flatpickr-day:hover {
+    background: #f6f2ea;
+    border-color: #f6f2ea;
+}
+
+/* 起迄日的圓角要用「三個 class」的選擇器才蓋得掉:
+   套件內部寫的是 .flatpickr-day.selected.startRange(三個 class,比我們上面兩個 class 的規則「更具體」),
+   CSS 規則打架時先比具體度、再比先後,所以這裡也要寫到三個 class 才贏得了它 */
+.flatpickr-day.selected.startRange,
+.flatpickr-day.startRange.startRange,
+.flatpickr-day.endRange.startRange,
+.flatpickr-day.selected.endRange,
+.flatpickr-day.startRange.endRange,
+.flatpickr-day.endRange.endRange {
+    border-radius: 0;
+}
+
+/* 只住一晚時入住、退房兩格緊貼,套件會用藍色 box-shadow 補中間的縫——把這條縫也換成金色。
+   :not(:nth-child(7n+1)) 是照抄套件的寫法:排除每週第一格(跨週換行時不需要補縫) */
+.flatpickr-day.selected.startRange + .flatpickr-day.endRange:not(:nth-child(7n+1)),
+.flatpickr-day.startRange.startRange + .flatpickr-day.endRange:not(:nth-child(7n+1)),
+.flatpickr-day.endRange.startRange + .flatpickr-day.endRange:not(:nth-child(7n+1)) {
+    box-shadow: -10px 0 0 var(--gold);
+}
+
+/* ===== 搜尋列日期欄(三段式版面:入住日靠左、「至」置中、退房日靠右) =====
+   寫在檔案尾巴,同分(具體度相同)時後寫的贏,蓋掉上面搜尋列區的原設定 */
+.searchbar .sfield.dateview {
+    position: relative;              /* 當「定位基準」:裡面的 input 要用 absolute 貼滿它 */
+    display: flex;
+    align-items: center;             /* 上下置中 */
+    justify-content: space-between;  /* 三段拉開:左、中、右各就各位 */
+}
+
+/* 兩個日期:用全站日期同款的襯線字體(--serif),數字和中文字才是同一家人;
+   之前用預設的 --sans 會變成「數字 Jost 細體 + 中文 Noto Serif」兩種字體混排,看起來參差不齊 */
+.searchbar .dateview .dv {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 27px;
+    letter-spacing: 1px;
+    color: var(--ink);
+}
+
+/* 中間的「至」:小一點、淡一點,當分隔詞不搶戲 */
+.searchbar .dateview .dsep {
+    font-size: 15px;
+    letter-spacing: 4px;
+    color: var(--muted);
+}
+
+/* flatpickr 掛日曆用的 input:攤平成透明層蓋滿整個欄位。
+   inset:0 = top/right/bottom/left 全設 0(貼滿父層);opacity:0 = 看不見但「還在」,
+   所以點欄位任何位置其實都是點到它 → 日曆就彈出。
+   (不能用 display:none 藏它:元素從版面上消失的話,flatpickr 會不知道日曆要靠著誰定位) */
+.searchbar .dateview input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}

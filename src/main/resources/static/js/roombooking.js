@@ -23,6 +23,7 @@ createApp({
             browsing: true,   // 預設直接進查房頁不擋登入,到「確認預訂」才要求登入;員工登入後設 false 隱藏訂房分頁
             confirmOrder: null,
             confirmDetail: [],
+            nowTick: Date.now(),   // 全站唯一的「現在時刻」 mounted裡每秒更新一次 所有倒數都拿訂單時間跟它相減算出來
             orders: {status: 0, page: 0, size: 10, list: [], totalPages: 0, counts: {}, open: {}, detail: {}},
             admin: {status: 0, page: 0, size: 10, list: [], totalPages: 0, counts: {}, open: {}, detail: {}},
             stay: {
@@ -59,6 +60,14 @@ createApp({
         logText() {
             return this.logLines.join('\n') || '（尚無紀錄）';
         },
+        // 確認頁的剩餘秒數:不用開錶關錶 confirmOrder有單就自動有值 沒單就是null
+        // nowTick每秒變一次 這裡就自動跟著重算 倒數效果就出來了
+        payLeft() {
+            return this.confirmOrder ? this.payLeftOf(this.confirmOrder) : null;
+        },
+        payLeftText() {
+            return this.mmss(this.payLeft);
+        },
 
         // 表格的欄標題:從 155 筆資料收集「不重複的房型名稱」
         // 例:['豪華雙人房', '家庭房', '總統套房']
@@ -89,7 +98,7 @@ createApp({
                     const r = byDate[date][name];
                     // 後端每天每房型都會給一筆,理論上不會缺;防禦性給個 '-' 以防萬一
                     return r ? {remain: r.remainAmount, total: r.totalAmount}
-                             : {remain: '-', total: '-'};
+                        : {remain: '-', total: '-'};
                 })
             }));
         },
@@ -113,8 +122,8 @@ createApp({
         bookTotal() {
             return this.bookItems.reduce((sum, it) => sum + it.subtotal, 0);
         },
-        couponDiscount(){
-            return this.resolveCouponDiscount(this.form.memberCouponId,this.bookTotal);
+        couponDiscount() {
+            return this.resolveCouponDiscount(this.form.memberCouponId, this.bookTotal);
         },
         // 目前選中的券物件(給預覽卡顯示用)
         selectedCoupon() {
@@ -123,10 +132,30 @@ createApp({
             }
             return this.coupons.find(c => Number(c.memberCouponId) === Number(this.form.memberCouponId) && c.displayStatus === 'AVAILABLE'
             ) || null;
+        },
+        // 「搜尋列現在有沒有顯示在畫面上?」——把 HTML 那兩層 v-if 的條件照抄過來合成一個布林值。
+        // 為什麼需要它:日期欄那個 input 被 v-if 包著,v-if 是「整個元素從頁面拆掉/重建」,
+        // 拆掉時掛在上面的 flatpickr 日曆也跟著沒了;所以要有個訊號告訴我們「input 回來了,日曆要重掛」
+        searchbarOn() {
+            return (this.member.on || this.browsing) && this.nav === 'book'
+                && !this.confirmOrder && this.book.step === 'search';
+        }
+    },
+    // watch = 盯著某個資料,它一變就執行對應的函式(computed 是「算給畫面看」,watch 是「變了就做事」)
+    watch: {
+        // searchbarOn 從 false 變 true(例如從確認頁按「更改日期」回搜尋頁)→ 重掛日曆。
+        // $nextTick:Vue 改資料後「下一拍」才真正把 input 放回頁面,直接掛會找不到元素,要等這一拍
+        searchbarOn(on) {
+            if (on) this.$nextTick(this.initDatePicker);
         }
     },
     // 重整後問會員/員工登入狀態:兩種身分都存在同一個 HTTP session,重整不掉登入
     async mounted() {
+        // 全站唯一的一個時鐘 每秒更新nowTick 所有倒數畫面都靠它驅動
+        // 頁面關掉瀏覽器就會收掉它 所以不需要手動clearInterval
+        setInterval(() => this.nowTick = Date.now(), 1000);
+        // 第一次進頁面就把日期日曆掛上搜尋列(上面的 watch 只管「離開又回來」的重掛,首次要自己掛)
+        this.initDatePicker();
         this.loadRoomTypes();   // 首屏房型展示卡用,不需登入
         try {
             const me = await this.api('/api/member/status');
@@ -172,6 +201,46 @@ createApp({
         }
     },
     methods: {
+        // 把 flatpickr 日曆掛到搜尋列的日期欄上(首次進頁面和每次搜尋列重新出現都會呼叫)
+        initDatePicker() {
+            const el = this.$refs.dateRange;
+            if (!el) return;   // 員工身分或不在搜尋頁時,日期欄根本沒渲染,直接跳過
+            // 舊實例先銷毀再重建:v-if 把舊 input 拆掉後,舊日曆還掛在記憶體裡,不清會愈積愈多
+            if (this._fp) this._fp.destroy();
+            // 存成 this._fp 而不是放進 data():data 裡的東西 Vue 都會加上「變動偵測」包裝,
+            // 日曆物件內部狀態一大堆,被包裝會又慢又容易出怪事;它跟畫面渲染無關,存普通屬性就好
+            this._fp = flatpickr(el, {
+                mode: 'range',        // 範圍模式:點兩下選「起、迄」,中間的日期自動反白
+                showMonths: 2,        // 一次並排顯示兩個月(Booking.com 樣式)
+                minDate: 'today',     // 今天以前的日期變灰不可點(跟 searchRooms 的檢查同一條規則,這裡是第一道防線)
+                locale: 'zh_tw',      // 用 <head> 載入的繁中語系:週日/週一、「2026-07-19 至 2026-07-20」
+                dateFormat: 'Y-m-d',  // 跟後端 API 要的 yyyy-MM-dd 一致,不用再轉格式
+                // 重新進搜尋頁時,把 form 裡現有的日期畫回日曆上(例如從確認頁按「更改日期」回來)
+                defaultDate: [this.form.checkInDate, this.form.checkOutDate],
+                // 使用者選完日期,flatpickr 呼叫這個回呼——這裡就是「日曆 → Vue 表單」的橋:
+                // dates 是選到的日期陣列,只點了第一下時長度是 1,兩個都選好才是 2
+                onChange: (dates, _str, fp) => {
+                    if (dates.length === 2) {
+                        // 用 fp.formatDate 轉回 yyyy-MM-dd 字串;不能用 toISOString,
+                        // 理由跟檔案最上面 localDate 的註解一樣:那是 UTC,台灣半夜會差一天
+                        this.form.checkInDate = fp.formatDate(dates[0], 'Y-m-d');
+                        this.form.checkOutDate = fp.formatDate(dates[1], 'Y-m-d');
+                    }
+                }
+            });
+        },
+        // 搜尋列顯示用:把 form 裡的 '2026-07-22' 轉成 '2026年7月22日(三)'。
+        // 只轉「給人看的那份」,form 裡仍是 yyyy-MM-dd——後端 API 吃的是那個格式,不能動
+        dateZh(s) {
+            if (!s) return '';
+            const [y, m, d] = s.split('-');
+            // 星期幾:getDay() 回 0~6(0=週日),拿去字串裡「按位置取字」剛好對上中文
+            // 注意要用 new Date(年,月,日) 三個參數的寫法(月要減1,因為它從0起算):
+            // 這樣是「本地時間」的那天;寫 new Date('2026-07-22') 會被當成 UTC,某些時區星期會差一天
+            const w = '日一二三四五六'[new Date(y, m - 1, d).getDay()];
+            // Number() 順手把 '07' 的開頭 0 拿掉:7月 比 07月 順眼
+            return `${y}年${Number(m)}月${Number(d)}日（${w}）`;
+        },
         fmt(s) {
             return s ? String(s).replace('T', ' ').slice(0, 16) : '';
         },
@@ -341,7 +410,7 @@ createApp({
                     body: JSON.stringify(this.form)
                 });
                 this.log('✔ 下單', r);
-                this.confirmOrder = r;
+                this.confirmOrder = r;   // 設好confirmOrder後 computed的payLeft就會自動開始倒數
                 this.book.step = 'search';
                 this.book.results = [];
                 this.book.sel = {};
@@ -357,6 +426,20 @@ createApp({
                 this.book.step = 'list';
                 this.searchRooms();
             }
+        },
+        // 算一張訂單還剩幾秒可付款 確認頁跟訂單列表共用
+        // 原理:下單時間+時限-現在=剩餘 全部用減法算 所以不用每張單各開一個計時器
+        payLeftOf(o) {
+            if (!o || !o.createdTime) return null;
+            // createdTime是後端給的字串 new Date()解析成時間再取毫秒數
+            const deadline = new Date(o.createdTime).getTime() + 200 * 1000;
+            return Math.max(0, Math.floor((deadline - this.nowTick) / 1000)); // 到期停在0 不顯示負數
+        },
+        // 秒數轉 mm:ss 例如 200 → 3:20
+        mmss(sec) {
+            const m = Math.floor(sec / 60);
+            const s = String(sec % 60).padStart(2, '0'); // 不足兩位補0 避免顯示 3:5
+            return `${m}:${s}`;
         },
         async loadOrders() {
             if (!this.member.on) return;
@@ -752,7 +835,6 @@ createApp({
         },
 
 
-
         connectWs() {
             if (this._stomp) return;
             const proto = location.protocol === 'https:' ? 'wss' : 'ws';
@@ -789,6 +871,18 @@ createApp({
                         //同一個頻道兩種事件 看event決定跳哪句
                         if (data.event === 'refunded') this.toast('ok', '退款完成', '您的訂單狀態已更新');
                         if (data.event === 'completed') this.toast('ok', '退房完成', '感謝您的入住');
+                        if (data.event === 'canceled') {
+                            // 收到取消通知先不動作 推遲一秒再處理
+                            // setTimeout(要做的事, 毫秒數) 一秒後才執行大括號裡的內容
+                            setTimeout(() => {
+                                this.toast('ok', '訂單取消', '由於您逾時未付款訂單已取消');
+                                // 若客人還停在確認頁 把頁面收掉 避免對著已取消的單按付款
+                                this.confirmOrder = null;
+                                this.loadOrders();
+                            }, 1000);
+                            // return 讓下面那行 loadOrders 不要立刻跑 統一等一秒後那次
+                            return;
+                        }
                         this.loadOrders();
                     });
                 }

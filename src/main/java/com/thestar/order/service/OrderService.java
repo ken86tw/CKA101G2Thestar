@@ -1,6 +1,8 @@
 package com.thestar.order.service;
 
 import com.thestar.member.service.MemberCouponService;
+import com.thestar.member.service.MemberNotifyService;
+import com.thestar.order.repository.OrderListRepository;
 import com.thestar.room.service.RedisRoomStock;
 
 import com.thestar.order.dto.CreateRoomOrderDTO;
@@ -13,6 +15,7 @@ import com.thestar.refund.repository.RefundListRepository;
 import com.thestar.room.repository.RoomInventoryRepository;
 import com.thestar.room.repository.RoomTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,18 +33,24 @@ public class OrderService {
     private final RefundListRepository refundListRepository;
     private final RedisRoomStock redisRoomStock;
     private final MemberCouponService memberCouponService;
+    private final MemberNotifyService memberNotifyService;
+    private final OrderListRepository orderListRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
 
     @Autowired
     public OrderService(OrderRepository orderRepository, RoomInventoryRepository roomInventoryRepository
             , RoomTypeRepository roomTypeRepository, RefundListRepository refundListRepository
-            , RedisRoomStock redisRoomStock, MemberCouponService memberCouponService) {
+            , RedisRoomStock redisRoomStock, MemberCouponService memberCouponService, MemberNotifyService memberNotifyService, OrderListRepository orderListRepository, SimpMessagingTemplate simpMessagingTemplate) {
         this.orderRepository = orderRepository;
         this.roomInventoryRepository = roomInventoryRepository;
         this.roomTypeRepository = roomTypeRepository;
         this.refundListRepository = refundListRepository;
         this.redisRoomStock = redisRoomStock;
         this.memberCouponService = memberCouponService;
+        this.memberNotifyService = memberNotifyService;
+        this.orderListRepository = orderListRepository;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Transactional
@@ -147,7 +156,7 @@ public class OrderService {
             ordervo.setPaidAmount(0);
             ordervo.setMerchantTradeNo(generateMerchantTradeNo());
 
-            if(totalAmount - ordervo.getDiscountAmount() <= 0){
+            if (totalAmount - ordervo.getDiscountAmount() <= 0) {
                 throw new IllegalArgumentException("折抵後結帳金額不得低於$1");
             }
             //將此訂單依房型暫存明細一筆筆存入orderListVO
@@ -155,6 +164,7 @@ public class OrderService {
                 ordervo.addOrderList(listVO);
             }
 
+            memberNotifyService.createNotification(memberId, "您的房間訂單已建立");
             return orderRepository.save(ordervo);
 
         } catch (RuntimeException e) {
@@ -232,7 +242,8 @@ public class OrderService {
 
             //若是沒結帳將會還券
             memberCouponService.restoreCouponForUnpaidOrder(expiredOrder.getMemberCouponId());
-
+            memberNotifyService.createNotification(expiredOrder.getMemberId(), "由於逾時未付款，您的房間訂單已取消");
+            simpMessagingTemplate.convertAndSend("/topic/member/" + expiredOrder.getMemberId(), (Object) Map.of("event", "canceled"));
             for (OrderListVO orderList : expiredOrder.getOrderList()) {
                 Integer roomTypeId = orderList.getRoomTypeId();
                 int qty = orderList.getQuantity();
@@ -253,6 +264,7 @@ public class OrderService {
         if (row == 0) {
             throw new IllegalStateException("訂單無法完成 OrderId =" + orderId);
         }
+        memberNotifyService.createNotification(orderRepository.findById(orderId).orElseThrow().getMemberId(), "退房成功，您的房間訂單已完成");
     }
 
     @Transactional
@@ -289,6 +301,7 @@ public class OrderService {
         refund.setReason(reason);
         refund.setOrdervo(ordervo);
         refundListRepository.save(refund);
+        memberNotifyService.createNotification(ordervo.getMemberId(), "您的房間訂單已取消");
     }
 
 
