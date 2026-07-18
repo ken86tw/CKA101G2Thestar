@@ -12,7 +12,7 @@ services:
       - mysql-data:/var/lib/mysql
       - ./database/thestar21.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent" ]
+      test: [ "CMD-SHELL", "mysql -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD -e 'SELECT 1 FROM thestar.MEMBERS LIMIT 1' --silent" ]
       interval: 5s
       timeout: 5s
       retries: 20
