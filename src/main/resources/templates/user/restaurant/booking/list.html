@@ -80,6 +80,7 @@ body {
 					</div>
 
 					<!-- 歷史評價區塊 -->
+					<!-- 歷史評價區塊 -->
 					<div class="review-section"
 						th:if="${reviewMap.containsKey(res.reservationId)}">
 						<div
@@ -89,8 +90,26 @@ body {
 								th:text="${reviewMap.get(res.reservationId).reviewStars} + ' / 5.0 分'">5.0
 								分</span>
 						</div>
-						<p class="mb-0 text-dark" style="font-size: 0.95rem;"
-							th:text="${reviewMap.get(res.reservationId).reviewContent}">這家餐廳服務太棒了，餐點非常精緻！</p>
+
+						<!-- 加上 d-flex 讓內容與刪除按鈕並排 -->
+						<div class="d-flex justify-content-between align-items-end mt-2">
+							<p class="mb-0 text-dark flex-grow-1" style="font-size: 0.95rem;"
+								th:text="${reviewMap.get(res.reservationId).reviewContent}">這家餐廳服務太棒了，餐點非常精緻！</p>
+
+							<!-- 新增：前台評論刪除按鈕 -->
+							<form th:action="@{/restaurant/review/delete}" method="post"
+								onsubmit="return confirm('確定要刪除這則評論嗎？（刪除後可重新撰寫）');" class="ms-3">
+								<input type="hidden" name="reviewId"
+									th:value="${reviewMap.get(res.reservationId).reviewId}">
+								<!-- 傳回原本頁面重定向用，假設此頁路由為 /restaurant/booking/list (請依實際狀況調整) -->
+								<input type="hidden" name="redirectUri"
+									value="/restaurant/booking/list">
+								<button type="submit" class="btn btn-outline-secondary btn-sm"
+									style="font-size: 0.8rem; padding: 2px 8px;">
+									<i class="fa-solid fa-trash-can"></i> 刪除評論
+								</button>
+							</form>
+						</div>
 					</div>
 
 					<div class="text-end mt-3">
@@ -110,7 +129,7 @@ body {
 
 						<!-- 撰寫評論按鈕 -->
 						<div class="text-end mt-3"
-							th:if="${!reviewMap.containsKey(res.reservationId) and #strings.toString(res.reservationStatus) == 'FINISHED'}">
+							th:if="${#strings.toString(res.reservationStatus) == 'FINISHED' and res.reviewStatus == false}">
 							<a
 								th:href="@{/restaurant/review/add(resId=${res.reservationId})}"
 								class="btn btn-outline-warning btn-sm fw-bold"> ⭐ 撰寫五星好評 </a>

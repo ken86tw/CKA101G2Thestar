@@ -48,7 +48,7 @@ body {
 			<div class="col-md-4" th:each="menu : ${menuList}">
 				<div class="card h-100">
 					<img
-						th:src="${menu.itemImage != null} ? @{/admin/restaurant/menu/DBGifReader(itemId=${menu.itemId})} : 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'"
+						th:src="${menu.itemImage != null} ? @{/admin/restaurant/menu/DBGifReader(itemId=${menu.itemId})} : 'https://images.pexels.com/photos/33033815/pexels-photo-33033815.jpeg'"
 						class="card-img-top" alt="餐點圖片"
 						style="height: 220px; object-fit: cover;">
 					<div class="card-body">
