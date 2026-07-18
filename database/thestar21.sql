@@ -568,21 +568,21 @@ INSERT INTO EMPLOYEE
     (DEPARTMENT_ID, EMPLOYEE_NAME, EMPLOYEE_MAIL, EMPLOYEE_PASSWORD,
      PHONE, ADDRESS, JOB_TITLE_ID, GENDER, STATUS, HIRE_DATE)
 VALUES
-(4, '林人資', 'hr.lin@hotel.com',
+(4, '林人資', 'people@star.com',
  '$2a$10$vVybO7b3vj.PNQ70RjjqQ.kdDdkX27JHO0sc/JJvuFRXKEvQZkXpe', '0912-000-001', '台北市信義區', 2, 'F', 1, '2020-03-01'),
-(5, '陳資訊', 'it.chen@hotel.com',
+(5, '陳資訊', 'super@star.com',
  '$2a$10$vVybO7b3vj.PNQ70RjjqQ.kdDdkX27JHO0sc/JJvuFRXKEvQZkXpe', '0912-000-002', '新北市板橋區', 3, 'M', 1, '2021-07-15'),
-(1, '王客房', 'room.wang@hotel.com',
+(1, '王客房', 'room@star.com',
  '$2a$10$vVybO7b3vj.PNQ70RjjqQ.kdDdkX27JHO0sc/JJvuFRXKEvQZkXpe', '0912-000-003', '桃園市中壢區', 4, 'M', 1, '2022-01-10'),
-(2, '張餐飲', 'food.zhang@hotel.com',
+(2, '張餐飲', 'food@star.com',
  '$2a$10$vVybO7b3vj.PNQ70RjjqQ.kdDdkX27JHO0sc/JJvuFRXKEvQZkXpe', '0912-000-004', '台中市西屯區', 4, 'F', 1, '2023-05-20'),
-(3, '李商品', 'product.li@hotel.com',
+(3, '李商品', 'shop@star.com',
 '$2a$10$vVybO7b3vj.PNQ70RjjqQ.kdDdkX27JHO0sc/JJvuFRXKEvQZkXpe',
 '0912-000-005', '台北市中山區', 5, 'M', 1, '2024-01-15'),
-(4, '王會員', 'member.wang@hotel.com',
+(4, '王會員', 'member@star.com',
 '$2a$10$vVybO7b3vj.PNQ70RjjqQ.kdDdkX27JHO0sc/JJvuFRXKEvQZkXpe',
 '0912-000-006', '新北市板橋區', 5, 'F', 1, '2024-02-01'),
-( 5, '陳文章', 'content.chen@hotel.com',
+( 5, '陳文章', 'content@star.com',
 '$2a$10$vVybO7b3vj.PNQ70RjjqQ.kdDdkX27JHO0sc/JJvuFRXKEvQZkXpe',
 '0912-000-007', '台北市信義區', 5, 'M', 1, CURDATE());
 -- PERMISSION
