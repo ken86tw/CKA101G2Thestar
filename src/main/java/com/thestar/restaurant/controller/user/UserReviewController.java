@@ -122,6 +122,28 @@ public class UserReviewController {
     }
     
     
+    @PostMapping("/review/delete")
+    public String deleteReview(
+            HttpSession session,
+            @RequestParam("reviewId") Integer reviewId,
+            @RequestParam(value = "redirectUri", defaultValue = "/restaurant/review") String redirectUri) {
+        
+        // 1. 安全檢查：驗證會員是否登入
+        MemberVO member = getCurrentMember(session);
+        if (member == null) {
+            return "redirect:/login.html?redirect=/restaurant/review";
+        }
+        
+        // 2. 執行刪除商業邏輯
+        // 提示：您的 reviewService.deleteReview(reviewId) 內，
+        // 應包含把該筆訂位的 reviewStatus 改回可評論狀態（例如改為 true），讓使用者能重新撰寫。
+        reviewService.userDeleteReview(reviewId);
+        
+        // 3. 重定向回原本的訂位紀錄頁面
+        return "redirect:" + redirectUri;
+    }
+    
+    
     private MemberVO getCurrentMember(HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
 

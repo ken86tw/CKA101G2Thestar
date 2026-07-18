@@ -66,6 +66,22 @@ public class RestaurantReviewService {
         if (restaurantReviewRepository.existsById(reviewId))
             restaurantReviewRepository.deleteById(reviewId);
     }
+    
+    public void userDeleteReview(Integer reviewId) {
+        restaurantReviewRepository.findById(reviewId).ifPresent(review -> {
+            // 取得關聯的訂位 ID (若您的 Review 內是關聯物件，請改為 review.getRestaurantReservationVO().getReservationId())
+            Integer reservationId = review.getRestaurantReservationVO().getReservationId(); 
+            
+            if (reservationId != null) {
+                restaurantReservationRepository.findById(reservationId).ifPresent(res -> {
+                    res.setReviewStatus(false);
+                    restaurantReservationRepository.save(res);
+                });
+            }
+            
+            restaurantReviewRepository.deleteById(reviewId);
+        });
+    }
 
     public RestaurantReviewVO getOneReview(Integer reviewId) {
         Optional<RestaurantReviewVO> optional = restaurantReviewRepository.findById(reviewId);
