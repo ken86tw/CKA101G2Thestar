@@ -65,9 +65,9 @@ public class UserShopOrderController {
 	@Value("${ecpay.aio-url}")
 	private String ECPAY_URL;
 
-//	@Value("${ecpay.return-url}")
-//	private String BASE_URL;
-	private String BASE_URL = "https://scoop-moonbeam-casing.ngrok-free.dev";
+	@Value("${ecpay.return-url}")
+	private String BASE_URL;
+//	private String BASE_URL = "https://scoop-moonbeam-casing.ngrok-free.dev";
 
 	// 取得登入會員
 	private MemberVO getLoginMember(HttpSession session) {
