@@ -14,7 +14,7 @@
 .shop-navbar a[href*="cart"], .shop-navbar a[href*="Cart"], .shop-navbar .fa-cart-shopping,
 	.shop-navbar .fa-bag-shopping, .shop-navbar .cart-icon {
 	display: none !important;
-}
+	}
 </style>
 
 
@@ -54,7 +54,7 @@
 					<a href="/roombooking.html" class="btn-book">預訂</a>
 					<!-- 添加了 data-id 屬性以便 JS 抓取該房型 ID -->
 
-					<a th:href="@{/roomList/detail/{id}(id=${room.roomTypeId})}"
+					<a th:href="@{/roomlist/detail/{id}(id=${room.roomTypeId})}"
 						class="btn-more">詳細資訊</a>
 
 				</div>
@@ -64,6 +64,5 @@
 
 	<!-- 你的邏輯 JS -->
 	<script th:src="@{/js/header-auth.js}"></script>
-	<script th:src="@{/js/roomList.js}"></script>
 </body>
 </html>

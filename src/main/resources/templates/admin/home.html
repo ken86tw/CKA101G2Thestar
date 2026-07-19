@@ -62,6 +62,13 @@
                     <p>查看訂房訂單、入住狀態與退款申請。</p>
                     <span class="dashboard-enter">進入管理 <b>→</b></span>
                 </a>
+                <a class="dashboard-tile module-roomtype" th:href="@{/roomtype/manage}">
+    					<span class="dashboard-icon">□</span> <!-- 可依風格選用圖示 -->
+    					<span class="dashboard-tag">ROOM</span>
+   					 <h2>房型管理</h2>
+    					<p>設定房型詳情、數量、價格與上下架狀態。</p>
+   					 <span class="dashboard-enter">進入管理 <b>→</b></span>
+				</a>
                 <a class="dashboard-tile module-restaurant" th:if="${canUseRestaurant}" th:href="@{/admin/restaurant}">
                     <span class="dashboard-icon">♢</span>
                     <span class="dashboard-tag">DINING</span>

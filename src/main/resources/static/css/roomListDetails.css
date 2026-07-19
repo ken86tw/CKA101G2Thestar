@@ -1,0 +1,150 @@
+/* roomListDetails.css */
+body {
+	background-color: #fbf9f4;
+	color: #333;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.detail-container {
+	max-width: 1100px;
+	margin: 50px auto;
+	padding: 20px;
+}
+
+/* 標題與版面 */
+.room-title {
+	color: #b5894b;
+	font-size: 36px;
+	text-align: center;
+	margin-bottom: 40px;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+}
+
+.detail-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 400px;
+	gap: 50px;
+	align-items: start;
+}
+
+/* 圖片區與輪播按鈕定位 */
+.slider-wrapper {
+	position: relative;
+	max-width: 600px; 
+	margin: 0 auto; 
+}
+
+.slider img {
+	width: 100%;
+	height: auto;
+	aspect-ratio: 16/9;
+	object-fit: cover;
+	border-radius: 4px;
+	display: block;
+}
+
+.nav-prev, .nav-next {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	background: rgba(255, 255, 255, 0.7);
+	border: none;
+	padding: 10px 15px;
+	cursor: pointer;
+	font-size: 20px;
+	border-radius: 50%;
+}
+
+.nav-prev { left: 10px; }
+.nav-next { right: 10px; }
+
+/* 右側詳細資料 */
+.btn-book {
+	background: #b5894b;
+	color: #fff;
+	border: none;
+	padding: 15px 30px;
+	width: 100%;
+	cursor: pointer;
+	font-weight: bold;
+	text-align: center;
+	text-decoration: none;
+	display: block;
+	margin-top: 20px;
+}
+
+.btn-back {
+	display: block;
+	text-align: center;
+	margin-top: 15px;
+	color: #b5894b;
+	text-decoration: underline;
+	font-size: 14px;
+}
+
+.btn-back:hover { color: #23211c; }
+
+.description {
+	line-height: 1.6;
+	color: #555;
+	margin: 20px 0;
+}
+
+.description, .spec-item {
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+
+.room-specs h3 {
+	border-bottom: 1px solid #ddd;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+	font-size: 18px;
+}
+
+.spec-item {
+	margin: 15px 0;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: #555;
+}
+
+/* 亮點區 (已調整為緊湊版面) */
+.highlights {
+	margin-top: 20px; /* 這裡調整距離，越小越近 */
+	border-top: none; 
+	padding-top: 10px;
+	width: 100%;
+}
+
+.highlights h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #333;
+    border-bottom: 1px solid #ddd; /* 線條留在標題下方 */
+    padding-bottom: 5px;
+}
+
+.highlight-grid {
+	display: block;
+    width: 100%;
+}
+
+.highlight-grid p {
+	margin: 0;
+	padding: 0;
+	font-size: 15px;
+	color: #555;
+	line-height: 1.8;
+	white-space: normal;
+	word-wrap: break-word;
+	text-align: left;
+}
+
+.info-wrapper {
+	min-width: 300px;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}

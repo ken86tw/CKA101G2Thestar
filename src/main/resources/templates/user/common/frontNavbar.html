@@ -20,7 +20,11 @@
 
     <a href="/articles.html"
        th:classappend="${activePage == 'articles'} ? 'active' : ''">文章</a>
-
+       
+    <a href="/roomlist/list" 
+		th:classappend="${activePage == 'room'} ? 'active' : ''">房型</a>
+       
+       
     <a href="/roombooking.html"
        th:classappend="${activePage == 'booking'} ? 'active' : ''">訂房</a>
 

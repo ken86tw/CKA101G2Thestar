@@ -1,6 +1,7 @@
 package com.thestar.room.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,7 +17,7 @@ import com.thestar.room.service.RoomTypePhotoService;
 import com.thestar.room.service.RoomTypeService;
 
 @Controller
-@RequestMapping("/roomList") // 統一網址前綴
+@RequestMapping("/roomlist") // 統一網址前綴
 public class RoomListController {
 
 	@Autowired
@@ -33,14 +34,25 @@ public class RoomListController {
 	public String showList(Model model) {
 		List<RoomTypeVO> list = roomTypeService.getAllRoomTypes();
 
-		if (list != null) {
-			for (RoomTypeVO roomType : list) {
-				RoomTypePhotoVO photo = photoService.findFirstByRoomTypeId(roomType.getRoomTypeId());
-				roomType.setFirstPhoto(photo);
-			}
-		}
-		model.addAttribute("activeRoomList", list);
-		return "user/room/roomList"; // 回傳列表頁的視圖
+	    if (list != null) {
+	        // 2. 先補齊每一項的圖片資訊
+	        for (RoomTypeVO roomType : list) {
+	            RoomTypePhotoVO photo = photoService.findFirstByRoomTypeId(roomType.getRoomTypeId());
+	            roomType.setFirstPhoto(photo);
+	        }
+
+	        // 3. 【關鍵修正】：過濾掉 roomTypeStatus 為 false 的房型
+	        List<RoomTypeVO> activeRoomList = list.stream()
+	            .filter(room -> Boolean.TRUE.equals(room.getRoomTypeStatus()))
+	            .collect(Collectors.toList());
+
+	        // 4. 將過濾後的清單傳給前端
+	        model.addAttribute("activeRoomList", activeRoomList);
+	    } else {
+	        model.addAttribute("activeRoomList", null);
+	    }
+	    
+	    return "user/room/roomList"; // 回傳列表頁的視圖
 	}
 
 	// 2. 負責顯示詳細頁：需要 @PathVariable，路徑為 /roomList/detail/{id}
@@ -49,7 +61,7 @@ public class RoomListController {
 		RoomTypeVO roomType = roomTypeService.getOneRoomType(id);
 
 		if (roomType == null) {
-			return "redirect:/roomList/list";
+			return "redirect:/roomlist/list";
 		}
 
 		// 取得該房型所有照片
