@@ -25,6 +25,13 @@
     box-sizing: border-box
 }
 
+/* v-cloak:#app 上掛著這個屬性時整塊隱藏。
+   Vue 啟動接管畫面時會自動把屬性拆掉,內容才現身——
+   所以 JS 還在載入(或載入失敗)期間,使用者看到的是空白而不是滿頁的 {{ }} 原始模板 */
+[v-cloak] {
+    display: none
+}
+
 html, body {
     margin: 0
 }
@@ -810,6 +817,12 @@ summary {
     background: rgba(251, 249, 244, .92);   /* 跟本頁員工功能列同款的奶油半透明底 */
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--line);
+    /* 導覽列要壓在頁面內容「上面」:通知鈴鐺的下拉面板是它的子元素,
+       沒設層級的話會被訂單頁的四格統計(.stab .box 有 position:relative)蓋過去。
+       z-index 選 40:高於一般內容,但低於彈窗遮罩(50)和 toast(60)——
+       開配房彈窗時遮罩才蓋得住導覽列 */
+    position: relative;
+    z-index: 40;
 }
 
 /* 連結文字:site-navbar-dark 原本是深底配淺灰藍字,奶油底要換深色字 */

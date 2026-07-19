@@ -46,8 +46,10 @@ RB.booking = {
         // 為什麼需要它:日期欄那個 input 被 v-if 包著,v-if 是「整個元素從頁面拆掉/重建」,
         // 拆掉時掛在上面的 flatpickr 日曆也跟著沒了;所以要有個訊號告訴我們「input 回來了,日曆要重掛」
         searchbarOn() {
+            // !restoring:還原訂單期間搜尋列被遮罩擋住沒渲染,等還原結束(旗子放下)
+            // 這個值才翻成 true,watch 就會補掛 flatpickr 日曆
             return (this.member.on || this.browsing) && this.nav === 'book'
-                && !this.confirmOrder && this.book.step === 'search';
+                && !this.confirmOrder && this.book.step === 'search' && !this.restoring;
         },
     },
     methods: {
@@ -144,7 +146,7 @@ RB.booking = {
             return arr;
         },
 
-        goConfirm() {
+        async goConfirm() {
             if (this.bookItems.length === 0) {
                 this.toast('warn', '請至少選擇一間客房');
                 return;
@@ -161,28 +163,29 @@ RB.booking = {
                 setTimeout(() => location.href = '/login.html?redirect=/roombooking.html', 800);
                 return;
             }
-            this.loadCoupons().then(success => {
-                if (success) {
-                    this.book.step = 'confirm';
-                    // 進確認頁時重驗先前選的券:券被用掉/過期,或這次金額未達門檻就自動取消
-                    if (this.form.memberCouponId != null) {
-                        const selectedCoupon = this.selectedCoupon;
-                        if (
-                            !selectedCoupon ||
-                            selectedCoupon.displayStatus !== 'AVAILABLE' ||
-                            !this.couponCanUse(selectedCoupon)
-                        ) {
-                            this.form.memberCouponId = null;
+            // 改用 await(原本是 .then):流程一樣,但整個函式變成「跑完才結束」——
+            // mounted 的還原流程就能 await goConfirm(),等確認頁真的切過去才把還原遮罩放下
+            const success = await this.loadCoupons();
+            if (success) {
+                this.book.step = 'confirm';
+                // 進確認頁時重驗先前選的券:券被用掉/過期,或這次金額未達門檻就自動取消
+                if (this.form.memberCouponId != null) {
+                    const selectedCoupon = this.selectedCoupon;
+                    if (
+                        !selectedCoupon ||
+                        selectedCoupon.displayStatus !== 'AVAILABLE' ||
+                        !this.couponCanUse(selectedCoupon)
+                    ) {
+                        this.form.memberCouponId = null;
 
-                            this.toast(
-                                'warn',
-                                '優惠券已取消',
-                                '目前訂單金額未達消費門檻，請重新選擇優惠券'
-                            );
-                        }
+                        this.toast(
+                            'warn',
+                            '優惠券已取消',
+                            '目前訂單金額未達消費門檻，請重新選擇優惠券'
+                        );
                     }
                 }
-            });
+            }
         },
 
         async createOrder() {

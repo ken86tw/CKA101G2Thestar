@@ -42,11 +42,50 @@ public class AdminAuthenticationSuccessHandler extends SavedRequestAwareAuthenti
         }
 
         SavedRequest savedRequest = requestCache.getRequest(request, response);
+
+        // 訂房後台的資料 API(訂單/住宿/退款/庫存)被攔下存成 saved request 的話,
+        // 登入後不能照標準行為導回去——那些網址回的是 JSON,瀏覽器直接開會變成一整頁 JSON 字。
+        // 這些功能的操作畫面都在訂房頁,所以一律改導回 /roombooking.html
+        String roomBookingLanding = roomBookingLandingPage(savedRequest, request.getContextPath());
+        if (roomBookingLanding != null) {
+            requestCache.removeRequest(request, response);
+            getRedirectStrategy().sendRedirect(request, response, roomBookingLanding);
+            return;
+        }
+
         if (isApiRequest(savedRequest, request.getContextPath())) {
             requestCache.removeRequest(request, response);
         }
 
         super.onAuthenticationSuccess(request, response, authentication);
+    }
+
+    /**
+     * saved request 是訂房後台的資料 API 時,回傳應改導的頁面(/roombooking.html);
+     * 不是的話回傳 null,交回原本的流程處理。
+     */
+    private String roomBookingLandingPage(SavedRequest savedRequest, String contextPath) {
+        if (savedRequest == null) {
+            return null;
+        }
+
+        try {
+            String path = URI.create(savedRequest.getRedirectUrl()).getPath();
+            if (contextPath != null && !contextPath.isEmpty() && path.startsWith(contextPath)) {
+                path = path.substring(contextPath.length());
+            }
+
+            if (path.startsWith("/thestar/admin/stayrecord")
+                    || path.startsWith("/thestar/admin/order")
+                    || path.startsWith("/thestar/admin/refund")
+                    || path.equals("/find/admin/room")) {
+                return "/roombooking.html";
+            }
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+
+        return null;
     }
 
     private boolean isApiRequest(SavedRequest savedRequest, String contextPath) {

@@ -11,7 +11,13 @@
          所以畫面下緣不會留空。
          共用導覽列變透明壓在照片上的規則在 base.css 的 room-navbar 區
          (body:has(.herofull) 那段:離開首屏 herofull 被 v-if 拆掉,導覽列自動變回奶油底) -->
-    <div v-if="!confirmOrder && book.step==='search'" class="herofull">
+    <!-- 還原訂單的過場:登入導回來且暫存有訂房內容時(restoring=true),
+         第一幀就顯示這塊,擋住查房首屏——等重查空房+載優惠券完成、切到確認頁才消失 -->
+    <div v-if="restoring" class="restorehint">
+        <div class="up">Restoring</div>
+        <p>正在為您還原訂單…</p>
+    </div>
+    <div v-else-if="!confirmOrder && book.step==='search'" class="herofull">
         <!-- BOOK NOW 標題整組壓在照片上置中;照片下方只留日期搜尋列一行 -->
         <div class="herobanner">
             <div class="inner">
