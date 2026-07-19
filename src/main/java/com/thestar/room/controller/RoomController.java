@@ -94,17 +94,30 @@ public class RoomController {
 
 	// 執行修改
 	@PostMapping("/update")
-	public String update(RoomVO roomVO, @RequestParam("roomTypeId") Integer typeId) {
-		// 1. 設定關聯的房型 ID
-		RoomVO exist = roomService.findById(roomVO.getRoomId());
-		exist.setRoomTypeId(typeId);
-		exist.setRoomSwitchStatus(roomVO.getRoomSwitchStatus());
+	public String update(RoomVO roomVO, @RequestParam("roomTypeId") Integer typeId, RedirectAttributes redirectAttributes) {
+	    // 1. 取得資料庫中原本的資料
+	    RoomVO exist = roomService.findById(roomVO.getRoomId());
+	    
+	    // 2. 比對是否有變動
+	    // 檢查房型是否不同 OR 上架狀態是否不同
+	    boolean isTypeChanged = !exist.getRoomTypeId().equals(typeId);
+	    boolean isStatusChanged = !exist.getRoomSwitchStatus().equals(roomVO.getRoomSwitchStatus());
+	    
+	    // 3. 如果兩者都沒變，表示使用者沒有做任何修改
+	    if (!isTypeChanged && !isStatusChanged) {
+	        redirectAttributes.addFlashAttribute("errorMessage", "資料未變更！請修改後再儲存！");
+	        return "redirect:/room/manage";
+	    }
 
-		// 2. 呼叫 Service 的更新方法
-		// 注意：這裡假設你的 service 有 update 方法，若沒有，通常也是呼叫 save
-		roomService.save(exist);
+	    // 4. 有變動才執行更新
+	    exist.setRoomTypeId(typeId);
+	    exist.setRoomSwitchStatus(roomVO.getRoomSwitchStatus());
+	    roomService.save(exist);
+	    
+	    // 5. 成功訊息
+	    redirectAttributes.addFlashAttribute("successMessage", "房間編號 " + roomVO.getRoomId() + " 修改成功！");
 
-		return "redirect:/room/manage";
+	    return "redirect:/room/manage";
 	}
 
 	// 執行刪除

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>問題回報系統</title>
+    <link rel="stylesheet" th:href="@{/css/report.css}">
+
+<style>
+
+.form-container {
+    max-width: 600px;
+    margin: 20px auto 50px auto;
+    background: white;
+    padding: 40px;
+    border: 1px solid #e0dcd5;
+}
+.form-group { margin-bottom: 25px; }
+.form-group label { display: block; margin-bottom: 8px; color: #888; font-size: 13px; font-weight: bold; }
+.form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #e0dcd5; box-sizing: border-box; }
+.btn { background: #23211c; color: white; padding: 12px 30px; border: none; cursor: pointer; }
+.admin-header { max-width: 600px; margin: 40px auto; text-align: center; }
+.section-label { color: #9c7c4f; font-size: 11px; letter-spacing: 4px; }
+
+</style>
+
+</head>
+
+<body>
+<div class="container">
+    <header class="admin-header">
+        <p class="section-label">SUPPORT CENTER</p>
+        <h1>問題回報</h1>
+    </header>
+
+    <form id="feedbackForm" class="form-container">
+        <!-- 假設 memberId 已透過 Session 或 Spring Security 取得，此處示範靜態值 -->
+        <input type="hidden" id="memberId" value="1" />
+
+        <div class="form-group">
+            <label>聯絡信箱</label>
+            <input type="email" id="email" required placeholder="請輸入您的電子郵件" />
+        </div>
+
+        <div class="form-group">
+            <label>主旨</label>
+            <input type="text" id="subject" required maxlength="100" />
+        </div>
+
+        <div class="form-group">
+            <label>問題內容</label>
+            <textarea id="content" required style="height: 200px;"></textarea>
+        </div>
+
+        <div class="btn-row" style="text-align: center;">
+            <button type="submit" class="btn">送出問題</button>
+        </div>
+    </form>
+</div>
+<script th:src="@{/js/report.js}"></script>
+</body>
+</html>

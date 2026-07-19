@@ -83,11 +83,46 @@
 	font-size: 14px;
 	font-weight: bold;
 }
+
+.admin-header {
+	max-width: 600px; /* 與表單容器一致 */
+    margin: 40px auto; /* 置中並保持間距 */
+    text-align: center;
+    padding: 40px;
+    background: #fbf9f4;
+    border: 1px solid #e0dcd5;
+	position: static;
+}
+
+.admin-header h1 {
+	font-family: 'Cormorant Garamond', 'Noto Serif TC', serif; /* 確保字體一致 */
+    font-size: 32px;
+    margin: 10px 0 0 0;
+    font-weight: 500;
+    color: #23211c; /* 強制設定與頁面主色調一致 */
+}
+
+.section-label {
+	color: #9c7c4f;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin: 0;
+    font-family: 'Jost', 'Noto Serif TC', sans-serif;
+}
 </style>
 </head>
 <body>
 
 	<div class="container">
+
+		<header class="admin-header">
+			<p class="section-label"
+				th:text="${roomTypeVO.roomTypeId == null ? 'CREATE ROOM TYPE' : 'EDIT ROOM TYPE'}">
+				ROOM CONFIGURATION</p>
+			<h1 th:text="${roomTypeVO.roomTypeId == null ? '新增房型' : '修改房型資訊'}">
+				房型管理</h1>
+		</header>
 
 		<div th:if="${successMessage}" class="alert alert-success"
 			th:text="${successMessage}"></div>

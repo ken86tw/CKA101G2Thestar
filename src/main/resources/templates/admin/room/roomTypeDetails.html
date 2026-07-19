@@ -23,16 +23,16 @@
 }
 
 .content-display {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #e0dcd5;
-    background-color: #f9f9f9;
-    color: #555;
-    box-sizing: border-box; /* 確保寬度計算包含 padding */
-    min-height: 150px;      /* 給它一個高度 */
-    white-space: pre-wrap;  /* 關鍵：讓資料庫中的換行符號能顯示出來 */
-    font-size: 14px;        /* 設定與 input 接近的字體大小 */
-    font-family: inherit; /* 確保字體與輸入框一致 */
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #e0dcd5;
+	background-color: #f9f9f9;
+	color: #555;
+	box-sizing: border-box; /* 確保寬度計算包含 padding */
+	min-height: 150px; /* 給它一個高度 */
+	white-space: pre-wrap; /* 關鍵：讓資料庫中的換行符號能顯示出來 */
+	font-size: 14px; /* 設定與 input 接近的字體大小 */
+	font-family: inherit; /* 確保字體與輸入框一致 */
 }
 
 .form-group {
@@ -49,13 +49,13 @@
 }
 
 .form-group input, .form-group .content-display, .form-group select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #e0dcd5;
-    background-color: #f9f9f9;
-    color: #555;
-    box-sizing: border-box;
-    font-size: 14px; /* 設定與編輯頁輸入框相同的字體大小 */
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #e0dcd5;
+	background-color: #f9f9f9;
+	color: #555;
+	box-sizing: border-box;
+	font-size: 14px; /* 設定與編輯頁輸入框相同的字體大小 */
 }
 
 .photo-grid {
@@ -72,11 +72,53 @@
 	border-radius: 4px;
 	border: 1px solid #eee;
 }
+
+.admin-header {
+	max-width: 600px;
+	margin: 40px auto;
+	text-align: center;
+	padding: 40px;
+	background: #fbf9f4;
+	border: 1px solid #e0dcd5;
+	position: static;
+}
+
+.admin-header h1 {
+	font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+	font-size: 32px;
+	margin: 10px 0 0 0;
+	font-weight: 500;
+	color: #23211c;
+}
+
+.section-label {
+	color: #9c7c4f;
+	font-size: 11px;
+	letter-spacing: 4px;
+	text-transform: uppercase;
+	margin: 0;
+	font-family: 'Jost', 'Noto Serif TC', sans-serif;
+}
+
+.admin-content {
+    max-width: 600px; /* 這裡要跟 header 的 max-width 一樣 */
+    margin: 0 auto 50px auto; /* 置中 */
+    background: white;
+    padding: 40px;
+    border: 1px solid #e0dcd5;
+}
+
 </style>
 </head>
 <body>
 
 	<div class="container">
+
+		<header class="admin-header">
+			<p class="section-label">ROOM TYPE DETAILS</p>
+			<h1>房型詳細資料</h1>
+		</header>
+
 		<!-- 圖片顯示區塊 -->
 		<div class="photo-container">
 			<div class="form-group" style="margin-bottom: 0;">
@@ -109,7 +151,7 @@
 				<label>庫存數量</label> <input type="text"
 					th:value="${roomTypeVO.roomTypeAmount}" disabled />
 			</div>
-			
+
 			<div class="form-group">
 				<label>房型說明</label>
 				<div class="content-display" th:text="${roomTypeVO.roomTypeContent}"></div>
@@ -120,7 +162,7 @@
 					th:value="${roomTypeVO.roomTypePrice}" disabled />
 			</div>
 
-			
+
 			<div class="form-group">
 				<label>房型狀態</label> <input type="text"
 					th:value="${roomTypeVO.roomTypeStatus ? '啟用' : '未啟用'}" disabled />
