@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,6 +33,17 @@ public class RoomTypeVO {
 	@Size(max = 1000, message = "房型說明不能超過設定的字數")
 	@Column(name = "ROOM_TYPE_CONTENT")
 	private String roomTypeContent;
+	
+	@NotNull(message = "人數不能為空")
+    @Min(value = 1, message = "人數至少 1 人")
+	@Max(value = 6, message = "人數最多 6 人")
+	@Column(name = "CAPACITY", nullable = false, columnDefinition = "TINYINT UNSIGNED")
+    private Integer capacity;
+	
+	@Size(max = 255, message = "設施說明長度不能超過 255 個字")
+	@Column(name = "AMENITIES", length = 255)
+    private String amenities;
+	
 
 	@Column(name = "ROOM_TYPE_STATUS", columnDefinition = "BIT(1)") // 房型狀態設定
 	private Boolean roomTypeStatus = false; // 預設為未啟用;
@@ -80,6 +92,22 @@ public class RoomTypeVO {
 	public void setRoomTypeContent(String roomTypeContent) {
 		this.roomTypeContent = roomTypeContent;
 	}
+	
+	public Integer getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+    }
+    
+    public String getAmenities() {
+        return amenities;
+    }
+
+    public void setAmenities(String amenities) {
+        this.amenities = amenities;
+    }
 
 	public Boolean getRoomTypeStatus() {
 		return roomTypeStatus;

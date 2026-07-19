@@ -86,29 +86,29 @@
 
 .admin-header {
 	max-width: 600px; /* 與表單容器一致 */
-    margin: 40px auto; /* 置中並保持間距 */
-    text-align: center;
-    padding: 40px;
-    background: #fbf9f4;
-    border: 1px solid #e0dcd5;
+	margin: 40px auto; /* 置中並保持間距 */
+	text-align: center;
+	padding: 40px;
+	background: #fbf9f4;
+	border: 1px solid #e0dcd5;
 	position: static;
 }
 
 .admin-header h1 {
 	font-family: 'Cormorant Garamond', 'Noto Serif TC', serif; /* 確保字體一致 */
-    font-size: 32px;
-    margin: 10px 0 0 0;
-    font-weight: 500;
-    color: #23211c; /* 強制設定與頁面主色調一致 */
+	font-size: 32px;
+	margin: 10px 0 0 0;
+	font-weight: 500;
+	color: #23211c; /* 強制設定與頁面主色調一致 */
 }
 
 .section-label {
 	color: #9c7c4f;
-    font-size: 11px;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    margin: 0;
-    font-family: 'Jost', 'Noto Serif TC', sans-serif;
+	font-size: 11px;
+	letter-spacing: 4px;
+	text-transform: uppercase;
+	margin: 0;
+	font-family: 'Jost', 'Noto Serif TC', sans-serif;
 }
 </style>
 </head>
@@ -124,10 +124,6 @@
 				房型管理</h1>
 		</header>
 
-		<div th:if="${successMessage}" class="alert alert-success"
-			th:text="${successMessage}"></div>
-		<div th:if="${errorMessage}" class="alert alert-danger"
-			th:text="${errorMessage}"></div>
 
 		<!-- 圖片管理區塊 -->
 		<div class="photo-container" th:if="${roomTypeVO.roomTypeId != null}">
@@ -157,13 +153,16 @@
 			th:object="${roomTypeVO}" method="post" enctype="multipart/form-data"
 			class="form-container">
 
+			<div th:if="${successMessage}" class="alert alert-success"
+				th:text="${successMessage}"></div>
 			<div th:if="${errorMessage}" class="backend-error"
 				th:text="${errorMessage}"></div>
+
 			<input type="hidden" th:field="*{roomTypeId}" />
 
 			<div class="form-group">
 				<label>房型名稱</label> <input type="text" th:field="*{roomTypeName}"
-					maxlength="20" required />
+					maxlength="20" required placeholder="請輸入房型名稱，例如：雙人房" />
 			</div>
 
 			<div class="form-group">
@@ -208,17 +207,43 @@
 			<div class="form-group">
 				<label>房型說明</label>
 				<textarea name="roomTypeContent" th:field="*{roomTypeContent}"
-					style="resize: none; width: 100%; height: 200px;">
-				</textarea>
+					placeholder="請輸入房型說明，例如：特色、賣點、床型規格、設施細節"
+					style="resize: none; width: 100%; height: 200px;"></textarea>
 				<span th:if="${#fields.hasErrors('roomTypeContent')}"
 					th:errors="*{roomTypeContent}"
 					style="color: #a85b50; font-size: 12px; margin-top: 5px; display: block;"></span>
 			</div>
 
+
+			<div class="form-group">
+				<label>設施說明</label>
+				<textarea th:field="*{amenities}" maxlength="255"
+					placeholder="請輸入設施，例如：雙人床、Wi-Fi、吹風機、小冰箱"
+					style="resize: none; width: 100%; height: 100px;"></textarea>
+				<small style="color: #999; font-size: 11px;">請列出房內提供的設備。</small> <span
+					th:if="${#fields.hasErrors('amenities')}" th:errors="*{amenities}"
+					style="color: #a85b50; font-size: 12px; margin-top: 5px; display: block;">
+				</span>
+			</div>
+
+			<div class="form-group">
+				<label>容納人數</label> <select th:field="*{capacity}" required>
+					<!-- 使用 Thymeleaf 迴圈產生 1 到 6 的選項 -->
+					<option th:each="i : ${#numbers.sequence(1, 6)}" th:value="${i}"
+						th:text="${i} + ' 人'"></option>
+				</select> <span th:if="${#fields.hasErrors('capacity')}"
+					th:errors="*{capacity}"
+					style="color: #a85b50; font-size: 12px; margin-top: 5px; display: block;">
+				</span>
+			</div>
+
+
 			<div class="form-group">
 				<label>價格 (NT$)</label> <input type="number"
-					th:field="*{roomTypePrice}" min="1" required />
+					th:field="*{roomTypePrice}" min="1" required
+					placeholder="請輸入價格，僅能輸入數字" />
 			</div>
+
 
 			<div class="form-group">
 				<label>狀態</label> <select th:field="*{roomTypeStatus}">
@@ -231,6 +256,7 @@
 				<button type="submit" class="btn">儲存變更</button>
 				<a th:href="@{/roomtype/manage}" class="btn ghost">返回列表</a>
 			</div>
+
 		</form>
 	</div>
 

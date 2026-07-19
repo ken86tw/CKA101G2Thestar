@@ -57,25 +57,29 @@ public class RoomController {
 	// 執行新增
 	@PostMapping("/insert")
 	public String insert(RoomVO roomVO, RedirectAttributes redirectAttributes) {
-	    // 1. 後端即時計算當前總數
-	    int currentCount = roomService.findAll().size();
-	    
-	    // 2. 邏輯阻擋：如果已經等於或超過 50，直接攔截並導回列表頁顯示錯誤
-	    if (currentCount >= 50) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "新增失敗：房間總數已達上限！");
-	        return "redirect:/room/manage";
-	    }
+		try {
+			// 1. 容量限制檢查
+			if (roomService.findAll().size() >= 30) {
+				redirectAttributes.addFlashAttribute("errorMessage", "新增失敗：房間總數已達上限！");
+				return "redirect:/room/manage";
+			}
 
-	    // 3. 原有的重複編號檢查
-	    if (roomService.existsById(roomVO.getRoomId())) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "錯誤：房間編號 " + roomVO.getRoomId() + " 已存在！");
+			// 2. 重複編號檢查
+			if (roomService.existsById(roomVO.getRoomId())) {
+				redirectAttributes.addFlashAttribute("errorMessage", "錯誤：房間編號 " + roomVO.getRoomId() + " 已存在！");
+				return "redirect:/room/add";
+			}
+
+			// 3. 正常儲存
+			roomService.save(roomVO);
+			redirectAttributes.addFlashAttribute("successMessage", "房間新增成功！");
+			return "redirect:/room/manage";
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("errorMessage", "新增失敗，原因：" + e.getMessage());
 	        return "redirect:/room/add";
-	    }
-
-	    // 4. 正常儲存
-	    roomService.save(roomVO);
-	    redirectAttributes.addFlashAttribute("successMessage", "房間新增成功！");
-	    return "redirect:/room/manage";
+		}
 	}
 
 	// 進入修改頁面 (回填資料)
@@ -94,51 +98,47 @@ public class RoomController {
 
 	// 執行修改
 	@PostMapping("/update")
-	public String update(RoomVO roomVO, @RequestParam("roomTypeId") Integer typeId, RedirectAttributes redirectAttributes) {
-	    // 1. 取得資料庫中原本的資料
-	    RoomVO exist = roomService.findById(roomVO.getRoomId());
-	    
-	    // 2. 比對是否有變動
-	    // 檢查房型是否不同 OR 上架狀態是否不同
-	    boolean isTypeChanged = !exist.getRoomTypeId().equals(typeId);
-	    boolean isStatusChanged = !exist.getRoomSwitchStatus().equals(roomVO.getRoomSwitchStatus());
-	    
-	    // 3. 如果兩者都沒變，表示使用者沒有做任何修改
-	    if (!isTypeChanged && !isStatusChanged) {
-	        redirectAttributes.addFlashAttribute("errorMessage", "資料未變更！請修改後再儲存！");
-	        return "redirect:/room/manage";
-	    }
+	public String update(RoomVO roomVO, RedirectAttributes redirectAttributes) {
+		try {
+			// 1. 直接將前端傳入的 roomVO 傳給 Service
+			// Service 層會處理：
+			// (a) 撈出原始資料比對
+			// (b) 檢查「已入住不可下架」的業務規則
+			// (c) 執行儲存
+			roomService.save(roomVO);
 
-	    // 4. 有變動才執行更新
-	    exist.setRoomTypeId(typeId);
-	    exist.setRoomSwitchStatus(roomVO.getRoomSwitchStatus());
-	    roomService.save(exist);
-	    
-	    // 5. 成功訊息
-	    redirectAttributes.addFlashAttribute("successMessage", "房間編號 " + roomVO.getRoomId() + " 修改成功！");
+			redirectAttributes.addFlashAttribute("successMessage", "房間編號 " + roomVO.getRoomId() + " 修改成功！");
+		} catch (ResponseStatusException e) {
+			// 2. 捕捉 Service 拋出的業務錯誤 (例如：已入住無法變更上架狀態)
+			redirectAttributes.addFlashAttribute("errorMessage", e.getReason());
+		} catch (Exception e) {
+			// 3. 捕捉其他非預期系統錯誤
+			redirectAttributes.addFlashAttribute("errorMessage", "修改失敗：系統發生錯誤，請稍後再試。");
+		}
 
-	    return "redirect:/room/manage";
+		// 一律轉回列表頁
+		return "redirect:/room/manage";
 	}
 
 	// 執行刪除
 	@PostMapping("/delete")
 	public String delete(@RequestParam("roomId") Integer roomId, RedirectAttributes redirectAttributes) {
-	    try {
-	        // 呼叫 Service 執行刪除 (記得 Service 裡面要有我們剛剛討論的邏輯檢查)
-	        roomService.deleteById(roomId);
-	        redirectAttributes.addFlashAttribute("successMessage", "房間編號 " + roomId + " 已成功刪除！");
-	        
-	    } catch (ResponseStatusException e) {
-	        // 這是我們在 Service 拋出的自定義錯誤 (例如：已有住宿紀錄)
-	        redirectAttributes.addFlashAttribute("errorMessage", e.getReason());
-	        
-	    } catch (Exception e) {
-	        // 捕捉其他未預期的系統錯誤 (例如資料庫連線中斷)
-	        redirectAttributes.addFlashAttribute("errorMessage", "刪除失敗：該房間可能已有相關關聯資料，無法刪除。");
-	    }
-	    
-	    // 一律轉回列表頁
-	    return "redirect:/room/manage";
+		try {
+			// 呼叫 Service 執行刪除 (記得 Service 裡面要有我們剛剛討論的邏輯檢查)
+			roomService.deleteById(roomId);
+			redirectAttributes.addFlashAttribute("successMessage", "房間編號 " + roomId + " 已成功刪除！");
+
+		} catch (ResponseStatusException e) {
+			// 這是我們在 Service 拋出的自定義錯誤 (例如：已有住宿紀錄)
+			redirectAttributes.addFlashAttribute("errorMessage", e.getReason());
+
+		} catch (Exception e) {
+			// 捕捉其他未預期的系統錯誤 (例如資料庫連線中斷)
+			redirectAttributes.addFlashAttribute("errorMessage", "刪除失敗：該房間可能已有相關關聯資料，無法刪除。");
+		}
+
+		// 一律轉回列表頁
+		return "redirect:/room/manage";
 	}
 
 }

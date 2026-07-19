@@ -9,10 +9,10 @@ document.addEventListener("DOMContentLoaded", function() {
             setTimeout(function() {
                 successMessageDiv.style.display = 'none';
             }, 500);
-        }, 3000); // 3秒後開始淡出
+        }, 3000);
     }
 
-    // --- 2. 圖片處理邏輯 (累加) ---
+    // --- 2. 圖片處理邏輯 ---
     const imageInput = document.getElementById('imageFilesInput'); 
     const uploadBtn = document.getElementById('uploadBtn');
     const previewContainer = document.getElementById('previewContainer');
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (imageInput && previewContainer) {
         imageInput.addEventListener('change', function(event) {
             const files = event.target.files;
-            const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+            const MAX_SIZE = 5 * 1024 * 1024;
             
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -36,9 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     alert(`檔案 ${file.name} 太大，請選擇 5MB 以下的圖片`);
                     continue;
                 }
-
                 dataTransfer.items.add(file);
-
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = document.createElement('img');
@@ -52,22 +50,18 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // --- 3. 核心驗證邏輯 (與後端防禦對齊) ---
+    // --- 3. 核心驗證邏輯 ---
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function(event) {
-            const amountInput = document.getElementById('amountInput');
-            
+            // 這裡保留您原本的庫存邏輯即可
+            const amountInput = document.getElementById('amountInput'); // 若您頁面有此 ID
             if (amountInput) {
                 const enteredValue = parseInt(amountInput.value);
-                // 獲取 HTML 中渲染出來的 min 值 (就是後端傳入的 minAllowedAmount)
                 const minAllowed = parseInt(amountInput.getAttribute('min')) || 1;
-                
-                // 【關鍵修正】：語意修改，對應後端邏輯
                 if (enteredValue < minAllowed) {
-                    event.preventDefault(); // 阻止提交
-                    alert(`修改失敗：庫存數量不可小於系統中已建立的房間總數 (${minAllowed} 間)。\n請先至房間管理刪除多餘的房間，再調整庫存。`);
-                    amountInput.focus();
+                    event.preventDefault();
+                    alert(`庫存數量不可小於系統中已建立的房間總數 (${minAllowed} 間)。`);
                     return;
                 }
             }

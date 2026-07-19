@@ -128,6 +128,14 @@ body {
 		</header>
 
 		<main class="admin-content">
+
+			<div th:if="${errorMessage}"
+				style="background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border: 1px solid #f5c6cb; border-radius: 4px;">
+				<i class="fa-solid fa-circle-exclamation"></i> <span
+					th:text="${errorMessage}"></span>
+			</div>
+
+			<!-- 確保表單標籤正確包覆所有內容 -->
 			<form id="roomForm" onsubmit="return validateForm()"
 				th:action="${roomVO.roomId == null} ? @{/room/insert} : @{/room/update}"
 				th:object="${roomVO}" method="post">
@@ -162,11 +170,19 @@ body {
 
 				<!-- 狀態 -->
 				<div class="form-group">
-					<label>狀態 (是否上架)</label> <select th:field="*{roomSwitchStatus}"
-						required>
-						<option value="true">已上架</option>
+					<label>啟用狀態</label>
+					<!-- 若已入住，自動 disable 下拉選單 -->
+					<select th:field="*{roomSwitchStatus}"
+						th:disabled="${roomVO.roomStatus == 1}">
 						<option value="false">未上架</option>
+						<option value="true">已上架</option>
 					</select>
+
+					<p th:if="${roomVO.roomStatus == 1}"
+						style="color: #a85b50; font-size: 12px; margin-top: 5px;">
+						<i class="fa-solid fa-circle-exclamation"></i>
+						目前為「已入住」狀態，無法修改啟用狀態。
+					</p>
 				</div>
 
 				<div class="btn-row">
@@ -200,14 +216,28 @@ body {
 		function validateForm() {
 			const input = document.getElementById('roomIdInput');
 			if (!input)
-				return true;
+				return true; // 如果是編輯模式 (沒有 roomIdInput)，直接允許提交
+
 			const val = input.value;
-			const numVal = parseInt(val);
-			if (val.length !== 3 || existingIds.includes(numVal)) {
-				alert("房間編號錯誤，請檢查後再儲存！");
-				return false;
+			// 嚴格檢查：長度必須為 3 且不能重複
+			if (val.length !== 3 || existingIds.includes(parseInt(val))) {
+				alert("房間編號錯誤，請檢查後再儲存！"); // 這行會強制彈出 alert
+				return false; // 阻擋表單提交
 			}
 			return true;
+		}
+
+		function submitDelete(roomId, isSwitchOn) {
+			if (isSwitchOn === true) {
+				alert("刪除失敗：該房間目前為『已上架』狀態，請先下架後再執行刪除。");
+				return;
+			}
+
+			if (confirm("確定要刪除此房間嗎？此動作無法復原。")) {
+				// 設定隱藏表單的 ID 並提交
+				document.getElementById('deleteRoomId').value = roomId;
+				document.getElementById('deleteForm').submit();
+			}
 		}
 	</script>
 </body>
