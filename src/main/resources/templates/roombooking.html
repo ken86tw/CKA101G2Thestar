@@ -18,16 +18,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE STAR — Hotel &amp; Residences</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+    <!-- Vue/Stomp/flatpickr 全部改吃專案內的複本(static/vendor/):
+         之前掛 unpkg CDN,它一沒載到 Vue 整頁模板就裸奔({{ }} 直接印在畫面上)。
+         放自己伺服器上就跟其他頁面一樣穩,斷網 demo 也不怕 -->
+    <script src="/vendor/vue.global.prod.js"></script>
+    <script src="/vendor/stomp.umd.min.js"></script>
     <!-- Font Awesome:共用導覽列的鈴鐺、會員頭像圖示需要它 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <!-- flatpickr:日期範圍選擇器套件(Booking.com 那種「點入住日→滑過去反白→點退房日」的雙月日曆)。
-         三個檔案缺一不可:css=日曆外觀、js=主程式、zh-tw.js=繁中語系(把 Su Mo 變成 週日 週一)。
-         @4.6.13 是鎖版本號:不鎖的話 CDN 永遠給最新版,哪天大改版網站就突然壞了 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/zh-tw.js"></script>
+         三個檔案缺一不可:css=日曆外觀、js=主程式、zh-tw.js=繁中語系(把 Su Mo 變成 週日 週一) -->
+    <link rel="stylesheet" href="/vendor/flatpickr.min.css">
+    <script src="/vendor/flatpickr.min.js"></script>
+    <script src="/vendor/flatpickr-zh-tw.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&family=Noto+Serif+TC:wght@300;400;500;600&display=swap"
@@ -55,13 +57,17 @@
     <div th:replace="~{user/common/frontNavbar :: navbar('booking', false, 'site-navbar-dark room-navbar', false)}"></div>
 </th:block>
 
-<div id="app">
+<!-- v-cloak:Vue 接管前整個 #app 先隱藏(CSS 在 base.css),
+     就算 JS 載入慢或失敗,也不會把 {{ }} 原始模板攤在使用者面前 -->
+<div id="app" v-cloak>
 
     <!-- ============ 主站（登入頁已統一：貴賓走 /login.html，員工走 Spring Security 的 /thestar/admin/login） ============ -->
     <!-- 員工專用功能列:會員/訪客只看上面的共用導覽列,不出現這條(避免雙導覽列)。
          會員的「我的預訂」走導覽列會員選單的「我的訂房預訂」(?tab=orders),訂房走導覽列的「訂房」。
          員工登入時共用導覽列不顯示,所以這條要有 logo 和身分顯示 -->
-    <header v-if="employee.on">
+    <!-- employee.on || isEmp:isEmp 是伺服器給的旗子,第一幀就讓功能列出現;
+         employee.on(員工編號)要等 /thestar/admin/me 回來,名字那格先用 v-if 藏著 -->
+    <header v-if="employee.on || isEmp">
         <div class="hbar">
             <a class="logo" href="/index.html"><span class="star">✦</span><b>THE STAR</b><small>Hotel &amp;
                 Residences</small></a>
@@ -77,7 +83,7 @@
                 </button>
             </nav>
             <div class="hright">
-                <div class="ident">
+                <div class="ident" v-if="employee.on">
                     <div>員工，
                         <b>{{ employee.name ? employee.name + '（#' + employee.on + '）' : '#' + employee.on }}</b></div>
                 </div>
@@ -104,6 +110,12 @@
     </div>
 </div>
 
+<!-- 伺服器端先告訴前端「這是不是員工」:Controller 查 session 算好的 isEmployee(本來就有,拿來隱藏導覽列),
+     th:inline 會把它印成 true/false 塞進 JS——Vue 第一幀就知道身分,員工進來直接畫後台,
+     不用等 /thestar/admin/me 的網路來回,就不會先閃 0.幾秒的查房首屏 -->
+<script th:inline="javascript">
+    window.IS_EMPLOYEE = [[${isEmployee}]];
+</script>
 <!-- header-auth.js:共用導覽列的大腦——問後端登入了沒,決定顯示「登入」還是會員頭像/通知鈴鐺 -->
 <script src="/js/header-auth.js"></script>
 <!-- 本頁 JS 依功能拆檔,順序有意義:

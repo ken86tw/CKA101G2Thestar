@@ -9,16 +9,26 @@ const {createApp} = Vue;
 createApp({
     data() {
         const d = localDate;
+        // 伺服器塞在模板裡的員工旗子(roombooking.html 檔尾的 window.IS_EMPLOYEE):
+        // data() 比第一次渲染早,所以員工開頁第一幀就直接是後台分頁,
+        // 不會先畫查房首屏、等 /thestar/admin/me 回來才跳過去(閃 0.幾秒的元凶)
+        const isEmp = window.IS_EMPLOYEE === true;
         return {
             STATUS,
-            nav: 'book',
+            isEmp,
+            nav: isEmp ? 'admin' : 'book',
             /* --- 訂房流程(booking.js) --- */
             roomTypes: [],   // 房型清單(id/name/price),頁面載入時從查房API撈,新增房型自動跟上
             form: {checkInDate: d(1), checkOutDate: d(2), memberCouponId: null, rooms: [{roomTypeId: null, qty: 1}]},
             coupons: [],
             couponsLoading: false,
             book: {step: 'search', results: [], sel: {}, nights: 0},
-            browsing: true,   // 預設直接進查房頁不擋登入,到「確認預訂」才要求登入;員工登入後設 false 隱藏訂房分頁
+            browsing: !isEmp,   // 訪客/會員直接進查房頁不擋登入,到「確認預訂」才要求登入;員工一進來就是 false,不顯示訂房分頁
+            // 「還原訂單中」旗子:data() 是同步執行、比第一次畫面渲染還早,
+            // 這裡先檢查瀏覽器暫存有沒有登入前存的訂房內容——有就先不畫查房首屏
+            // (改成顯示還原提示),等 mounted 的還原流程跑完才放下,畫面就不會先閃一下查房頁。
+            // !! 是把「字串或 null」轉成「true/false」
+            restoring: !!sessionStorage.getItem('pendingBooking'),
             confirmOrder: null,
             confirmDetail: [],
             /* --- 登入身分 --- */
@@ -112,19 +122,30 @@ createApp({
             this.loadAdmin();
         } catch { /* 不是登入員工就略過,維持一般查房頁 */
         }
-        // 登入前有存下的訂房內容:重查空房(拿最新剩餘數)後還原選擇,直接跳回確認頁
+        // 登入前有存下的訂房內容:重查空房(拿最新剩餘數)後還原選擇,直接跳回確認頁。
+        // 還原期間 restoring 旗子擋住查房首屏;finally 保證不管成功失敗旗子都會放下,
+        // 不然中途出錯的話畫面會永遠卡在「還原中」
         if (this.member.on && sessionStorage.getItem('pendingBooking')) {
-            const p = JSON.parse(sessionStorage.getItem('pendingBooking'));
-            sessionStorage.removeItem('pendingBooking');
-            this.form.checkInDate = p.checkInDate;
-            this.form.checkOutDate = p.checkOutDate;
-            await this.searchRooms();
-            for (const r of this.book.results) {
-                const want = (p.sel || {})[r.roomTypeId] || 0;
-                this.book.sel[r.roomTypeId] = Math.min(want, r.remaining); // 空房變少就自動下修
+            try {
+                const p = JSON.parse(sessionStorage.getItem('pendingBooking'));
+                sessionStorage.removeItem('pendingBooking');
+                this.form.checkInDate = p.checkInDate;
+                this.form.checkOutDate = p.checkOutDate;
+                await this.searchRooms();
+                for (const r of this.book.results) {
+                    const want = (p.sel || {})[r.roomTypeId] || 0;
+                    this.book.sel[r.roomTypeId] = Math.min(want, r.remaining); // 空房變少就自動下修
+                }
+                // await:等 goConfirm 裡的優惠券載完、step 真的切到 confirm 才往下走,
+                // 旗子才不會太早放下又閃一次查房頁
+                if (this.bookItems.length) await this.goConfirm();
+                else this.toast('warn', '空房狀況已變動', '請重新選擇客房');
+            } finally {
+                this.restoring = false;
             }
-            if (this.bookItems.length) this.goConfirm();
-            else this.toast('warn', '空房狀況已變動', '請重新選擇客房');
+        } else {
+            // 沒登入(登入到一半跑回來)或沒有暫存單:放下旗子,照常顯示查房頁
+            this.restoring = false;
         }
     },
     methods: {

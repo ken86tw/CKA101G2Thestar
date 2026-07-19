@@ -7,6 +7,37 @@
    2. .dateview 那段要放在 .searchbar 區「後面」,同分時才蓋得掉原設定
    ============================================================ */
 
+/* ===== 還原訂單的過場(登入導回來時擋住查房首屏,避免閃一下) ===== */
+.restorehint {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+}
+
+.restorehint .up {
+    color: var(--gold);
+    letter-spacing: 4px;
+}
+
+.restorehint p {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--soft);
+    letter-spacing: 2px;
+    /* 淡入淡出的呼吸感,代替轉圈圈的 loading 動畫 */
+    animation: breathe 1.6s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%, 100% { opacity: .45 }
+    50% { opacity: 1 }
+}
+
 /* ===== 訂房三步驟 ===== */
 .steps {
     display: flex;
