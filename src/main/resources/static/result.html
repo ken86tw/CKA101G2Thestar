@@ -32,7 +32,7 @@
       <div class="icon ok">✅</div>
       <h1 class="ok">付款成功</h1>
       <p>訂單 #{{ orderId }} 已完成付款</p>
-      <a class="btn" href="/roombooking.html">回我的訂單</a>
+      <a class="btn" href="/roombooking.html?tab=orders">回我的訂單</a>
     </div>
     <div v-else>
       <div class="icon pending">⏳</div>
@@ -40,7 +40,7 @@
       <p>訂單 #{{ orderId }} 還沒收到綠界確認，</p>
       <p>可能是回調延遲，稍候再試。</p>
       <button @click="check">重新確認</button>
-      <a class="btn ghost" href="/roombooking.html">回我的訂單</a>
+      <a class="btn ghost" href="/roombooking.html?tab=orders">回我的訂單</a>
     </div>
   </div>
 </div>
