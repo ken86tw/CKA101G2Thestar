@@ -11,20 +11,104 @@ body {
 	background-color: #fdfbf7;
 }
 
+.menu-header {
+	text-align: center;
+	margin-bottom: 3rem;
+}
+
+.menu-header h1 {
+	font-weight: 700;
+	font-size: 2.4rem;
+	letter-spacing: 0.05em;
+	color: #2b2b2b;
+	position: relative;
+	display: inline-block;
+	padding-bottom: 1rem;
+}
+
+.menu-header h1::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 80px;
+	height: 3px;
+	background: linear-gradient(90deg, transparent, #d9a441, transparent);
+}
+
+.menu-header p {
+	color: #999;
+	letter-spacing: 0.2em;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	margin-top: 0.5rem;
+}
+
+.section-title {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 2rem;
+}
+
+.section-title h3 {
+	font-weight: 700;
+	color: #2b2b2b;
+	white-space: nowrap;
+	margin: 0;
+	padding-left: 0.75rem;
+	border-left: 4px solid #d9a441;
+}
+
+.section-title::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background: linear-gradient(90deg, #e5c88a, transparent);
+}
+
 .card {
 	border: none;
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-	transition: transform 0.2s;
+	border-radius: 14px;
+	overflow: hidden;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+	transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .card:hover {
-	transform: translateY(-5px);
+	transform: translateY(-6px);
+	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top {
+	transition: transform 0.4s ease;
+}
+
+.card:hover .card-img-top {
+	transform: scale(1.05);
+}
+
+.card-body {
+	padding: 1.25rem;
+}
+
+.card-title {
+	color: #2b2b2b;
+}
+
+.card-text {
+	font-size: 0.9rem;
+	min-height: 2.7rem;
 }
 
 .menu-price {
-	color: #d9534f;
+	color: #c9822f;
 	font-weight: bold;
 	font-size: 1.2rem;
+	border-top: 1px dashed #eee;
+	padding-top: 0.75rem;
+	margin-top: 0.5rem;
 }
 </style>
 </head>
@@ -35,9 +119,14 @@ body {
 		th:replace="~{user/common/frontNavbar :: navbar('restaurant-menu', false, 'site-navbar-dark restaurant-navbar', false)}"></div>
 
 	<div class="container my-5">
-		<h1 class="text-center mb-5 fw-bold">⭐ 璀璨精選菜單 ⭐</h1>
+		<div class="menu-header">
+			<h1>璀璨精選菜單</h1>
+			<p>Curated Selection</p>
+		</div>
 
-		<h3 class="border-start border-warning border-4 ps-2 mb-4">所有精選餐點</h3>
+		<div class="section-title">
+			<h3>所有精選餐點</h3>
+		</div>
 
 		<div th:if="${#lists.isEmpty(menuList)}"
 			class="text-center text-muted my-5">
@@ -62,9 +151,6 @@ body {
 			</div>
 		</div>
 	</div>
-
-	<!-- 3. 替換為你新路徑的共用 Footer -->
-	<footer th:replace="~{user/restaurant/userNavBar :: front-footer}"></footer>
 
 	<script src="/js/header-auth.js"></script>
 </body>
