@@ -63,9 +63,6 @@
     <a href="/facilities.html"
        th:classappend="${activePage == 'facilities'} ? 'active' : ''">設施</a>
        
-       <a href="/feedback/report"
-       th:classappend="${activePage == 'feedback'} ? 'active' : ''">問題回報</a>
-
 <!--     <a href="/index.html#faq">FAQ</a> -->
 
     <a href="/shop"
@@ -177,6 +174,7 @@
           <a href="/restaurant/booking/list">餐廳預訂紀錄</a>
           <a href="/shop/order/myOrders">購物訂單</a>
           <a href="/coupons.html">我的優惠券</a>
+          <a href="/feedback/report">問題回報</a>
 
           <button type="button"
                   @click="logoutMember">
@@ -233,6 +231,7 @@
           <a href="/restaurant/booking/list">餐廳預訂紀錄</a>
           <a href="/shop/order/myOrders">購物訂單</a>
           <a href="/coupons.html">我的優惠券</a>
+          <a href="/feedback/report">問題回報</a>
 
           <button type="button"
                   id="logoutBtn">
