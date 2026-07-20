@@ -3,6 +3,85 @@
 
   const state = { page: 0, totalPages: 0, articleId: null };
   const el = (id) => document.getElementById(id);
+  const motion = { lenis: null, cardContext: null, detailContext: null };
+
+  function hasFullMotion() {
+    return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function initMotion() {
+    if (!hasFullMotion() || !window.gsap) return;
+
+    if (window.ScrollTrigger) {
+      window.gsap.registerPlugin(window.ScrollTrigger);
+    }
+
+    window.gsap.timeline({ defaults: { ease: 'power2.out' } })
+      .from('.article-hero p', { autoAlpha: 0, y: 12, duration: .55 })
+      .from('.article-hero h1', { autoAlpha: 0, y: 22, duration: .75 }, '-=.3')
+      .from('.article-hero .gold-line', { scaleX: 0, duration: .65 }, '-=.35');
+
+    const smoothPointer = window.matchMedia('(pointer: fine)').matches;
+    if (smoothPointer && window.Lenis) {
+      motion.lenis = new window.Lenis({
+        duration: 1.05,
+        smoothWheel: true,
+        syncTouch: false,
+        wheelMultiplier: .9
+      });
+      if (window.ScrollTrigger) motion.lenis.on('scroll', window.ScrollTrigger.update);
+      window.gsap.ticker.add((time) => motion.lenis.raf(time * 1000));
+      window.gsap.ticker.lagSmoothing(0);
+    }
+  }
+
+  function revealCards() {
+    if (!hasFullMotion() || !window.gsap) return;
+    if (motion.cardContext) motion.cardContext.revert();
+    motion.cardContext = window.gsap.context(() => {
+      window.gsap.from('.article-card', {
+        autoAlpha: 0,
+        y: 28,
+        duration: .65,
+        stagger: .08,
+        ease: 'power2.out',
+        clearProps: 'all',
+        scrollTrigger: window.ScrollTrigger ? {
+          trigger: '#articleGrid',
+          start: 'top 84%',
+          once: true
+        } : undefined
+      });
+    }, el('articleGrid'));
+  }
+
+  function revealDetail() {
+    if (!hasFullMotion() || !window.gsap) return;
+    if (motion.detailContext) motion.detailContext.revert();
+    motion.detailContext = window.gsap.context(() => {
+      window.gsap.from('.detail-cover:not([hidden]), .detail-meta, #detailTitle, #detailContent', {
+        autoAlpha: 0,
+        y: 22,
+        duration: .7,
+        stagger: .1,
+        ease: 'power2.out',
+        clearProps: 'all'
+      });
+
+      if (window.ScrollTrigger) {
+        window.gsap.to('#readingProgress', {
+          scaleX: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '#detailView',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: .15
+          }
+        });
+      }
+    }, el('detailView'));
+  }
 
   function formatDate(value) {
     if (!value) return '';
@@ -53,6 +132,8 @@
       el('pageInfo').textContent = state.totalPages ? (state.page + 1) + ' / ' + state.totalPages : '';
       el('prevPage').disabled = state.page <= 0;
       el('nextPage').disabled = state.page + 1 >= state.totalPages;
+      revealCards();
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
     } catch (error) {
       el('articleMessage').textContent = '文章暫時無法載入，請稍後再試。';
     }
@@ -61,6 +142,7 @@
   async function loadDetail(id) {
     el('listView').hidden = true;
     el('detailView').hidden = false;
+    el('readingProgress').hidden = false;
     try {
       const response = await fetch('/thestar/content/articles/' + encodeURIComponent(id));
       if (!response.ok) throw new Error();
@@ -77,7 +159,10 @@
         el('detailCoverImage').src = article.coverImageUrl;
         el('detailCoverImage').alt = article.title + '封面';
       }
+      revealDetail();
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
       await loadReviews(article.articleId);
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
     } catch (error) {
       el('detailTitle').textContent = '找不到這篇文章';
       el('detailContent').textContent = '文章可能已下架或不存在。';
@@ -139,10 +224,21 @@
     }
   });
 
-  el('prevPage').addEventListener('click', () => loadArticles(state.page - 1));
-  el('nextPage').addEventListener('click', () => loadArticles(state.page + 1));
+  async function changePage(page) {
+    await loadArticles(page);
+    const target = el('listView');
+    if (motion.lenis) {
+      motion.lenis.scrollTo(target, { offset: -24, duration: .8 });
+    } else {
+      target.scrollIntoView({ behavior: hasFullMotion() ? 'smooth' : 'auto' });
+    }
+  }
+
+  el('prevPage').addEventListener('click', () => changePage(state.page - 1));
+  el('nextPage').addEventListener('click', () => changePage(state.page + 1));
   el('backToList').addEventListener('click', () => { window.location.href = '/articles.html'; });
 
   const requestedId = new URLSearchParams(location.search).get('article');
+  initMotion();
   if (requestedId && /^\d+$/.test(requestedId)) loadDetail(requestedId); else loadArticles(0);
 }());

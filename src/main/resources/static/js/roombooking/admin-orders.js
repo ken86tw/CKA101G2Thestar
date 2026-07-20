@@ -1,7 +1,6 @@
 /* ============================================================
    roombooking/admin-orders.js — 「後台訂單」(員工全站訂單列表)
-   內容:全站訂單分頁查詢
-   (明細展開 toggleDetail 和統計 refreshCounts 跟會員版共用,放 common.js)
+   全站訂單分頁查詢
    對應畫面:templates/roombooking/admin-orders.html
    ============================================================ */
 window.RB = window.RB || {};

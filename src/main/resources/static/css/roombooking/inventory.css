@@ -1,11 +1,7 @@
 /* ============================================================
    roombooking/inventory.css — 「庫存查詢」頁(員工)
-   內容:圖例、捲動容器、sticky 表頭/日期欄、水管量表格子
+   圖例、捲動容器、sticky 表頭/日期欄、水管量表格子
    ============================================================ */
-
-/* ===== 員工庫存查詢:熱度表 ===== */
-
-/* 圖例:三顆色塊 + 說明文字 */
 .invlegend {
     display: flex;
     gap: 22px;
@@ -27,8 +23,7 @@
 .invlegend .sw.low  { background: #d9b464 }
 .invlegend .sw.full { background: #f0d6d0 }
 
-/* 捲動容器:表格 31 列太長,限制高度讓它在框內捲,
-   sticky 的表頭/日期欄才有「釘住」的效果(sticky 是相對最近的捲動容器) */
+
 .invscroll {
     max-height: 62vh;
     overflow: auto;
@@ -40,7 +35,6 @@
     padding: 10px 12px
 }
 
-/* 表頭往下捲時釘在容器頂端;要給背景色,不然下面的字會透上來 */
 .invtable thead th {
     position: sticky;
     top: 0;
@@ -48,7 +42,6 @@
     background: var(--paper)
 }
 
-/* 日期欄(每列第一格)往右捲時釘在左邊 */
 .invtable .invdate {
     position: sticky;
     left: 0;
@@ -59,7 +52,6 @@
     min-width: 104px
 }
 
-/* 左上角「日期」那格同時是表頭又是第一欄,層級要最高才不會被壓過 */
 .invtable thead .invdate { z-index: 3 }
 
 .invtable .invdate b {
@@ -73,11 +65,10 @@
     margin-left: 7px
 }
 
-/* 週末:日期整組改金色 */
 .invtable .invdate.wkend b,
 .invtable .invdate.wkend small { color: var(--gold) }
 
-/* 「今天」小標 */
+
 .invtable .invdate em {
     font-style: normal;
     font-size: 10px;
@@ -90,14 +81,12 @@
     vertical-align: 2px
 }
 
-/* 數字格:一根粗的「水管」量表,格子間用紙色細線隔開 */
 .invcell {
     border-left: 1px solid var(--paper);
     min-width: 128px;
     padding: 16px 14px
 }
 
-/* 管身:灰色軌道,圓頭像管子的剖面 */
 .invcell .pipe {
     position: relative;
     height: 34px;
@@ -106,14 +95,12 @@
     overflow: hidden
 }
 
-/* 水位:寬度 = 剩餘比例(invPct),直直的實色水面,跟「剩 X 間」直接對應 */
 .invcell .pipe .fill {
     display: block;
     height: 100%;
     transition: width .35s ease
 }
 
-/* 文字疊在管子正中間;淡淡的白暈讓字壓在斜紋上也讀得清楚 */
 .invcell .pipe .lbl {
     position: absolute;
     inset: 0;
@@ -134,15 +121,12 @@
     color: var(--ink)
 }
 
-/* 水色:滿水位(沒人訂)綠 → 一有預訂轉金 → 放光了紅字滿房;
-   有預訂是常態,所以黃色只上在水,格子不上底色,只有滿房才給紅底跳出來 */
 .invcell.ok .pipe .fill  { background: #aec39a }
 
 .invcell.low .pipe .fill { background: #d9b464 }
 .invcell.low .pipe .lbl,
 .invcell.low .pipe .lbl b { color: #7d6222 }
 
-/* 滿房:水放光了,整根管子染淡紅配紅字,顏色只留在管內、格子不上底色 */
 .invcell.full .pipe { background: #f2d9d4 }
 .invcell.full .pipe .lbl.full-txt {
     color: #a85b50;

@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/css/articles.css">
 </head>
 <body>
+<div id="readingProgress" class="reading-progress" aria-hidden="true" hidden></div>
 <header class="article-header">
   <div th:replace="~{user/common/frontNavbar :: navbar('articles', false, '', false)}"></div>
   <div class="article-hero"><p>THE STAR JOURNAL</p><h1>旅遊文章與最新消息</h1><div class="gold-line"></div></div>
@@ -45,6 +46,9 @@
 
 <footer class="article-footer"><a href="/index.html">東方之星 The Star</a><span>享受每一段值得記錄的旅程</span></footer>
 <script src="/js/header-auth.js"></script>
-<script src="/js/articles.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script defer src="/js/articles.js"></script>
 </body>
 </html>
