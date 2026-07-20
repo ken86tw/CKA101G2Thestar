@@ -1,24 +1,16 @@
 <!DOCTYPE html>
-<!-- 「預訂客房」區塊:被 roombooking.html 用 th:replace 引入(Thymeleaf 在伺服器端
-     把 section 原封不動貼回主頁,拼好的完整頁面才交給瀏覽器,Vue 看到的跟拆檔前一模一樣)。
-     對應 JS:js/roombooking/booking.js;對應 CSS:css/roombooking/booking.css -->
+
 <html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
 <body>
 <!-- ===== 預訂客房 ===== -->
 <section th:fragment="section" v-if="(member.on || browsing) && nav==='book'">
-    <!-- 首屏(步驟一):上半部純照片橫幅,下半部奶油底放「BOOK NOW 標題+日期搜尋列」置中;
-         .herofull 用 flex 直排撐滿整個視窗高(100vh),照片吃固定比例、剩下全給下半部,
-         所以畫面下緣不會留空。
-         共用導覽列變透明壓在照片上的規則在 base.css 的 room-navbar 區
-         (body:has(.herofull) 那段:離開首屏 herofull 被 v-if 拆掉,導覽列自動變回奶油底) -->
-    <!-- 還原訂單的過場:登入導回來且暫存有訂房內容時(restoring=true),
-         第一幀就顯示這塊,擋住查房首屏——等重查空房+載優惠券完成、切到確認頁才消失 -->
+
     <div v-if="restoring" class="restorehint">
         <div class="up">Restoring</div>
         <p>正在為您還原訂單…</p>
     </div>
     <div v-else-if="!confirmOrder && book.step==='search'" class="herofull">
-        <!-- BOOK NOW 標題整組壓在照片上置中;照片下方只留日期搜尋列一行 -->
+
         <div class="herobanner">
             <div class="inner">
                 <div class="up">Reservations</div>
@@ -28,23 +20,10 @@
             </div>
         </div>
         <div class="herosearch">
-            <!-- 日期改成單一欄位:flatpickr 的範圍模式會在這個框下方彈出雙月日曆,
-                 點第一下=入住日、滑鼠掃過去反白、點第二下=退房日,選完框內顯示「入住日 至 退房日」。
-                 三個重點:
-                 1. ref="dateRange":給 JS 一個把手,initDatePicker() 用 this.$refs.dateRange 找到這個 input 掛上日曆
-                 2. 「不用 v-model」:input 的值歸 flatpickr 管,選好的日期由它的 onChange 回呼寫進 form,
-                    兩邊同時管同一個 input 會互相蓋來蓋去
-                 3. readonly:擋手打。使用者亂打「7/40」後端會炸,readonly 逼所有人都走日曆選,日期保證合法 -->
-            <!-- 日期欄的版面:入住日靠左、「至」置中、退房日靠右。
-                 一個 input 只能顯示「一串文字」,排不出三段式版面,所以拆成兩層:
-                 1. 三個 span 負責「顯示」——直接綁 Vue 的 form,日曆一選完 onChange 寫進 form,這裡就自動更新
-                 2. input 負責「互動」——它還是 flatpickr 掛日曆的把手(ref),
-                    用 CSS 攤平成透明層蓋滿整個欄位,點欄位任何地方都等於點到它,日曆就會彈出 -->
-            <!-- 白卡只放日期欄(所以白卡置中=日期置中);搜尋按鈕用絕對定位
-                 「掛」在白卡右緣外側突出去,不佔白卡的寬度(樣式見 booking.css) -->
+
             <div class="searchbar">
                 <div class="sfield dateview">
-                    <!-- dateZh 把 form 裡的 2026-07-22 轉成 2026年7月22日(只轉顯示,form 內容不動) -->
+
                     <span class="dv">{{ dateZh(form.checkInDate) }}</span>
                     <span class="dsep">—</span>
                     <span class="dv">{{ dateZh(form.checkOutDate) }}</span>
@@ -53,11 +32,9 @@
                 <button class="btn" @click="searchRooms">搜尋空房</button>
             </div>
 
-            <!-- 房型橫幅:一間房型一條,照片當底、名稱和價格壓在上面,
-                 整條是 <a>,點了導去房型介紹頁(/roomList/list)。
-                 資料用 mounted 就撈好的 roomTypes(/find/room),圖用房型第一張照片的顯示 API -->
+
             <div class="typebanners">
-                <a v-for="t in roomTypes" :key="t.id" class="typebanner" href="/roomList/list"
+                <a v-for="t in roomTypes" :key="t.id" class="typebanner" href="/roomlist/list"
                    :style="{backgroundImage: 'url(/roomtypephoto/display/room/' + t.id + ')'}">
                     <div class="tb-info">
                         <h3>{{ t.name }}</h3>
@@ -103,10 +80,10 @@
                     略過金流
                 </button>
             </div>
-            <!-- payLeft>0 倒數中;歸零後計時器已停 v-else 換成逾時提示 等後端排程取消+WS通知收頁 -->
+
             <div style="margin-top:40px">
                 <template v-if="payLeft > 0">
-                    <!-- tabular-nums:讓每個數字等寬 跳秒時整排才不會左右抖動 -->
+
                     <div style="font-size:64px;font-weight:700;color:red;font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1">
                         {{payLeftText}}
                     </div>
@@ -231,7 +208,6 @@
                     </p>
                 </div>
 
-                <!-- 選中的券:預覽卡 -->
                 <div v-if="selectedCoupon" class="coupon-preview">
                     <div>
                         <span class="coupon-preview-label">Selected Coupon</span>

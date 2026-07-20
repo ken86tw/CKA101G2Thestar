@@ -1,8 +1,7 @@
 /* ============================================================
-   roombooking/stay.js — 「房務管理」(員工)
-   內容:辦理入住(查明細/配房/旅客照片)、辦理退房、
-        住宿紀錄查詢與詳情彈窗
-   對應畫面:templates/roombooking/stay.html
+  「房務管理」(員工)
+  辦理入住(查明細/配房/旅客照片)、辦理退房、
+  住宿紀錄查詢與詳情彈窗
    ============================================================ */
 window.RB = window.RB || {};
 
@@ -14,8 +13,6 @@ RB.stay = {
         },
     },
     methods: {
-        // 載入所有已付款且還沒配過房的訂單
-        // 開入住彈窗:先把上次殘留的查詢狀態歸零再載入未入住清單
         openCheckinModal() {
             this.stay.orderId = null;
             this.stay.lines = [];
@@ -32,7 +29,6 @@ RB.stay = {
             this.stay.checkinPhotoUrl = null;
             this.loadPending();
         },
-        // 開退房彈窗:清掉上次殘留的房號再載入在住清單
         openCheckoutModal() {
             this.stay.checkoutRoomId = null;
             this.stay.showCheckout = true;
@@ -114,20 +110,19 @@ RB.stay = {
                         body: fd
                     });
                 this.toast('ok', '入住成功', `房號 ${this.stay.checkin.roomId} · ${this.stay.checkin.stayCustomer || ''}`);
-                // 重新整理:明細的已入住/剩餘 + 房間狀態(剛配的變紅)
                 this.stay.lines = await this.api(`/thestar/admin/stayrecord/checkin-order/${this.stay.orderId}`);
-                this.stay.rooms = await this.api(`/thestar/admin/stayrecord/checkin-rooms/${this.stay.activeListId}`);
                 this.stay.checkin.roomId = null;
                 this.stay.checkin.stayCustomer = '';
                 if (this.stay.checkinPhotoUrl) URL.revokeObjectURL(this.stay.checkinPhotoUrl);
                 this.stay.checkinPhoto = null;
                 this.stay.checkinPhotoUrl = null;
-                // 全部房型都配滿就自動關閉彈窗
                 if (this.stay.lines.every(l => l.remaining <= 0)) {
                     this.stay.showModal = false;
                     this.stay.rooms = [];
+                } else {
+                    this.stay.rooms = await this.api(`/thestar/admin/stayrecord/checkin-rooms/${this.stay.activeListId}`);
                 }
-                // 有載過未入住清單就重整 配過房的訂單會從清單消失
+
                 if (this.stay.pending.length) this.loadPending();
             } catch (e) {
                 this.toast('err', '入住失敗', this.errMsg(e));
@@ -142,14 +137,14 @@ RB.stay = {
             try {
                 const r = await this.api(`/thestar/admin/stayrecord/checkout/${this.stay.checkoutRoomId}`, {method: 'POST'});
                 this.toast('ok', '退房成功', r);
-                // 退房後清空房號 有載過在住清單就重整讓退掉的那間消失
+
                 this.stay.checkoutRoomId = null;
                 if (this.stay.staying.length) this.loadStaying();
             } catch (e) {
                 this.toast('err', '退房失敗', this.errMsg(e));
             }
         },
-        // 載入所有未退房的在住房間
+
         async loadStaying() {
             try {
                 this.stay.staying = await this.api('/thestar/admin/stayrecord/find/all');
