@@ -2,61 +2,66 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{admin/shop_sidebar :: common-head('商品管理')}"></head>
 <body>
-    <div th:replace="~{admin/shop_sidebar :: sidebar('shop')}"></div>
-    <div class="main-content">
-        <div th:replace="~{admin/shop_sidebar :: topbar('商品管理')}"></div>
-        <div class="page-body">
-            <div class="card p-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="m-0 fw-bold">
-                        <i class="fa-solid fa-bag-shopping me-2"></i>商品列表
-                    </h5>
-                    <a href="/admin/shop/addProduct" class="btn btn-teal">
-                        <i class="fa-solid fa-plus me-1"></i>新增商品
-                    </a>
-                </div>
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>ID</th>
-                            <th>商品名稱</th>
-                            <th>類別</th>
-                            <th>商品介紹</th>
-                            <th>價格</th>
-                            <th>數量</th>
-                            <th>狀態</th>
-                            <th width="100">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="product : ${productsListData}">
-                            <td th:text="${product.productId}"></td>
-                            <td th:text="${product.productName}" class="fw-bold"></td>
-                            <td th:text="${product.productCategory != null ? product.productCategory.productCategoryName : product.productCategoryId}"></td>
-                            <td th:text="${product.productDesc}" class="text-muted small"></td>
-                            <td th:text="'$' + ${product.productPrice}" class="text-danger fw-bold"></td>
-                            <td th:text="${product.productQuantity}"></td>
-                            <td>
-                                <span th:if="${product.productStatus == 1}" class="badge bg-success">上架</span>
-                                <span th:if="${product.productStatus == 0}" class="badge bg-secondary">下架</span>
-                            </td>
-                            <td>
-                                <form th:action="@{/admin/shop/getOne_For_Update}" method="post" style="display:inline;">
-                                    <input type="hidden" name="productId" th:value="${product.productId}">
-                                    <button type="submit" class="btn btn-warning btn-sm">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </button>
-                                </form>
-                                <a th:href="@{/admin/shop/image/manage/{id}(id=${product.productId})}"
-                                   class="btn btn-info btn-sm">
-                                    <i class="fa-solid fa-images"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+	<div th:replace="~{admin/shop_sidebar :: sidebar('shop')}"></div>
+	<div class="main-content">
+		<div th:replace="~{admin/shop_sidebar :: topbar('商品管理')}"></div>
+		<div class="page-body">
+			<div class="card p-4">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h5 class="m-0 fw-bold">
+						<i class="fa-solid fa-bag-shopping me-2"></i>商品列表
+					</h5>
+					<a href="/admin/shop/addProduct" class="btn btn-teal"> <i
+						class="fa-solid fa-plus me-1"></i>新增商品
+					</a>
+				</div>
+				<div style="overflow-x: auto;">
+					<table class="table table-bordered table-hover align-middle">
+						<thead class="table-light">
+							<tr>
+								<th>ID</th>
+								<th>商品名稱</th>
+								<th>類別</th>
+								<th>商品介紹</th>
+								<th>價格</th>
+								<th>數量</th>
+								<th>狀態</th>
+								<th width="100">操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="product : ${productsListData}">
+								<td th:text="${product.productId}"></td>
+								<td th:text="${product.productName}" class="fw-bold"></td>
+								<td
+									th:text="${product.productCategory != null ? product.productCategory.productCategoryName : product.productCategoryId}"></td>
+								<td th:text="${product.productDesc}" class="text-muted small"></td>
+								<td th:text="'$' + ${product.productPrice}"
+									class="text-danger fw-bold"></td>
+								<td th:text="${product.productQuantity}"></td>
+								<td><span th:if="${product.productStatus == 1}"
+									class="badge bg-success">上架</span> <span
+									th:if="${product.productStatus == 0}"
+									class="badge bg-secondary">下架</span></td>
+								<td>
+									<form th:action="@{/admin/shop/getOne_For_Update}"
+										method="post" style="display: inline;">
+										<input type="hidden" name="productId"
+											th:value="${product.productId}">
+										<button type="submit" class="btn btn-warning btn-sm">
+											<i class="fa-solid fa-pen"></i>
+										</button>
+									</form> <a
+									th:href="@{/admin/shop/image/manage/{id}(id=${product.productId})}"
+									class="btn btn-info btn-sm"> <i class="fa-solid fa-images"></i>
+								</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 </html>
