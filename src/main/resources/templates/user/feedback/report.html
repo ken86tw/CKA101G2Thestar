@@ -112,7 +112,7 @@ h1 {
 <body>
 
 	<div
-		th:replace="~{user/common/frontNavbar :: navbar('room', true, 'shop-navbar site-navbar-dark', false)}"></div>
+		th:replace="~{user/common/frontNavbar :: navbar('feedback', false, 'shop-navbar site-navbar-dark', false)}"></div>
 
 	<div class="container">
 		<header class="admin-header">
@@ -127,7 +127,7 @@ h1 {
 			<div class="form-group">
 				<label>聯絡信箱</label>
 				<!-- 使用 th:value 綁定 userEmail，並加上 readonly 讓會員無法亂改 -->
-				<input type="email" id="email" th:value="${userEmail}" required
+				<input type="email" id="email" th:value="${userEmail}" required readonly
 					placeholder="請輸入您的電子郵件" />
 			</div>
 

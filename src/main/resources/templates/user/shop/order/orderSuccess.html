@@ -21,6 +21,7 @@ body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3
 .navbar-login { background: #c9a84c; color: #fff !important; padding: 8px 20px !important; border-radius: 4px !important; border: 0; cursor: pointer; font-size: 14px; letter-spacing: 1px; }
 .success-container { max-width: 680px; margin: 120px auto 80px; padding: 0 32px; text-align: center; }
 .success-icon { font-size: 72px; color: #2d7a4a; margin-bottom: 24px; }
+.success-icon.pending { color: #e67e22; }
 .success-title { font-family: 'Noto Serif TC', serif; font-size: 1.8rem; color: #1e3a4a; letter-spacing: 4px; margin-bottom: 12px; }
 .gold-line { width: 60px; height: 2px; background: #c9a84c; margin: 16px auto 24px; }
 .success-subtitle { font-size: 14px; color: #7a9aaa; margin-bottom: 40px; line-height: 1.8; }
@@ -29,6 +30,9 @@ body { font-family: 'Noto Sans TC', sans-serif; background: #f5f8fa; color: #2c3
 .order-info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f5f8fa; }
 .order-info-label { color: #7a9aaa; }
 .order-info-value { color: #1e3a4a; font-weight: 600; }
+.order-info-value.paid { color: #2d7a4a; }
+.order-info-value.unpaid { color: #e67e22; }
+.order-info-value.refunded { color: #7a9aaa; }
 .order-item-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; border-bottom: 1px solid #f0f6f8; }
 .order-item-row:last-child { border-bottom: 0; }
 .order-total-row { display: flex; justify-content: space-between; padding-top: 16px; margin-top: 8px; border-top: 2px solid #dce8ed; }
@@ -52,14 +56,21 @@ footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 
 <div class="success-container">
 
   <!-- 成功圖示 -->
-  <div class="success-icon">
+  <div class="success-icon" th:classappend="${shopOrderVO.shopPaymentStatus != null and shopOrderVO.shopPaymentStatus == 1} ? '' : 'pending'">
     <i class="fa-solid fa-circle-check"></i>
   </div>
   <div class="success-title">訂單建立成功</div>
   <div class="gold-line"></div>
-  <div class="success-subtitle">
-    感謝您的購買！我們已收到您的訂單，<br>
-    請等待付款確認後，我們將盡快為您處理。
+
+  <!-- 已付款 -->
+  <div class="success-subtitle" th:if="${shopOrderVO.shopPaymentStatus != null and shopOrderVO.shopPaymentStatus == 1}">
+    感謝您的購買！款項已收到，<br>
+    我們將盡快為您處理這筆訂單。
+  </div>
+  <!-- 尚未確認付款（含 ReturnURL 尚未回寫的情況） -->
+  <div class="success-subtitle" th:unless="${shopOrderVO.shopPaymentStatus != null and shopOrderVO.shopPaymentStatus == 1}">
+    感謝您的購買！我們已收到您的訂單。<br>
+    若您已完成付款，付款狀態約需數分鐘更新，可至「我的訂單」查看最新狀態。
   </div>
 
   <!-- 訂單資訊 -->
@@ -82,30 +93,37 @@ footer { background: #1e3a4a; color: #7a9aaa; text-align: center; padding: 40px 
       <span class="order-info-label">聯絡電話</span>
       <span class="order-info-value" th:text="${shopOrderVO.shopOrderPhone}"></span>
     </div>
-    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 0}">
+
+    <!-- 配送方式：0 = 自取，1 = 宅配 -->
+    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 1}">
       <span class="order-info-label">配送方式</span>
       <span class="order-info-value">宅配到府</span>
     </div>
-    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 0 and shopOrderVO.shopOrderAddress != null}">
+    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 1 and shopOrderVO.shopOrderAddress != null}">
       <span class="order-info-label">收件地址</span>
       <span class="order-info-value" th:text="${shopOrderVO.shopOrderAddress}"></span>
     </div>
-    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 1}">
+    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 0}">
       <span class="order-info-label">配送方式</span>
       <span class="order-info-value">門市自取</span>
     </div>
-    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 1 and shopOrderVO.shopOrderPickupTime != null}">
+    <div class="order-info-row" th:if="${shopOrderVO.shopOrderPickup == 0 and shopOrderVO.shopOrderPickupTime != null}">
       <span class="order-info-label">取貨時間</span>
       <span class="order-info-value"
         th:text="${#temporals.format(shopOrderVO.shopOrderPickupTime, 'yyyy-MM-dd HH:mm')}"></span>
     </div>
+
     <div class="order-info-row" th:if="${shopOrderVO.shopOrderNote != null and !#strings.isEmpty(shopOrderVO.shopOrderNote)}">
       <span class="order-info-label">備註</span>
       <span class="order-info-value" th:text="${shopOrderVO.shopOrderNote}"></span>
     </div>
+
+    <!-- 付款狀態：0 待付款 / 1 已付款 / 2 已退款 -->
     <div class="order-info-row">
       <span class="order-info-label">付款狀態</span>
-      <span class="order-info-value" style="color:#e67e22;">待付款</span>
+      <span class="order-info-value paid" th:if="${shopOrderVO.shopPaymentStatus != null and shopOrderVO.shopPaymentStatus == 1}">已付款</span>
+      <span class="order-info-value refunded" th:if="${shopOrderVO.shopPaymentStatus != null and shopOrderVO.shopPaymentStatus == 2}">已退款</span>
+      <span class="order-info-value unpaid" th:if="${shopOrderVO.shopPaymentStatus == null or shopOrderVO.shopPaymentStatus == 0}">待付款</span>
     </div>
   </div>
 

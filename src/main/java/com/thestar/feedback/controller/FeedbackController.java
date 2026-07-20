@@ -35,8 +35,8 @@ public class FeedbackController {
 	@GetMapping("/report")
 	public String showReportForm(Model model, HttpSession session) {
 
-		// 1. 從 session 取得目前登入的會員（這裡的屬性名稱 "loggedInMember" 請換成你專案實際設定的名稱）
-		MemberVO member = (MemberVO) session.getAttribute("loggedInMember");
+		// 1. 從 session 取得目前登入的會員
+		MemberVO member = (MemberVO) session.getAttribute("loginMember");
 
 		// 2. 防禦性檢查：如果有登入，就撈出資料帶到前端
 		if (member != null) {

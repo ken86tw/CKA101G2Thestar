@@ -43,10 +43,10 @@ document.getElementById('feedbackForm').addEventListener('submit', async functio
         } else {
             const errorMsg = await response.text();
             
-            // 如果是登入問題 (根據後端邏輯判斷)
-            if (response.status === 500 && errorMsg.includes("登入")) {
+            // Filter 判定未登入或會員身分失效時，重新導向登入頁。
+            if (response.status === 401 || response.status === 403) {
                 alert("登入狀態已過期，即將為您導向登入頁面。");
-                window.location.href = "/login";
+                window.location.href = "/login.html?redirect=" + encodeURIComponent("/feedback/report");
             } else {
                 alert('送出失敗：' + (errorMsg || '請稍後再試。'));
                 resetButton(submitBtn);

@@ -375,15 +375,16 @@ footer {
 						<i class="fa-solid fa-ban me-1"></i> 購物車中有已下架商品，請移除後再結帳！
 					</div>
 
+					<!-- 0 = 自取，1 = 宅配（與 SHOP_ORDER.SHOP_ORDER_PICKUP 一致） -->
 					<div class="pickup-options">
 						<label class="pickup-option selected" id="opt-delivery"
-							onclick="selectPickup(0)"> <input type="radio"
-							name="shopOrderPickup" value="0" checked> <i
+							onclick="selectPickup(1)"> <input type="radio"
+							name="shopOrderPickup" value="1" checked> <i
 							class="fa-solid fa-truck"></i> <span>宅配到府</span>
 						</label> <label class="pickup-option" id="opt-pickup"
-							onclick="selectPickup(1)"
+							onclick="selectPickup(0)"
 							th:classappend="${hasOverStock} ? ' disabled' : ''"> <input
-							type="radio" name="shopOrderPickup" value="1"> <i
+							type="radio" name="shopOrderPickup" value="0"> <i
 							class="fa-solid fa-store"></i> <span>自取</span>
 						</label>
 					</div>
@@ -448,10 +449,20 @@ footer {
 	</footer>
 
 	<script th:inline="javascript">
+/* 配送方式代碼：0 = 自取(PICKUP)，1 = 宅配(DELIVERY) */
+const PICKUP_SELF = 0;
+const PICKUP_DELIVERY = 1;
+
 const hasOverStock = /*[[${hasOverStock}]]*/ false;
 
+/** 產生本地時間的 datetime-local 字串（避免 toISOString 的 UTC 時差問題） */
+function toLocalDateTimeString(date, timeStr) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${timeStr}`;
+}
+
 function selectPickup(val) {
-  if (val === 1 && hasOverStock) return; // 超庫存不允許自取
+  if (val === PICKUP_SELF && hasOverStock) return; // 超庫存不允許自取
 
   const delivery = document.getElementById('section-delivery');
   const pickup = document.getElementById('section-pickup');
@@ -460,28 +471,29 @@ function selectPickup(val) {
   const addressInput = document.getElementById('addressInput');
   const pickupTimeInput = document.getElementById('pickupTimeInput');
 
-  if (val === 0) {
+  if (val === PICKUP_DELIVERY) {
+    // 宅配
     delivery.classList.add('show');
     pickup.classList.remove('show');
     optDelivery.classList.add('selected');
     optPickup.classList.remove('selected');
     addressInput.required = true;
     pickupTimeInput.required = false;
-    document.querySelector('input[value="0"]').checked = true;
+    document.querySelector('input[name="shopOrderPickup"][value="1"]').checked = true;
   } else {
+    // 自取
     delivery.classList.remove('show');
     pickup.classList.add('show');
     optDelivery.classList.remove('selected');
     optPickup.classList.add('selected');
     addressInput.required = false;
     pickupTimeInput.required = true;
-    document.querySelector('input[value="1"]').checked = true;
+    document.querySelector('input[name="shopOrderPickup"][value="0"]').checked = true;
 
     // 設定最早可選隔日 09:00
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().slice(0, 10) + 'T09:00';
-    pickupTimeInput.min = tomorrowStr;
+    pickupTimeInput.min = toLocalDateTimeString(tomorrow, '09:00');
   }
 }
 
@@ -509,9 +521,15 @@ document.querySelector('form').addEventListener('submit', function(e) {
         return;
     }
 
-    // 宅配地址驗證
-    const pickupRadioCheck = document.querySelector('input[name="shopOrderPickup"]:checked');
-    if (pickupRadioCheck && pickupRadioCheck.value === '0') {
+    const pickupRadio = document.querySelector('input[name="shopOrderPickup"]:checked');
+    if (!pickupRadio) {
+        alert('請選擇配送方式！');
+        e.preventDefault();
+        return;
+    }
+
+    // 宅配（1）：驗證地址
+    if (pickupRadio.value === '1') {
         const addressInput = document.getElementById('addressInput');
         if (!addressInput.value.trim()) {
             alert('請輸入收件地址！');
@@ -520,17 +538,17 @@ document.querySelector('form').addEventListener('submit', function(e) {
         }
     }
 
-    // 自取時間驗證
-    const pickupRadio = document.querySelector('input[name="shopOrderPickup"]:checked');
-    if (pickupRadio && pickupRadio.value === '1') {
+    // 自取（0）：驗證取貨時間
+    if (pickupRadio.value === '0') {
         const pickupTimeInput = document.getElementById('pickupTimeInput');
-        const pickupTime = new Date(pickupTimeInput.value);
 
         if (!pickupTimeInput.value) {
             alert('請選擇取貨時間！');
             e.preventDefault();
             return;
         }
+
+        const pickupTime = new Date(pickupTimeInput.value);
 
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);

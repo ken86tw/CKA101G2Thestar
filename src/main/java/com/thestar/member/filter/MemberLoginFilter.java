@@ -83,6 +83,8 @@ public class MemberLoginFilter extends OncePerRequestFilter {
                 || path.equals("/api/member/coupons")
                 || path.startsWith("/api/member/notifications")
                 || path.equals("/coupons.html")
+                || path.equals("/feedback/report")
+                || path.equals("/feedback/add")
                 || path.equals("/thestar/order/create")
                 || path.startsWith("/thestar/order/member")
                 || path.startsWith("/thestar/order/cancel")
@@ -128,6 +130,10 @@ public class MemberLoginFilter extends OncePerRequestFilter {
     private String getPostLoginLandingPage(String path) {
         if (path.equals("/shop/cart") || path.startsWith("/shop/cart/")) {
             return "/shop/cart";
+        }
+
+        if (path.equals("/feedback/add")) {
+            return "/feedback/report";
         }
 
         if (path.startsWith("/thestar/order/")

@@ -211,6 +211,16 @@ body {
 	color: #c0392b;
 }
 
+.badge-refunded {
+	background: #eef2f4;
+	color: #5a7a8a;
+}
+
+.badge-unknown {
+	background: #eef2f4;
+	color: #7a9aaa;
+}
+
 .badge-delivery {
 	background: #e8f2f6;
 	color: #2d5a6b;
@@ -314,8 +324,6 @@ footer {
 	margin: 12px auto;
 	opacity: 0.4;
 }
-
-/* ===== 購物頁 navbar 覆蓋（fixed 深色背景） ===== */
 </style>
 </head>
 <body>
@@ -340,7 +348,8 @@ footer {
 		</div>
 
 		<!-- 訂單列表 -->
-		<div th:each="order : ${orderListData}" class="order-card">
+		<div th:each="order : ${orderListData}" class="order-card"
+			th:with="isPickup=${order.shopOrderPickup != null and order.shopOrderPickup == 0}">
 
 			<!-- 訂單標題 -->
 			<div class="order-card-header">
@@ -352,28 +361,36 @@ footer {
 						th:text="${#temporals.format(order.shopOrderTime, 'yyyy-MM-dd HH:mm')}"></div>
 				</div>
 				<div class="order-badges">
-					<!-- 配送方式 -->
-					<span th:if="${order.shopOrderPickup == 0}"
+
+					<!-- 配送方式：0 = 自取，1 = 宅配 -->
+					<span th:if="${order.shopOrderPickup == 1}"
 						class="badge badge-delivery"> <i
 						class="fa-solid fa-truck me-1"></i>宅配
-					</span> <span th:if="${order.shopOrderPickup == 1}"
+					</span> <span th:if="${order.shopOrderPickup == 0}"
 						class="badge badge-pickup"> <i
 						class="fa-solid fa-store me-1"></i>自取
 					</span>
-					<!-- 付款狀態 -->
+
+					<!-- 付款狀態：0 待付款 / 1 已付款 / 2 已退款 -->
 					<span th:if="${order.shopPaymentStatus == 0}"
 						class="badge badge-pending-pay">未付款</span> <span
 						th:if="${order.shopPaymentStatus == 1}" class="badge badge-paid">已付款</span>
 					<span th:if="${order.shopPaymentStatus == 2}"
-						class="badge badge-cancelled">已退款</span>
-					<!-- 訂單狀態 -->
+						class="badge badge-refunded">已退款</span> <span
+						th:if="${order.shopPaymentStatus == null}"
+						class="badge badge-unknown">付款狀態未知</span>
+
+					<!-- 訂單狀態：0 成立 / 1 出貨中(自取為備貨中) / 2 已送達(自取為已取貨) / 3 已取消 -->
 					<span th:if="${order.shopOrderStatus == 0}"
 						class="badge badge-processing">訂單成立</span> <span
-						th:if="${order.shopOrderStatus == 1}"
-						class="badge badge-processing">出貨中</span> <span
-						th:if="${order.shopOrderStatus == 2}" class="badge badge-shipped">已送達</span>
-					<span th:if="${order.shopOrderStatus == 3}"
-						class="badge badge-cancelled">已取消</span> 
+						th:if="${order.shopOrderStatus == 1}" class="badge badge-shipped"
+						th:text="${isPickup} ? '備貨中' : '出貨中'"></span> <span
+						th:if="${order.shopOrderStatus == 2}" class="badge badge-done"
+						th:text="${isPickup} ? '已取貨' : '已送達'"></span> <span
+						th:if="${order.shopOrderStatus == 3}"
+						class="badge badge-cancelled">已取消</span> <span
+						th:if="${order.shopOrderStatus == null}"
+						class="badge badge-unknown">訂單狀態未知</span>
 				</div>
 			</div>
 
@@ -388,12 +405,12 @@ footer {
 						th:text="${order.shopOrderPhone}"></span>
 				</div>
 				<div class="order-item-row"
-					th:if="${order.shopOrderPickup == 0 and order.shopOrderAddress != null}">
+					th:if="${order.shopOrderPickup == 1 and order.shopOrderAddress != null}">
 					<span>收件地址</span> <span class="order-item-name"
 						th:text="${order.shopOrderAddress}"></span>
 				</div>
 				<div class="order-item-row"
-					th:if="${order.shopOrderPickup == 1 and order.shopOrderPickupTime != null}">
+					th:if="${order.shopOrderPickup == 0 and order.shopOrderPickupTime != null}">
 					<span>取貨時間</span> <span class="order-item-name"
 						th:text="${#temporals.format(order.shopOrderPickupTime, 'yyyy-MM-dd HH:mm')}"></span>
 				</div>
@@ -403,6 +420,7 @@ footer {
 						th:text="${order.shopOrderNote}"></span>
 				</div>
 			</div>
+
 			<!-- 商品明細 -->
 			<div style="padding: 12px 24px; border-top: 1px solid #f0f5f8;">
 				<div
