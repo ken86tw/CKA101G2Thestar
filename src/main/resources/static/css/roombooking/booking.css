@@ -1,13 +1,3 @@
-/* ============================================================
-   roombooking/booking.css — 「預訂客房」訂房流程
-   內容:三步驟進度、搜尋列與日期欄、首屏展示、房型卡片、
-        優惠券、金額明細、flatpickr 日曆換色
-   順序有意義的地方:
-   1. flatpickr 換色要蓋過 <head> 載入的 flatpickr.min.css(後載入的贏)
-   2. .dateview 那段要放在 .searchbar 區「後面」,同分時才蓋得掉原設定
-   ============================================================ */
-
-/* ===== 還原訂單的過場(登入導回來時擋住查房首屏,避免閃一下) ===== */
 .restorehint {
     min-height: 70vh;
     display: flex;
@@ -140,31 +130,23 @@
     background: var(--line)
 }
 
-/* 搜尋按鈕:絕對定位「掛」在白卡右緣外側(left:100% = 從白卡右邊界開始畫),
-   不佔白卡的寬——白卡置中=日期置中,「—」對頁面正中央。
-   top/bottom 都是 0:按鈕高度跟白卡內容區切齊,上下不會凸出白卡外 */
 .searchbar .btn {
     position: absolute;
     left: 100%;
     top: 0;
     bottom: 0;
     padding: 0 42px;
-    /* 絕對定位的按鈕沒有固定寬,瀏覽器可能把文字折行——nowrap 強制單行,照文字撐開寬度 */
     white-space: nowrap;
-    /* 右半邊圓角:跟白卡左半邊的 14px 湊成一顆完整膠囊 */
     border-radius: 0 14px 14px 0
 }
 
-/* hover:變深金(繼承 .btn 原本的行為)之外再亮起金色光暈+字距微開,回饋更明顯
-   (transition 沿用 base.css .btn 的 .3s,會平滑過渡) */
 .searchbar .btn:hover {
     background: var(--gold-d);
     box-shadow: 0 10px 28px rgba(128, 98, 58, .5);
     letter-spacing: 3.5px
 }
 
-/* ===== 房型橫幅(搜尋列下方,一間房型一條,點了去 /roomList/list) ===== */
-/* 寬度刻意比搜尋列(1000px)寬一截,層次上「內容區」比「工具列」開闊 */
+
 .typebanners {
     width: min(1600px, 94vw);
     margin: 64px auto 0;
@@ -173,8 +155,6 @@
     gap: 18px;
 }
 
-/* 每條橫幅:照片當背景(backgroundImage 由 Vue 依房型 id 塞進 inline style),
-   文字排在下緣左右兩端;overflow:hidden 讓圓角能把背景照片裁乾淨 */
 .typebanner {
     position: relative;
     display: flex;
@@ -192,9 +172,6 @@
     transition: .3s;
 }
 
-/* 照片上壓一層由下往上的暗色漸層:文字貼在下緣,這樣才讀得清楚。
-   用 ::after 疊而不是寫進 background:背景圖是 inline style 塞的,
-   寫在同一個 background 會被 inline 蓋掉 */
 .typebanner::after {
     content: "";
     position: absolute;
@@ -203,7 +180,6 @@
     transition: .3s;
 }
 
-/* 文字要墊高過 ::after 那層漸層,不然會被壓在遮罩下面變暗 */
 .typebanner .tb-info,
 .typebanner .tb-more {
     position: relative;
@@ -232,7 +208,6 @@
     transition: .3s;
 }
 
-/* hover:整條微微浮起、遮罩變亮一點、「查看房型」轉白,提示可以點 */
 .typebanner:hover {
     transform: translateY(-4px);
     box-shadow: 0 22px 50px rgba(35, 33, 28, .2);
@@ -246,7 +221,6 @@
     color: #fff;
 }
 
-/* ===== 房型卡片（步驟二） ===== */
 .staybrief {
     text-align: center;
     color: var(--soft);
@@ -415,21 +389,14 @@
     text-align: center;
 }
 
-/* 照片橫幅:BOOK NOW 標題整組壓在照片上置中。
-   黑色漸層遮罩上深下淺,白字壓在照片上才讀得清楚。
-   照片來源 Unsplash(w=1600 是跟 CDN 要縮圖寬度,原圖太大載入慢) */
 .herobanner {
     min-height: 30vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* 上緣留 96px:透明導覽列疊在照片上(見 base.css),標題往下推才不會被壓到 */
     padding: 96px 20px 30px;
     color: #fff;
-    /* 三層背景由上往下疊:
-       1. 底部漸層——照片下緣壓一道由深到透明的暗色,跟下方的搜尋框之間多一層景深
-       2. 整片遮罩——上深下淺,讓白字標題讀得清楚
-       3. 照片本體 */
+
     background: linear-gradient(to top, rgba(20, 18, 14, .5), rgba(20, 18, 14, 0) 34%),
         linear-gradient(rgba(0, 0, 0, .45), rgba(0, 0, 0, .25)),
         url('https://images.unsplash.com/photo-1666813721996-42956e40788e?w=1600&auto=format&fit=crop&q=80')
@@ -441,7 +408,6 @@
     margin: 0 auto
 }
 
-/* 下半部:只剩日期搜尋列一行,貼著照片下緣往上靠,多的空間都留在畫面下方 */
 .herosearch {
     flex: 1;
     display: flex;
@@ -450,14 +416,12 @@
     padding: 46px 20px 48px;
 }
 
-/* 小標:照購物頁 .hero-subtitle 的規格(淺金、字距 4px) */
 .herofull .up {
     color: #dcc79a;
     font-size: 13px;
     letter-spacing: 4px
 }
 
-/* 大標:白字+文字陰影,尺寸用 clamp 跟購物頁一樣隨視窗縮放 */
 .herofull h1 {
     color: #fff;
     font-size: clamp(36px, 4vw, 50px);
@@ -466,7 +430,6 @@
     text-shadow: 0 4px 18px rgba(0, 0, 0, .35)
 }
 
-/* 金線:照購物頁 .gold-line 的規格(70×3 實心金) */
 .herofull .rule {
     width: 70px;
     height: 3px;
@@ -474,7 +437,6 @@
     margin: 24px auto 0
 }
 
-/* 副標:白字+陰影,壓在照片上 */
 .herofull .herosub {
     margin: 16px 0 0;
     font-size: 16px;
@@ -483,9 +445,6 @@
     text-shadow: 0 3px 12px rgba(0, 0, 0, .35)
 }
 
-/* 搜尋列白卡:置中(80vw 是給右邊突出去的按鈕留位置,才不會在小螢幕被擠出視窗外);
-   position:relative = 當按鈕絕對定位的「定位基準」,按鈕的 left:100% 才知道從誰的右緣算。
-   圓角只做左半邊(右半邊的圓角在按鈕上),整條看起來才是一顆完整的膠囊 */
 .herosearch .searchbar {
     position: relative;
     width: min(1000px, 80vw);
@@ -496,7 +455,6 @@
 }
 
 
-/* ===== 優惠券 (confirm 頁預覽 & 金額明細) ===== */
 .coupon-threshold-note {
     margin: 8px 0 0;
     color: #9a7250;
@@ -621,12 +579,6 @@
     }
 }
 
-/* ===== flatpickr 日期範圍日曆(搜尋列用) =====
-   套件自帶的 flatpickr.min.css 已經把日曆的排版都做好了,
-   這裡只「蓋顏色」:把它預設的藍色系換成網站的金色調。
-   (跟檔頭 common.css 的道理一樣:同分時後載入的贏,所以這些規則能蓋過套件的預設值) */
-
-/* 日曆整體:直角+陰影,跟搜尋列同一種質感;字體換成網站的 */
 .flatpickr-calendar {
     font-family: var(--sans);
     border-radius: 0;
@@ -643,12 +595,6 @@
     color: var(--muted);
 }
 
-/* 選中的入住日(startRange)和退房日(endRange):金底白字的實心方塊。
-   光寫 .flatpickr-day.selected 還不夠,:hover、:focus、.inRange 的組合都要一起寫——
-   套件對這些狀態各有一條「更具體」的藍色規則(CSS 打架先比誰更具體、再比誰後載入),
-   少寫哪個狀態,那個狀態就會閃回套件預設的藍色。
-   實際踩過的坑::focus 那三行一開始沒寫,結果「點下去的那格」是藍的——
-   因為滑鼠點擊會讓那格拿到鍵盤焦點,套件的 .selected:focus(2 class+1 偽類)就壓過我們的 2 class */
 .flatpickr-day.selected,
 .flatpickr-day.startRange,
 .flatpickr-day.endRange,
@@ -666,8 +612,6 @@
     border-radius: 0;
 }
 
-/* 入住日與退房日「中間」的日期(含點了第一下後滑鼠掃過的即時預覽):淺金底。
-   box-shadow 是 flatpickr 用來把相鄰兩格之間的縫隙補滿顏色的招,顏色要跟底色一致才不會有直線縫 */
 .flatpickr-day.inRange {
     background: #f1ebe2;
     border-color: #f1ebe2;
@@ -675,26 +619,20 @@
     box-shadow: -5px 0 0 #f1ebe2, 5px 0 0 #f1ebe2;
 }
 
-/* 起迄日和中間段交界處的補縫顏色也換掉(套件預設補灰色會露餡) */
 .flatpickr-day.selected.startRange + .flatpickr-day.inRange,
 .flatpickr-day.startRange.startRange + .flatpickr-day.inRange {
     box-shadow: -10px 0 0 #f1ebe2;
 }
 
-/* 今天:預設是藍框,改成金框呼應主色 */
 .flatpickr-day.today {
     border-color: var(--gold);
 }
 
-/* 滑鼠掃到還沒選的日期:淡淡的底色回饋 */
 .flatpickr-day:hover {
     background: #f6f2ea;
     border-color: #f6f2ea;
 }
 
-/* 起迄日的圓角要用「三個 class」的選擇器才蓋得掉:
-   套件內部寫的是 .flatpickr-day.selected.startRange(三個 class,比我們上面兩個 class 的規則「更具體」),
-   CSS 規則打架時先比具體度、再比先後,所以這裡也要寫到三個 class 才贏得了它 */
 .flatpickr-day.selected.startRange,
 .flatpickr-day.startRange.startRange,
 .flatpickr-day.endRange.startRange,
@@ -704,50 +642,34 @@
     border-radius: 0;
 }
 
-/* 只住一晚時入住、退房兩格緊貼,套件會用藍色 box-shadow 補中間的縫——把這條縫也換成金色。
-   :not(:nth-child(7n+1)) 是照抄套件的寫法:排除每週第一格(跨週換行時不需要補縫) */
 .flatpickr-day.selected.startRange + .flatpickr-day.endRange:not(:nth-child(7n+1)),
 .flatpickr-day.startRange.startRange + .flatpickr-day.endRange:not(:nth-child(7n+1)),
 .flatpickr-day.endRange.startRange + .flatpickr-day.endRange:not(:nth-child(7n+1)) {
     box-shadow: -10px 0 0 var(--gold);
 }
 
-/* ===== 搜尋列日期欄(三段式版面:入住日靠左、「至」置中、退房日靠右) =====
-   寫在檔案尾巴,同分(具體度相同)時後寫的贏,蓋掉上面搜尋列區的原設定 */
 .searchbar .sfield.dateview {
-    position: relative;              /* 當「定位基準」:裡面的 input 要用 absolute 貼滿它 */
+    position: relative;
     display: grid;
-    /* 三欄格線:左右兩欄各吃一半(1fr)、中間的「—」只吃自己的寬(auto)——
-       這樣不管兩個日期字串多長,分隔線永遠釘在欄位正中間
-       (之前用 flex 的 space-between,日期一長一短時「—」就會被擠歪) */
     grid-template-columns: 1fr auto 1fr;
-    align-items: center;             /* 上下置中 */
+    align-items: center;
 }
 
-/* 兩個日期:整段用思源宋體(Noto Serif TC),數字跟中文字同一套字體。
-   之前排 --serif 的 Cormorant Garamond 在前面,它的數字是「老式數字」——
-   高低起伏像手寫(3、5、9 會沉到基線下面),跟中文並排就顯得上下歪;
-   Noto Serif TC 的數字是等高的現代數字,跟中文字高度切齊 */
 .searchbar .dateview .dv {
     font-family: 'Noto Serif TC', serif;
     font-weight: 500;
     font-size: 30px;
     letter-spacing: 1px;
     color: var(--ink);
-    text-align: center;              /* 各自在自己那半欄置中,跟正中間的「—」對稱 */
+    text-align: center;
 }
 
-/* 中間的「至」:小一點、淡一點,當分隔詞不搶戲 */
 .searchbar .dateview .dsep {
     font-size: 15px;
     letter-spacing: 4px;
     color: var(--muted);
 }
 
-/* flatpickr 掛日曆用的 input:攤平成透明層蓋滿整個欄位。
-   inset:0 = top/right/bottom/left 全設 0(貼滿父層);opacity:0 = 看不見但「還在」,
-   所以點欄位任何位置其實都是點到它 → 日曆就彈出。
-   (不能用 display:none 藏它:元素從版面上消失的話,flatpickr 會不知道日曆要靠著誰定位) */
 .searchbar .dateview input {
     position: absolute;
     inset: 0;

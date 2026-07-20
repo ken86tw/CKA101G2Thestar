@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<!-- 「我的預訂」區塊(會員訂單列表):被 roombooking.html 用 th:replace 引入。
-     對應 JS:js/roombooking/orders.js;樣式全用 css/roombooking/base.css 的共用件(stab/table/badge) -->
+
 <html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
 <body>
 <!-- ===== 我的預訂 ===== -->
@@ -36,7 +35,6 @@
                         <td><span class="oid">No. {{ o.orderId }}</span></td>
                         <td><span class="badge" :class="'b'+o.orderStatus">{{ STATUS[o.orderStatus].label
                             }}</span>
-                            <!-- 待付款的單掛個小倒數 歸零後等後端排程取消+WS通知重查 狀態就會變已取消 -->
                             <div v-if="o.orderStatus===0"
                                  style="color:red;font-size:12px;margin-top:4px;font-variant-numeric:tabular-nums">
                                 {{ payLeftOf(o) > 0 ? '剩 ' + mmss(payLeftOf(o)) : '逾時，取消處理中' }}

@@ -25,9 +25,6 @@
     box-sizing: border-box
 }
 
-/* v-cloak:#app 上掛著這個屬性時整塊隱藏。
-   Vue 啟動接管畫面時會自動把屬性拆掉,內容才現身——
-   所以 JS 還在載入(或載入失敗)期間,使用者看到的是空白而不是滿頁的 {{ }} 原始模板 */
 [v-cloak] {
     display: none
 }
@@ -188,7 +185,6 @@ label {
     margin-bottom: 4px
 }
 
-/* ===== gate(舊版登入閘門,登入頁統一後頁面上已無 .gate/.seg 元素,樣式先留著以防他頁沿用) ===== */
 .gate {
     min-height: 100vh;
     display: grid;
@@ -304,7 +300,6 @@ label {
     margin-top: 26px
 }
 
-/* ===== header(員工專用功能列) ===== */
 header {
     position: sticky;
     top: 0;
@@ -808,24 +803,15 @@ summary {
     }
 }
 
-/* ===== 共用導覽列:本頁專屬配色(room-navbar) =====
-   共用導覽列 fragment 的第三個參數帶 'site-navbar-dark room-navbar':
-   site-navbar-dark(common.css)提供尺寸與排版,room-navbar(這裡)把顏色蓋成本頁的奶油色調。
-   為什麼蓋得掉:這支檔案比 common.css 晚載入,選擇器比重相同時「後載入的贏」。
-   規則放自己的檔案、不動 common.css,才不會影響組員的頁面 */
+
 .room-navbar {
-    background: rgba(251, 249, 244, .92);   /* 跟本頁員工功能列同款的奶油半透明底 */
+    background: rgba(251, 249, 244, .92);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--line);
-    /* 導覽列要壓在頁面內容「上面」:通知鈴鐺的下拉面板是它的子元素,
-       沒設層級的話會被訂單頁的四格統計(.stab .box 有 position:relative)蓋過去。
-       z-index 選 40:高於一般內容,但低於彈窗遮罩(50)和 toast(60)——
-       開配房彈窗時遮罩才蓋得住導覽列 */
     position: relative;
     z-index: 40;
 }
 
-/* 連結文字:site-navbar-dark 原本是深底配淺灰藍字,奶油底要換深色字 */
 .room-navbar .navbar-links > a,
 .room-navbar .restaurant-nav-trigger {
     color: var(--soft);
@@ -836,43 +822,33 @@ summary {
     color: var(--ink);
 }
 
-/* 目前所在頁(訂房)的高亮與 hover 底線:改用本頁的金色 */
 .room-navbar .nav-links a:hover,
 .room-navbar .nav-links .active {
     color: var(--gold);
     border-bottom-color: var(--gold);
 }
 
-/* 餐廳下拉選單打開時的觸發器:原本的淺金色在奶油底上會看不清楚 */
 .room-navbar .restaurant-nav-menu:hover .restaurant-nav-trigger,
 .room-navbar .restaurant-nav-menu:focus-within .restaurant-nav-trigger,
 .room-navbar .restaurant-nav-menu.active-menu .restaurant-nav-trigger {
     color: var(--gold);
 }
 
-/* 品牌字「東方之星」:原本是白字,奶油底上改墨色(英文 The Star 本來就是金色,不用動) */
 .room-navbar .navbar-brand .brand-zh {
     color: var(--ink);
 }
 
-/* ===== 首屏照片橫幅時:導覽列透明「疊」在照片上(購物頁同款) =====
-   購物頁是把導覽列 absolute 進 .page-header;我們的導覽列在 #app 外面動不了 HTML,
-   改用 :has() 從 CSS 判斷:「頁面上有 .herofull(訂房首屏)時」才套這組。
-   妙處:首屏的 herofull 被 v-if 拆掉(進步驟二/三、切到我的預訂)後,
-   :has 條件不成立,導覽列自動變回上面那組奶油底,不用寫任何 JS */
 body:has(.herofull) .room-navbar {
-    position: absolute;   /* 脫離排版流,疊在照片最上緣(照片會從頁面最頂端開始鋪) */
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 100;
-    /* 上深下淺的黑漸層:跟購物頁導覽列同款,保證白字在亮照片上也讀得清楚 */
     background: linear-gradient(rgba(0, 0, 0, .48), rgba(0, 0, 0, 0));
     backdrop-filter: none;
     border-bottom: 0;
 }
 
-/* 連結文字換回淺色系(奶油底用的深色字在照片上會看不見) */
 body:has(.herofull) .room-navbar .navbar-links > a,
 body:has(.herofull) .room-navbar .restaurant-nav-trigger {
     color: #e8e2d5;
@@ -883,7 +859,6 @@ body:has(.herofull) .room-navbar .restaurant-nav-trigger:hover {
     color: #fff;
 }
 
-/* 品牌字「東方之星」在照片上改回白字 */
 body:has(.herofull) .room-navbar .navbar-brand .brand-zh {
     color: #fff;
 }

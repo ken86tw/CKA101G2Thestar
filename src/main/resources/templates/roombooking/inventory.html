@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<!-- 「庫存查詢」區塊(員工):被 roombooking.html 用 th:replace 引入。
-     對應 JS:js/roombooking/inventory.js;對應 CSS:css/roombooking/inventory.css -->
+
 <html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
 <body>
-<!-- 員工庫存查詢:自查詢日起 31 天,每房型每日的 剩餘/總數 -->
+
 <section th:fragment="section" v-if="employee.on && nav==='inv'">
     <div class="wrap">
         <div class="sechead">
@@ -17,15 +16,12 @@
                 <button class="btn sm" @click="loadInventory()">查詢</button>
             </div>
 
-            <!-- 圖例:告訴使用者三種顏色代表什麼,跟下面 invLevel() 回傳的三個 class 一一對應 -->
             <div v-if="invRows.length" class="invlegend">
                 <span><i class="sw ok"></i>無預訂</span>
                 <span><i class="sw low"></i>已有預訂</span>
                 <span><i class="sw full"></i>滿房</span>
             </div>
 
-            <!-- 外面包一層 .invscroll:31 列太長,讓表格在框內捲動,
-                 表頭跟日期欄用 CSS sticky 釘住,捲到哪都看得到欄位名稱 -->
             <div v-if="invRows.length" class="invscroll">
                 <table class="invtable">
                     <thead>
@@ -36,15 +32,12 @@
                     </thead>
                     <tbody>
                     <tr v-for="row in invRows" :key="row.date">
-                        <!-- 日期欄:大字月/日 + 小字星期,今天多一顆金色小標 -->
                         <td class="invdate" :class="{wkend: invIsWeekend(row.date)}">
                             <b>{{ invMD(row.date) }}</b>
                             <small>{{ invWD(row.date) }}</small>
                             <em v-if="invIsToday(row.date)">今天</em>
                         </td>
-                        <!-- 每一格是一根「水管」量表:水位 = 剩餘房量(invPct),跟「剩 X 間」直接對應;
-                             文字置中疊在管子上;invLevel(c) 回傳 ok/low/full 決定水色:
-                             滿水位(沒人訂)綠 → 一有預訂水位下降轉金 → 放光了紅字「滿房」 -->
+
                         <td v-for="(c, i) in row.cells" :key="i"
                             class="invcell" :class="invLevel(c)">
                             <div class="pipe">

@@ -1,9 +1,3 @@
-/* ============================================================
-   roombooking/orders.js — 「我的預訂」(會員訂單列表)
-   內容:訂單列表分頁查詢、模擬付款、取消訂單
-   (明細展開 toggleDetail 和統計 refreshCounts 跟後台共用,放 common.js)
-   對應畫面:templates/roombooking/orders.html
-   ============================================================ */
 window.RB = window.RB || {};
 
 RB.orders = {
