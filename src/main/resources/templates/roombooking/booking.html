@@ -29,19 +29,18 @@
                     <span class="dv">{{ dateZh(form.checkOutDate) }}</span>
                     <input type="text" ref="dateRange" readonly>
                 </div>
-                <button class="btn" @click="searchRooms">搜尋空房</button>
+                <button class="btn" @click="searchRooms" style="font-size: 26px">搜尋空房</button>
             </div>
 
 
             <div class="typebanners">
-                <a v-for="t in roomTypes" :key="t.id" class="typebanner" href="/roomlist/list"
+                <div v-for="t in roomTypes" :key="t.id" class="typebanner"
                    :style="{backgroundImage: 'url(/roomtypephoto/display/room/' + t.id + ')'}">
                     <div class="tb-info">
                         <h3>{{ t.name }}</h3>
                         <p>每晚 ${{ t.price.toLocaleString() }} 起</p>
                     </div>
-                    <span class="tb-more">查看房型 ›</span>
-                </a>
+                </div>
             </div>
         </div>
     </div>
