@@ -328,6 +328,9 @@ footer {
 	</div>
 
 	<form th:action="@{/shop/order/placeOrder}" method="post" novalidate>
+		<!-- 由 JS 在送出前填入目前環境的網域，供後端組 OrderResultURL 用 -->
+		<input type="hidden" name="clientBackUrl" id="clientBackUrl">
+
 		<div class="checkout-container">
 
 			<!-- 左側：填寫資料 -->
@@ -483,6 +486,12 @@ function selectPickup(val) {
 }
 
 document.querySelector('form').addEventListener('submit', function(e) {
+
+    // 填入目前環境的網域，讓後端可組正確的 OrderResultURL
+    const backHost = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+        ? 'http://localhost:8080'
+        : location.origin;
+    document.getElementById('clientBackUrl').value = backHost;
 
     // 姓名驗證
     const nameInput = document.querySelector('input[name="shopOrderName"]');

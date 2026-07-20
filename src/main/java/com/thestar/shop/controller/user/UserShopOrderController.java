@@ -44,7 +44,7 @@ public class UserShopOrderController {
 
 	@Autowired
 	CartItemService cartItemSvc;
-	
+
 	@Autowired
 	ProductsService productsSvc;
 
@@ -61,13 +61,18 @@ public class UserShopOrderController {
 	@Value("${ecpay.aio-url}")
 	private String ECPAY_URL;
 
-//	@Value("${ecpay.return-url}")
-//	private String BASE_URL;
-	private String BASE_URL = "https://scoop-moonbeam-casing.ngrok-free.dev";
+	// ① 從 application.properties 讀 ecpay.base-url（只有網域，路徑在下面組字串時才接上）
+	@Value("${ecpay.base-url}")
+	private String BASE_URL;
 
 	// 取得登入會員
 	private MemberVO getLoginMember(HttpSession session) {
 		return (MemberVO) session.getAttribute("loginMember");
+	}
+
+	// ② 判斷回傳網域：優先使用前端傳入的 clientBackUrl，否則 fallback 到 BASE_URL
+	private String resolveResultBaseUrl(String clientBackUrl) {
+		return (clientBackUrl != null && !clientBackUrl.isBlank()) ? clientBackUrl : BASE_URL;
 	}
 
 	// 顯示結帳頁面
@@ -92,12 +97,12 @@ public class UserShopOrderController {
 		boolean hasOverStock = cartList.stream()
 				.anyMatch(item -> item.getProduct() != null
 						&& item.getCartItemProdQty() > item.getProduct().getProductQuantity());
-		
+
 		// 檢查是否有下架商品
 		boolean hasOffShelf = cartList.stream()
-		        .anyMatch(item -> item.getProduct() != null
-		                && item.getProduct().getProductStatus() != null
-		                && item.getProduct().getProductStatus() != 1);
+				.anyMatch(item -> item.getProduct() != null
+						&& item.getProduct().getProductStatus() != null
+						&& item.getProduct().getProductStatus() != 1);
 
 		model.addAttribute("hasOffShelf", hasOffShelf);
 
@@ -116,7 +121,10 @@ public class UserShopOrderController {
 			@RequestParam(value = "shopOrderAddress", required = false) String shopOrderAddress,
 			@RequestParam("shopOrderPickup") Byte shopOrderPickup,
 			@RequestParam(value = "shopOrderPickupTime", required = false) String shopOrderPickupTime,
-			@RequestParam(value = "shopOrderNote", required = false) String shopOrderNote, HttpSession session)
+			@RequestParam(value = "shopOrderNote", required = false) String shopOrderNote,
+			// ③ 新增 clientBackUrl，讓前端可傳入自訂 OrderResultURL 的網域
+			@RequestParam(value = "clientBackUrl", required = false) String clientBackUrl,
+			HttpSession session)
 			throws Exception {
 
 		MemberVO loginMember = getLoginMember(session);
@@ -129,13 +137,13 @@ public class UserShopOrderController {
 
 		// 檢查是否有下架商品
 		boolean hasOffShelf = cartList.stream()
-		        .anyMatch(item -> item.getProduct() != null
-		                && item.getProduct().getProductStatus() != null
-		                && item.getProduct().getProductStatus() != 1);
+				.anyMatch(item -> item.getProduct() != null
+						&& item.getProduct().getProductStatus() != null
+						&& item.getProduct().getProductStatus() != 1);
 		if (hasOffShelf) {
-		    return "<script>alert('購物車中有已下架商品，請移除後再結帳！');location.href='/shop/cart'</script>";
+			return "<script>alert('購物車中有已下架商品，請移除後再結帳！');location.href='/shop/cart'</script>";
 		}
-		
+
 		// 計算總金額
 		int total = 0;
 		for (CartItemVO item : cartList) {
@@ -177,15 +185,15 @@ public class UserShopOrderController {
 			productOrderItemSvc.addProductOrderItem(orderItem);
 
 			if (itemNames.length() > 0)
-			    itemNames.append("#");
+				itemNames.append("#");
 			itemNames.append(item.getProduct().getProductName());
 
 			// 扣除庫存
 			ProductsVO product = productsSvc.getOneProduct(item.getProductId());
 			if (product != null) {
-			    int newQty = product.getProductQuantity() - item.getCartItemProdQty();
-			    product.setProductQuantity(Math.max(newQty, 0));
-			    productsSvc.updateProduct(product);
+				int newQty = product.getProductQuantity() - item.getCartItemProdQty();
+				product.setProductQuantity(Math.max(newQty, 0));
+				productsSvc.updateProduct(product);
 			}
 		}
 
@@ -210,7 +218,9 @@ public class UserShopOrderController {
 		params.put("TradeDesc", "東方之星購物結帳");
 		params.put("ItemName", itemNames.toString());
 		params.put("ReturnURL", BASE_URL + "/shop/order/ecpay/return");
-		params.put("OrderResultURL", BASE_URL + "/shop/order/ecpay/result?orderId=" + order.getShopOrderId());
+		// ④ OrderResultURL 使用 resolveResultBaseUrl 決定網域
+		params.put("OrderResultURL",
+				resolveResultBaseUrl(clientBackUrl) + "/shop/order/ecpay/result?orderId=" + order.getShopOrderId());
 		params.put("ChoosePayment", "ALL");
 		params.put("EncryptType", "1");
 		params.put("CheckMacValue", generateCheckMacValue(params));
@@ -279,7 +289,10 @@ public class UserShopOrderController {
 	// 重新付款（針對待付款訂單）
 	@GetMapping("pay/{orderId}")
 	@ResponseBody
-	public String repay(@org.springframework.web.bind.annotation.PathVariable Integer orderId, HttpSession session)
+	public String repay(@org.springframework.web.bind.annotation.PathVariable Integer orderId,
+			// ⑤ 新增 clientBackUrl，讓前端可傳入自訂 OrderResultURL 的網域
+			@RequestParam(value = "clientBackUrl", required = false) String clientBackUrl,
+			HttpSession session)
 			throws Exception {
 
 		MemberVO loginMember = getLoginMember(session);
@@ -316,7 +329,9 @@ public class UserShopOrderController {
 		params.put("TradeDesc", "東方之星購物結帳");
 		params.put("ItemName", itemNames.length() > 0 ? itemNames.toString() : "商品");
 		params.put("ReturnURL", BASE_URL + "/shop/order/ecpay/return");
-		params.put("OrderResultURL", BASE_URL + "/shop/order/ecpay/result?orderId=" + orderId);
+		// ⑥ OrderResultURL 使用 resolveResultBaseUrl 決定網域
+		params.put("OrderResultURL",
+				resolveResultBaseUrl(clientBackUrl) + "/shop/order/ecpay/result?orderId=" + orderId);
 		params.put("ChoosePayment", "ALL");
 		params.put("EncryptType", "1");
 		params.put("CheckMacValue", generateCheckMacValue(params));
