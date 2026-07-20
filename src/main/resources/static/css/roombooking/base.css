@@ -121,7 +121,7 @@ a {
 
 .btn.sm {
     padding: 9px 18px;
-    font-size: 10.5px;
+    font-size: 16px;
     letter-spacing: 2px
 }
 
@@ -549,7 +549,7 @@ nav.menu button.on::after {
 }
 
 .stab .box .lb {
-    font-size: 10.5px;
+    font-size: 16px;
     letter-spacing: 2.5px;
     text-transform: uppercase;
     color: var(--muted);
@@ -574,12 +574,12 @@ nav.menu button.on::after {
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 300
 }
 
 th {
-    font-size: 10px;
+    font-size: 16px;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--muted);
@@ -600,12 +600,12 @@ tr.det td {
 
 .oid {
     font-family: var(--serif);
-    font-size: 18px
+    font-size: 22px
 }
 
 /* ===== 訂單狀態徽章 ===== */
 .badge {
-    font-size: 10px;
+    font-size: 16px;
     letter-spacing: 2px;
     text-transform: uppercase;
     padding: 5px 12px;
@@ -638,7 +638,7 @@ tr.det td {
 
 .money {
     font-family: var(--serif);
-    font-size: 18px
+    font-size: 22px
 }
 
 .strike {
