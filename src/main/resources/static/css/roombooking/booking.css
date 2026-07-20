@@ -131,10 +131,7 @@
 }
 
 .searchbar .btn {
-    position: absolute;
-    left: 100%;
-    top: 0;
-    bottom: 0;
+    flex: 0 0 auto;
     padding: 0 42px;
     white-space: nowrap;
     border-radius: 0 14px 14px 0
