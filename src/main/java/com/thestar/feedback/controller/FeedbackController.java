@@ -59,11 +59,18 @@ public class FeedbackController {
 	// 接收問題回報
 	@PostMapping("/add")
 	@ResponseBody
-	public FeedbackVO add(@RequestBody FeedbackVO feedback) {
-		// 在這裡加入判斷：如果 memberId 為 null，則設定為 0 (訪客 ID)
-		if (feedback.getMemberId() == null) {
-			feedback.setMemberId(1);
+	public FeedbackVO add(@RequestBody FeedbackVO feedback, HttpSession session) {
+
+		// 修改這裡：將 "loggedInMember" 改為 "loginMember"
+		MemberVO member = (MemberVO) session.getAttribute("loginMember");
+
+		if (member == null) {
+			throw new RuntimeException("未登入或已過期，請重新登入");
 		}
+
+		// 現在這裡就能抓到正確的 memberId 和 name 了
+		feedback.setMemberId(member.getMemberId());
+		feedback.setMemberName(member.getMemberName());
 
 		return service.createFeedback(feedback);
 	}

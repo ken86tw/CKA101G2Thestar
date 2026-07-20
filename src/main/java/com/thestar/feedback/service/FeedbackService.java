@@ -26,21 +26,34 @@ public class FeedbackService {
 
 	// 建立回報，使用者填寫
 	public FeedbackVO createFeedback(FeedbackVO feedback) {
-		// 檢查主旨
-		if (feedback.getSubject() == null || feedback.getSubject().trim().isEmpty()) {
-			throw new IllegalArgumentException("主旨不得為空");
-		}
+		// 1. 檢查主旨
+	    if (feedback.getSubject() == null || feedback.getSubject().trim().isEmpty()) {
+	        throw new IllegalArgumentException("主旨不得為空");
+	    }
 
-		// 檢查內容
-		if (feedback.getContent() == null || feedback.getContent().trim().isEmpty()) {
-			throw new IllegalArgumentException("內容不得為空");
-		}
-		// 確保建立時自動設定當前時間
-		feedback.setCreatedAt(LocalDateTime.now());
-		// 確保剛建立時，回覆時間為 null (或者初始值)
-		feedback.setRepliedAt(null);
+	    // 2. 檢查內容
+	    if (feedback.getContent() == null || feedback.getContent().trim().isEmpty()) {
+	        throw new IllegalArgumentException("內容不得為空");
+	    }
 
-		return repository.save(feedback);
+	    // 3. 【關鍵修正】檢查 memberId 是否存在
+	    if (feedback.getMemberId() == null) {
+	        throw new IllegalArgumentException("會員ID不得為空");
+	    }
+	    
+	    // 透過你的 memberService 查詢該會員是否存在
+	    MemberVO member = memberService.getMemberById(feedback.getMemberId());
+	    if (member == null) {
+	        // 如果查不到，這裡直接中斷，不會送到資料庫去報錯
+	        throw new IllegalArgumentException("找不到此會員，無法建立回報");
+	    }
+
+	    // 4. 設定初始值
+	    feedback.setCreatedAt(LocalDateTime.now());
+	    feedback.setRepliedAt(null);
+	    feedback.setTicketStatus((byte) 0); // 確保狀態初始為 0
+
+	    return repository.save(feedback);
 	}
 
 	// 檢查問題狀態
