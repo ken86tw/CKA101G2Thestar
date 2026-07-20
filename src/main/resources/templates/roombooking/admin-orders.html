@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<!-- 「後台訂單」區塊(員工全站訂單):被 roombooking.html 用 th:replace 引入。
-     對應 JS:js/roombooking/admin-orders.js;樣式全用 css/roombooking/base.css 的共用件 -->
+
 <html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
 <body>
 <!-- ===== 後台訂單 ===== -->
@@ -72,7 +71,7 @@
                 </tbody>
             </table>
             <div v-else class="empty">
-                <div class="big">{{ employee.on ? '此分類無訂單' : '請以員工身分登入' }}</div>
+                <div class="big">此分類無訂單</div>
             </div>
             <div class="pager" v-if="admin.totalPages>1">
                 <button class="reslink" :disabled="admin.page<=0" @click="admin.page--;loadAdmin()">‹ 上一頁

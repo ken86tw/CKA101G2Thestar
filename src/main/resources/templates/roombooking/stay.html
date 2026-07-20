@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-<!-- 「房務管理」區塊(員工:辦理入住/退房、住宿紀錄、三個彈窗):被 roombooking.html 用 th:replace 引入。
-     對應 JS:js/roombooking/stay.js;對應 CSS:css/roombooking/stay.css -->
 <html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
 <body>
 <!-- ===== 房務管理 ===== -->
@@ -11,7 +9,6 @@
             <h2>房務管理</h2>
             <p>輸入訂單查明細 · 配房入住 / 退房 · 住宿紀錄</p></div>
 
-        <!-- 房務兩大入口:點了各自打開彈窗並自動載入清單 -->
         <div class="grid g2">
             <button class="bigact" @click="openCheckinModal">辦理入住</button>
             <button class="bigact" @click="openCheckoutModal">辦理退房</button>
@@ -53,7 +50,7 @@
                     <td>{{ r.roomId }}</td>
                     <td>{{ r.stayCustomer }}</td>
                     <td>{{ fmt(r.checkInTime) }}</td>
-                    <td>{{ r.checkOutTime ? fmt(r.checkOutTime) : '在住中' }}</td>
+                    <td>{{ r.checkOutTime ? fmt(r.checkOutTime) : '入住中' }}</td>
                     <td>
                         <button class="btn ghost sm" @click="openStayDetail(r)">詳情</button>
                     </td>
@@ -67,7 +64,6 @@
             <div class="log">{{ logText }}</div>
         </details>
 
-        <!-- 配房入住彈窗:點遮罩空白處或 × 關閉,全部配滿會自動關閉 -->
         <div v-if="stay.showModal" class="overlay" @click.self="stay.showModal=false">
             <div class="modal">
                 <button class="close" @click="stay.showModal=false">×</button>
@@ -81,7 +77,6 @@
                     <button class="btn sm" style="margin-bottom:2px" @click="loadCheckInLines">查詢明細</button>
                 </div>
 
-                <!-- 未入住訂單清單:點一列自動帶入訂單 ID 並查明細 -->
                 <button class="reslink" style="margin-top:20px" @click="loadPending">↻ 查看未入住訂單</button>
                 <table v-if="stay.pending.length" style="margin-top:12px">
                     <thead>
@@ -179,7 +174,6 @@
                     <button class="btn danger sm" style="margin-bottom:2px" @click="checkOut">確認退房</button>
                 </div>
 
-                <!-- 在住房間清單:點一列自動帶入退房房號 -->
                 <button class="reslink" style="margin-top:20px" @click="loadStaying">↻ 查看在住房間</button>
                 <table v-if="stay.staying.length" style="margin-top:12px">
                     <thead>
@@ -210,7 +204,7 @@
                         <p>房號 <b>{{ stay.detailRecord.roomId }}</b> · {{ stay.detailRecord.stayCustomer }}</p>
                         <p class="hint">{{ fmt(stay.detailRecord.checkInTime) }} 入住</p>
                         <p class="hint">
-                            {{ stay.detailRecord.checkOutTime ? fmt(stay.detailRecord.checkOutTime) + ' 退房' : '在住中'
+                            {{ stay.detailRecord.checkOutTime ? fmt(stay.detailRecord.checkOutTime) + ' 退房' : '入住中'
                             }}</p>
                     </div>
                     <div>
@@ -224,11 +218,10 @@
                 <template v-if="stay.detail">
                     <p class="oid" style="margin-top:20px">
                         訂單 No.{{ stay.detail.orderId }} · 會員 #{{ stay.detail.memberId }} ·
-                        {{ (STATUS[stay.detail.orderStatus] || {}).label }}   <!-- common.js 現成的STATUS陣列 數字轉中文 -->
+                        {{ (STATUS[stay.detail.orderStatus] || {}).label }}
                     </p>
                     <p class="hint">{{ stay.detail.checkInDate }} 入住 — {{ stay.detail.checkOutDate }} 退房</p>
 
-                    <!-- 明細表格:欄位跟「預定完成」畫面那張一樣 只是資料來源換成stay.detailLines -->
                     <table v-if="stay.detailLines.length" style="margin-top:12px">
                         <thead>
                         <tr>

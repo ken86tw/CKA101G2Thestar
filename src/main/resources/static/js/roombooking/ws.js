@@ -1,7 +1,7 @@
 /* ============================================================
-   roombooking/ws.js — WebSocket(STOMP)即時通知
-   內容:員工訂閱 rooms/orders/refunds 頻道、
-        會員訂閱自己專屬頻道(退款完成/退房完成/逾時取消)
+   WebSocket即時通知
+   員工訂閱 rooms/orders/refunds 頻道、
+   會員訂閱(退款完成/退房完成/逾時取消)
    ============================================================ */
 window.RB = window.RB || {};
 
@@ -26,21 +26,24 @@ RB.ws = {
                     });
                     client.subscribe('/topic/refunds', () => {
                         this.log('WS refunds', '清單變動');
-                        //取消訂單或退款完成都會敲這口鐘 人在哪個分頁就重查哪邊
+
                         if (this.nav === 'refund') this.loadRefunds();
-                        //後台訂單的列表跟上面統計數字也會受影響 一起重查
+
                         if (this.nav === 'admin') this.loadAdmin();
                     });
-                    client.subscribe('/topic/orders', () => {
+                    client.subscribe('/topic/orders', (msg) => {
+                        const data = JSON.parse(msg.body);
+                        const text ={created:'有新訂單成立',paid:'有訂單付款已完成',completed:'有訂單退房已完成'}[data?.event] ?? '訂單變動';
                         this.log('WS orders', '訂單變動');
+                        this.toast('ok','訂單通知',text);
                         if (this.nav === 'admin') this.loadAdmin();
                     });
                 }
                 if (this.member.on) {
-                    // 名字裡的ID是自己的 所以只會收到自己的通知
+
                     client.subscribe(`/topic/member/${this.member.on}`, (msg) => {
                         const data = JSON.parse(msg.body);
-                        //同一個頻道兩種事件 看event決定跳哪句
+
                         if (data.event === 'refunded') this.toast('ok', '退款完成', '您的訂單狀態已更新');
                         if (data.event === 'completed') this.toast('ok', '退房完成', '感謝您的入住');
                         if (data.event === 'canceled') {

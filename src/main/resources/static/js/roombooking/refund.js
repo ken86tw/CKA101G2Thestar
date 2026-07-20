@@ -1,7 +1,6 @@
 /* ============================================================
-   roombooking/refund.js — 「退款管理」(員工)
-   內容:未退款清單查詢、執行退款
-   對應畫面:templates/roombooking/refund.html
+   「退款管理」(員工)
+   未退款清單查詢、執行退款
    ============================================================ */
 window.RB = window.RB || {};
 
@@ -22,7 +21,6 @@ RB.refund = {
                 const msg = await
                     this.api(`/thestar/admin/refund/process/${r.refundId}`, {method: 'POST'});
                 this.toast('ok', '退款完成', msg);
-                this.loadRefunds();
             } catch (e) {
                 this.toast('err', '退款失敗', this.errMsg(e));
             }
