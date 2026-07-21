@@ -131,8 +131,6 @@ a {
 	align-items: center;
 	gap: 30px; /* 控制選單與按鈕之間的間距 */
 }
-
-
 </style>
 </head>
 <body>
@@ -176,12 +174,11 @@ a {
 
 			<div class="toolbar">
 				<div class="admin-stats">
-					<!-- 調整為與房型管理一致的顯示格式 -->
-					目前共有 <span th:text="${#lists.size(roomList)}">0</span> 間房間， <span
-						style="color: #9c7c4f; font-weight: bold;"> (剩餘可用額度: <span
-						th:text="${30 - #lists.size(roomList)}">30</span> 間)
+					<!-- 使用獨立且不受搜尋條件影響的 totalRoomCount 變數 -->
+					查詢共有 <span th:text="${roomList.size()}">0</span> 間。 <span
+						style="color: #9c7c4f; font-weight: bold;"> (可新增房間剩: <span
+						th:text="${30 - totalRoomCount}">30</span> 間)
 					</span>
-
 				</div>
 				<!-- 新增按鈕 -->
 				<a th:href="@{/room/add}" class="btn btn-primary"> <i
@@ -189,6 +186,61 @@ a {
 				</a> <span th:if="${#lists.size(roomList) >= 50}"
 					style="color: #a85b50; font-weight: bold;"> 已達最大上限 </span>
 			</div>
+
+			<div class="search-filter-box"
+				style="background: var(--paper); border: 1px solid var(--line); padding: 20px; border-radius: 4px; margin-bottom: 25px;">
+				<form th:action="@{/room/manage}" method="get"
+					style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;">
+
+					<!-- 1. 房間ID查詢 -->
+					<div style="display: flex; flex-direction: column; gap: 5px;">
+						<label
+							style="font-size: 13px; font-weight: 500; color: var(--soft);">房間編號</label>
+						<input type="number" name="roomId" th:value="${paramRoomId}"
+							placeholder="例如: 101"
+							style="padding: 8px 12px; border: 1px solid var(--line); background: #fff; border-radius: 2px; font-family: var(--sans);">
+					</div>
+
+					<!-- 2. 房型下拉選單查詢 -->
+					<div style="display: flex; flex-direction: column; gap: 5px;">
+						<label
+							style="font-size: 13px; font-weight: 500; color: var(--soft);">房型選擇</label>
+						<select name="roomTypeId"
+							style="padding: 8px 12px; border: 1px solid var(--line); background: #fff; border-radius: 2px; font-family: var(--sans); min-width: 150px;">
+							<option value="">全部房型</option>
+							<option th:each="type : ${roomTypeList}"
+								th:value="${type.roomTypeId}" th:text="${type.roomTypeName}"
+								th:selected="${type.roomTypeId == paramRoomTypeId}"></option>
+						</select>
+					</div>
+
+					<!-- 3. 上下架狀態下拉選單查詢 -->
+					<div style="display: flex; flex-direction: column; gap: 5px;">
+						<label
+							style="font-size: 13px; font-weight: 500; color: var(--soft);">上下架狀態</label>
+						<select name="roomSwitchStatus"
+							style="padding: 8px 12px; border: 1px solid var(--line); background: #fff; border-radius: 2px; font-family: var(--sans); min-width: 130px;">
+							<option value="">全部狀態</option>
+							<option value="true"
+								th:selected="${paramRoomSwitchStatus != null && paramRoomSwitchStatus == true}">已上架</option>
+							<option value="false"
+								th:selected="${paramRoomSwitchStatus != null && paramRoomSwitchStatus == false}">未上架</option>
+						</select>
+					</div>
+
+					<!-- 查詢與重置按鈕 -->
+					<div style="display: flex; gap: 10px;">
+						<button type="submit" class="btn"
+							style="padding: 8px 20px; background: var(--gold); color: #fff; border: none; cursor: pointer; border-radius: 2px;">
+							<i class="fa-solid fa-search"></i> 查詢
+						</button>
+						<a th:href="@{/room/manage}" class="btn"
+							style="padding: 8px 15px; background: transparent; color: var(--soft); border: 1px solid var(--line); border-radius: 2px; text-align: center;">
+							重置 </a>
+					</div>
+				</form>
+			</div>
+
 
 
 
@@ -213,10 +265,10 @@ a {
 						</td>
 						<td th:text="${room.roomSwitchStatus ? '已上架' : '未上架'}"></td>
 						<td class="actions"><a
-							th:href="@{'/room/edit/' + ${room.roomId}}" class="btn-icon"
-							title="修改"><i class="fa-solid fa-pen"></i></a> <a
-							th:href="@{'/room/details/' + ${room.roomId}}" class="btn-icon"
-							title="查看詳情"><i class="fa-solid fa-eye"></i></a>
+							th:href="@{/room/edit/{id}(id=${room.roomId}, queryRoomId=${paramRoomId}, queryRoomTypeId=${paramRoomTypeId}, queryRoomSwitchStatus=${paramRoomSwitchStatus})}"
+							class="btn-icon" title="修改"> <i class="fa-solid fa-pen"></i>
+						</a> <a th:href="@{'/room/details/' + ${room.roomId}}"
+							class="btn-icon" title="查看詳情"><i class="fa-solid fa-eye"></i></a>
 
 							<form th:action="@{/room/delete}" method="post"
 								style="display: inline;">
