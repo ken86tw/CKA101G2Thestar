@@ -2,10 +2,13 @@ package com.thestar.feedback.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.thestar.employee.entity.EmployeeVO;
+import com.thestar.employee.service.EmployeeService;
 import com.thestar.feedback.entity.FeedbackVO;
 import com.thestar.feedback.repository.FeedbackRepository;
 import com.thestar.member.entity.MemberVO;
@@ -22,38 +25,41 @@ public class FeedbackService {
 	private MemberService memberService;
 
 	@Autowired
+	private EmployeeService employeeService;
+
+	@Autowired
 	private MemberVerificationMailService mailService;
 
 	// 建立回報，使用者填寫
 	public FeedbackVO createFeedback(FeedbackVO feedback) {
 		// 1. 檢查主旨
-	    if (feedback.getSubject() == null || feedback.getSubject().trim().isEmpty()) {
-	        throw new IllegalArgumentException("主旨不得為空");
-	    }
+		if (feedback.getSubject() == null || feedback.getSubject().trim().isEmpty()) {
+			throw new IllegalArgumentException("主旨不得為空");
+		}
 
-	    // 2. 檢查內容
-	    if (feedback.getContent() == null || feedback.getContent().trim().isEmpty()) {
-	        throw new IllegalArgumentException("內容不得為空");
-	    }
+		// 2. 檢查內容
+		if (feedback.getContent() == null || feedback.getContent().trim().isEmpty()) {
+			throw new IllegalArgumentException("內容不得為空");
+		}
 
-	    // 3. 【關鍵修正】檢查 memberId 是否存在
-	    if (feedback.getMemberId() == null) {
-	        throw new IllegalArgumentException("會員ID不得為空");
-	    }
-	    
-	    // 透過你的 memberService 查詢該會員是否存在
-	    MemberVO member = memberService.getMemberById(feedback.getMemberId());
-	    if (member == null) {
-	        // 如果查不到，這裡直接中斷，不會送到資料庫去報錯
-	        throw new IllegalArgumentException("找不到此會員，無法建立回報");
-	    }
+		// 3. 【關鍵修正】檢查 memberId 是否存在
+		if (feedback.getMemberId() == null) {
+			throw new IllegalArgumentException("會員ID不得為空");
+		}
 
-	    // 4. 設定初始值
-	    feedback.setCreatedAt(LocalDateTime.now());
-	    feedback.setRepliedAt(null);
-	    feedback.setTicketStatus((byte) 0); // 確保狀態初始為 0
+		// 透過你的 memberService 查詢該會員是否存在
+		MemberVO member = memberService.getMemberById(feedback.getMemberId());
+		if (member == null) {
+			// 如果查不到，這裡直接中斷，不會送到資料庫去報錯
+			throw new IllegalArgumentException("找不到此會員，無法建立回報");
+		}
 
-	    return repository.save(feedback);
+		// 4. 設定初始值
+		feedback.setCreatedAt(LocalDateTime.now());
+		feedback.setRepliedAt(null);
+		feedback.setTicketStatus((byte) 0); // 確保狀態初始為 0
+
+		return repository.save(feedback);
 	}
 
 	// 檢查問題狀態
@@ -76,19 +82,31 @@ public class FeedbackService {
 		// 1. 先從資料庫撈出所有回報
 		List<FeedbackVO> list = repository.findAll();
 
-		// 2. 遍歷清單，為每一筆回報補上會員姓名
+		// 2. 遍歷清單，為每一筆回報補上會員姓名與員工姓名
 		for (FeedbackVO feedback : list) {
+			// 補會員姓名
 			if (feedback.getMemberId() != null) {
-				// 透過 memberService 根據 ID 查詢會員
 				MemberVO member = memberService.getMemberById(feedback.getMemberId());
 				if (member != null) {
-					// 將查到的姓名塞入 @Transient 欄位
 					feedback.setMemberName(member.getMemberName());
+				}
+			}
+
+			// 補處理員工姓名
+			if (feedback.getEmployeeId() != null) {
+				try {
+					EmployeeVO employee = employeeService.findById(feedback.getEmployeeId());
+					if (employee != null) {
+						feedback.setEmployeeName(employee.getEmployeeName());
+					}
+				} catch (NoSuchElementException e) {
+					// 避免員工被刪除或找不到時整頁崩潰
+					feedback.setEmployeeName("未知員工");
 				}
 			}
 		}
 
-		return list;
+		return list; // 迴圈跑完後才回傳完整清單
 	}
 
 	// 客服回覆

@@ -33,14 +33,18 @@ public class FeedbackVO {
 	@Column(name = "EMPLOYEE_ID")
 	private Integer employeeId;
 
+	// 抓取處理員工姓名用，資料庫無此欄位，跟 memberName 處理方式一樣！
+	@Transient
+	private String employeeName;
+	
 	@Email(message = "信箱格式不正確")
-    @NotBlank(message = "信箱不能為空")
+	@NotBlank(message = "信箱不能為空")
 	@Column(name = "EMAIL", nullable = false)
 	private String email;
 
 	// 問題主旨
 	@Size(max = 100, message = "主旨不能超過100字")
-    @NotBlank(message = "主旨不能為空")
+	@NotBlank(message = "主旨不能為空")
 	@Column(name = "SUBJECT", nullable = false)
 	private String subject;
 
@@ -73,16 +77,20 @@ public class FeedbackVO {
 		this.ticketId = ticketId;
 	}
 
-	public Integer getMemberId() {
-		return memberId;
+	public String getEmployeeName() {
+		return employeeName;
 	}
 
-	public void setMemberId(Integer memberId) {
-		this.memberId = memberId;
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
 	}
 
 	public Integer getEmployeeId() {
 		return employeeId;
+	}
+	
+	public void setEmployeeId(Integer employeeId) {
+		this.employeeId = employeeId;
 	}
 
 	public String getMemberName() {
@@ -92,10 +100,16 @@ public class FeedbackVO {
 	public void setMemberName(String memberName) {
 		this.memberName = memberName;
 	}
-
-	public void setEmployeeId(Integer employeeId) {
-		this.employeeId = employeeId;
+	
+	public Integer getMemberId() {
+		return memberId;
 	}
+
+	public void setMemberId(Integer memberId) {
+		this.memberId = memberId;
+	}
+
+	
 
 	public String getEmail() {
 		return email;
