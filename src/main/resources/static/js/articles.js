@@ -4,6 +4,21 @@
   const state = { page: 0, totalPages: 0, articleId: null };
   const el = (id) => document.getElementById(id);
   const motion = { lenis: null, cardContext: null, detailContext: null };
+  const defaultCovers = [
+    '/images/articles/default-stay.png',
+    '/images/articles/default-dining.png',
+    '/images/articles/default-journey.png'
+  ];
+
+  function defaultCover(articleId) {
+    const id = Number(articleId);
+    const index = Number.isFinite(id) && id > 0 ? (id - 1) % defaultCovers.length : 0;
+    return defaultCovers[index];
+  }
+
+  function coverImage(article) {
+    return article.coverImageUrl || defaultCover(article.articleId);
+  }
 
   function hasFullMotion() {
     return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -93,13 +108,14 @@
     node.className = 'article-card';
     const cover = document.createElement('div');
     cover.className = 'card-cover';
-    if (article.coverImageUrl) {
-      const image = document.createElement('img');
-      image.src = article.coverImageUrl;
-      image.alt = article.title + '封面';
-      image.loading = 'lazy';
-      cover.appendChild(image);
-    }
+    const image = document.createElement('img');
+    image.src = coverImage(article);
+    image.alt = article.title + '封面';
+    image.loading = 'lazy';
+    image.addEventListener('error', () => {
+      image.src = defaultCover(article.articleId);
+    }, { once: true });
+    cover.appendChild(image);
     const body = document.createElement('div');
     body.className = 'card-body';
     const meta = document.createElement('div');
@@ -154,11 +170,13 @@
       el('detailViews').textContent = (article.viewCount || 0) + ' 次瀏覽';
       el('detailTitle').textContent = article.title;
       el('detailContent').textContent = article.content || '';
-      if (article.coverImageUrl) {
-        el('detailCover').hidden = false;
-        el('detailCoverImage').src = article.coverImageUrl;
-        el('detailCoverImage').alt = article.title + '封面';
-      }
+      el('detailCover').hidden = false;
+      el('detailCoverImage').src = coverImage(article);
+      el('detailCoverImage').alt = article.title + '封面';
+      el('detailCoverImage').onerror = () => {
+        el('detailCoverImage').onerror = null;
+        el('detailCoverImage').src = defaultCover(article.articleId);
+      };
       revealDetail();
       if (window.ScrollTrigger) window.ScrollTrigger.refresh();
       await loadReviews(article.articleId);
