@@ -12,7 +12,7 @@ public interface CartItemRepository extends JpaRepository<CartItemVO, Integer> {
 
     @Transactional
     @Modifying
-    @Query(value = "delete from cart_item where cart_item_id = ?1", nativeQuery = true)
+    @Query(value = "delete from CART_ITEM where cart_item_id = ?1", nativeQuery = true)
     void deleteByCartItemId(int cartItemId);
 
     List<CartItemVO> findByMemberId(Integer memberId);
