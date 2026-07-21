@@ -15,18 +15,14 @@ RB.ws = {
                 reconnectDelay: 5000,
             });
             client.onConnect = () => {
-                this.log('✔ WS', '已連線');
                 if (this.employee.on) {
                     client.subscribe('/topic/rooms', (msg) => {
                         const data = JSON.parse(msg.body);
-                        this.log('WS rooms', data);
                         const room = this.stay.rooms.find(r => r.roomId ===
                             data.roomId);
                         if (room) room.roomStatus = data.roomStatus;
                     });
                     client.subscribe('/topic/refunds', () => {
-                        this.log('WS refunds', '清單變動');
-
                         if (this.nav === 'refund') this.loadRefunds();
 
                         if (this.nav === 'admin') this.loadAdmin();
@@ -34,7 +30,6 @@ RB.ws = {
                     client.subscribe('/topic/orders', (msg) => {
                         const data = JSON.parse(msg.body);
                         const text ={created:'有新訂單成立',paid:'有訂單付款已完成',completed:'有訂單退房已完成'}[data?.event] ?? '訂單變動';
-                        this.log('WS orders', '訂單變動');
                         this.toast('ok','訂單通知',text);
                         if (this.nav === 'admin') this.loadAdmin();
                     });

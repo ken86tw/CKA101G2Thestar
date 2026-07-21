@@ -53,9 +53,10 @@ public interface OrderRepository extends JpaRepository<OrderVO, Integer> {
     Page<OrderVO> findByOrderStatus(Byte orderStatus, Pageable pageable);
 
 
-    //入住時查詢所有訂單按鈕
+    //入住時查詢所有訂單按鈕:訂購總間數 > 已入住間數(還有房間沒配就顯示,含部分入住)
     @Query("SELECT o FROM OrderVO o WHERE o.orderStatus = 1 " +
-            "AND NOT EXISTS (SELECT s FROM StayRecordVO s WHERE s.orderListvo.ordervo = o) " +
+            "AND (SELECT COALESCE(SUM(ol.quantity), 0) FROM OrderListVO ol WHERE ol.ordervo = o) " +
+            "> (SELECT COUNT(s) FROM StayRecordVO s WHERE s.orderListvo.ordervo = o) " +
             "ORDER BY o.orderId")
     List<OrderVO> findNotCheckInOrders();
 }

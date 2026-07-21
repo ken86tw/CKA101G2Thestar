@@ -61,7 +61,6 @@ createApp({
             inv: {date: '', list: []},   // 庫存查詢:date=查詢起日, list=後端回來的原始資料
             /* --- 共用(common.js) --- */
             toasts: [],
-            logLines: [],
             _tid: 0,
         };
     },

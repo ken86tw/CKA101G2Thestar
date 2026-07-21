@@ -42,6 +42,16 @@ RB.stay = {
                 this.toast('err', '查詢失敗', this.errMsg(e));
             }
         },
+        backToPending() {
+            this.stay.orderId = null;
+            this.stay.lines = [];
+            this.stay.rooms = [];
+            this.stay.activeListId = null;
+            this.stay.activeTypeName = '';
+            this.stay.checkin.orderListId = null;
+            this.stay.checkin.roomId = null;
+            this.loadPending();
+        },
         async loadCheckInLines() {
             if (!this.stay.orderId) {
                 this.toast('warn', '請先輸入訂單 ID');

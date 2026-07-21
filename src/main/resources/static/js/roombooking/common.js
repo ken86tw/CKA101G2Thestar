@@ -10,11 +10,6 @@ const localDate = (offsetDays = 0) => {
 };
 
 RB.common = {
-    computed: {
-        logText() {
-            return this.logLines.join('\n') || '（尚無紀錄）';
-        },
-    },
     methods: {
         fmt(s) {
             return s ? String(s).replace('T', ' ').slice(0, 16) : '';
@@ -31,11 +26,6 @@ RB.common = {
                 this.toasts = this.toasts.filter(t => t.id !== id);
             }, 3400);
         },
-        log(label, data) {
-            const ts = new Date().toLocaleTimeString();
-            this.logLines.unshift(`[${ts}] ${label}: ${typeof data === 'string' ? data : JSON.stringify(data)}`);
-            if (this.logLines.length > 60) this.logLines.pop();
-        },
         async api(url, opts = {}) {
             const res = await fetch(url, {credentials: 'same-origin', ...opts});
             const text = await res.text();
@@ -46,7 +36,6 @@ RB.common = {
                 body = text;
             }
             if (!res.ok) {
-                this.log(`✘ ${res.status} ${url}`, body);
                 throw {status: res.status, body};
             }
             return body;

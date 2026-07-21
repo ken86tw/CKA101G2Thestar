@@ -59,47 +59,37 @@
             </table>
         </div>
 
-        <details>
-            <summary>API 回應紀錄</summary>
-            <div class="log">{{ logText }}</div>
-        </details>
-
         <div v-if="stay.showModal" class="overlay" @click.self="stay.showModal=false">
             <div class="modal">
                 <button class="close" @click="stay.showModal=false">×</button>
                 <h3 style="font-size:24px;margin-bottom:20px">
                     辦理入住{{ stay.orderId ? ' — 訂單 #' + stay.orderId : '' }}</h3>
 
-                <div class="roomrow" style="margin-bottom:0">
-                    <div class="field" style="width:220px"><label>訂單 ID</label>
-                        <input type="number" v-model.number="stay.orderId" placeholder="輸入訂單編號">
-                    </div>
-                    <button class="btn sm" style="margin-bottom:2px" @click="loadCheckInLines">查詢明細</button>
+                <button class="btn" @click="backToPending">查看未入住訂單</button>
+                <div v-if="stay.pending.length && !stay.lines.length" style="max-height:260px;overflow-y:auto;margin-top:12px">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>訂單</th>
+                            <th>會員</th>
+                            <th>入住日</th>
+                            <th>退房日</th>
+                            <th>實付</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="o in stay.pending" :key="o.orderId"
+                            @click="stay.orderId=o.orderId;loadCheckInLines()"
+                            :style="{cursor:'pointer',background: stay.orderId===o.orderId?'#f2ebdd':''}">
+                            <td class="oid">#{{ o.orderId }}</td>
+                            <td>{{ o.memberId }}</td>
+                            <td>{{ o.checkInDate }}</td>
+                            <td>{{ o.checkOutDate }}</td>
+                            <td>${{ o.paidAmount }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
-
-                <button class="reslink" style="margin-top:20px" @click="loadPending">↻ 查看未入住訂單</button>
-                <table v-if="stay.pending.length" style="margin-top:12px">
-                    <thead>
-                    <tr>
-                        <th>訂單</th>
-                        <th>會員</th>
-                        <th>入住日</th>
-                        <th>退房日</th>
-                        <th>實付</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr v-for="o in stay.pending" :key="o.orderId"
-                        @click="stay.orderId=o.orderId;loadCheckInLines()"
-                        :style="{cursor:'pointer',background: stay.orderId===o.orderId?'#f2ebdd':''}">
-                        <td class="oid">#{{ o.orderId }}</td>
-                        <td>{{ o.memberId }}</td>
-                        <td>{{ o.checkInDate }}</td>
-                        <td>{{ o.checkOutDate }}</td>
-                        <td>${{ o.paidAmount }}</td>
-                    </tr>
-                    </tbody>
-                </table>
 
                 <table v-if="stay.lines.length" style="margin-top:24px">
                     <thead>

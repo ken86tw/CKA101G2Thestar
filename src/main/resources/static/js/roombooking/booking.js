@@ -188,7 +188,6 @@ RB.booking = {
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(this.form)
                 });
-                this.log('✔ 下單', r);
                 this.confirmOrder = r;   // 設好confirmOrder後 computed的payLeft就會自動開始倒數
                 this.book.step = 'search';
                 this.book.results = [];
