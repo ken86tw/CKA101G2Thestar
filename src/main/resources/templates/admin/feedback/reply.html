@@ -159,8 +159,6 @@ a {
 	transition: all 0.3s ease;
 }
 
-
-
 .hbar {
 	display: flex;
 	justify-content: space-between; /* LOGO 在左，右側區塊在右 */
@@ -254,6 +252,56 @@ a {
 				<button onclick="submitReply(event)" class="btn-action">送出回覆</button>
 				<button onclick="closeModal()" class="btn-action"
 					style="background: #eee;">取消</button>
+			</footer>
+		</div>
+	</div>
+
+	<div id="viewModal" class="modal"
+		style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; align-items: center; justify-content: center;">
+		<div class="modal-content"
+			style="background: white; padding: 40px; width: 550px; border: 1px solid #e0dcd5;">
+			<header class="modal-header"
+				style="margin-bottom: 20px; background: #f6f2ea; padding: 15px 30px; display: flex; align-items: center; justify-content: flex-start;">
+				<h3
+					style="margin: 0; font-family: var(--serif); color: #23211c; font-size: 24px; font-weight: 500;">檢視回報詳情</h3>
+			</header>
+
+			<div class="modal-body"
+				style="font-size: 14px; color: #5b564c; line-height: 1.8;">
+				<div style="margin-bottom: 12px;">
+					<strong>客人姓名：</strong><span id="viewMemberName"></span>
+				</div>
+				<div style="margin-bottom: 12px;">
+					<strong>電子信箱：</strong><span id="viewEmail"></span>
+				</div>
+				<div style="margin-bottom: 12px;">
+					<strong>問題主旨：</strong><span id="viewSubject"></span>
+				</div>
+				<div
+					style="margin-bottom: 12px; background: #fbf9f4; padding: 12px; border: 1px solid #e4ddd0;">
+					<strong>客人問題內容：</strong>
+					<p id="viewContent"
+						style="margin: 5px 0 0 0; white-space: pre-wrap;"></p>
+				</div>
+				<div style="margin-bottom: 12px;">
+					<strong>處理員工ID：</strong><span id="viewEmployeeId"
+						style="color: #9c7c4f; font-weight: 500;"></span>
+				</div>
+				<div style="margin-bottom: 12px;">
+					<strong>處理員工姓名：</strong><span id="viewEmployeeName"
+						style="color: #9c7c4f; font-weight: 500;"></span>
+				</div>
+				<div
+					style="margin-bottom: 12px; background: #f6f2ea; padding: 12px; border: 1px solid #e4ddd0;">
+					<strong>員工回覆內容：</strong>
+					<p id="viewReplyContent"
+						style="margin: 5px 0 0 0; white-space: pre-wrap;"></p>
+				</div>
+			</div>
+
+			<footer class="modal-footer"
+				style="margin-top: 20px; display: flex; justify-content: flex-end;">
+				<button onclick="closeViewModal()" class="btn-action">關閉</button>
 			</footer>
 		</div>
 	</div>
