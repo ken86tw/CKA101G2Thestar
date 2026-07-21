@@ -63,34 +63,43 @@ public class RoomService {
 
 	// 更新房間
 	public RoomVO save(RoomVO room) {
-		// 關鍵修改：檢查 roomId 不為 null，且資料庫中確實存在該房間時，才進入更新邏輯
 		if (room.getRoomId() != null && repository.existsById(room.getRoomId())) {
 
 			// 從資料庫撈出當前存在的舊資料
 			RoomVO existingRoom = repository.findById(room.getRoomId())
 					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到房間"));
 
-			// 1. 檢查房間是否處於「已入住」狀態 (STATUS_OCCUPIED = 1)
-			if (existingRoom.getRoomStatus() == RoomVO.STATUS_OCCUPIED) {
+			// 💡 [新增防護 1] 如果試圖在修改時「變更房型 (roomTypeId)」
+			if (!existingRoom.getRoomTypeId().equals(room.getRoomTypeId())) {
+				// 檢查該房間在今天之後是否有任何未來的住宿訂單紀錄
+				int futureRecords = stayRecordRepository.countActiveByRoomTypeId(existingRoom.getRoomTypeId()); // 或針對該特定
+																												// room
+																												// 檢查未來訂單
+				if (futureRecords > 0) {
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "修改失敗：該房間所屬房型近期或未來已有相關訂單紀錄，禁止變更！");
+				}
 
-				// 阻擋上架狀態的變更：比較資料庫中的值與前端傳入的值
+				// 同時也可以檢查未來庫存表中，是否已經產生了對應日期的排程
+				boolean hasFutureInventory = roomInventoryRepository
+						.existsByRoomTypeIdAndDate(existingRoom.getRoomTypeId(), LocalDate.now());
+				if (hasFutureInventory) {
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "修改失敗：系統已有該房型未來庫存排程，不可更改房間所屬房型。");
+				}
+			}
+
+			// 2. 檢查房間是否處於「已入住」狀態 (STATUS_OCCUPIED = 1)
+			if (existingRoom.getRoomStatus() == RoomVO.STATUS_OCCUPIED) {
 				if (!existingRoom.getRoomSwitchStatus().equals(room.getRoomSwitchStatus())) {
 					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "該房間目前已入住，無法變更狀態。");
 				}
-
-				// 強制保護房間狀態：確保更新時仍維持「已入住」，避免前端傳入其他狀態值
 				room.setRoomStatus(existingRoom.getRoomStatus());
 			}
 
-			// 若需要確保其他欄位（如 RoomType）不會在更新時變成 null，可在此加入
 			if (room.getRoomTypeId() == null) {
 				room.setRoomTypeId(existingRoom.getRoomTypeId());
 			}
 		}
 
-		// 執行儲存
-		// 如果是新增，因為不進去上面的 if，這行會直接執行 Insert
-		// 如果是更新，因為已經處理好資料，這行會執行 Update
 		return repository.save(room);
 	}
 
@@ -99,15 +108,22 @@ public class RoomService {
 		RoomVO room = repository.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "找不到對應ID的房間"));
 
-		// 檢查是否為「已上架」(這裡以 STATUS_AVAILABLE 為例，請依實際需求調整)
+		// 1. 檢查是否為「已上架」
 		if (Boolean.TRUE.equals(room.getRoomSwitchStatus())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "刪除失敗：該房間目前為『已上架』狀態，請先下架後再執行刪除。");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "刪除失敗：該房間目前為『已上架』，請下架後再執行刪除。");
 		}
 
-		// 檢查歷史紀錄
+		// 2. 檢查歷史住宿紀錄
 		List<StayRecordVO> records = stayRecordRepository.findByRoomId(id);
 		if (records != null && !records.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "刪除失敗：該房間已有相關住宿紀錄，禁止刪除。");
+		}
+
+		// 3. 💡 [新增防護] 檢查該房型是否有影響到未來的庫存排程 (若刪除實體房間，總數會少一個)
+		boolean hasFutureInventory = roomInventoryRepository.existsByRoomTypeIdAndDate(room.getRoomTypeId(),
+				LocalDate.now());
+		if (hasFutureInventory) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "刪除失敗：該房間所屬房型已有未來庫存排程，若要刪除實體房間請先從未來庫存表移出。");
 		}
 
 		repository.deleteById(id);
@@ -130,5 +146,19 @@ public class RoomService {
 		return stayRecordRepository.countActiveByRoomTypeId(roomTypeId);
 	}
 
-	
+	// 使用Repository寫好的動態查詢
+	public List<RoomVO> searchRooms(Integer roomId, Integer roomTypeId, Boolean roomSwitchStatus) {
+		// 呼叫剛剛在 Repository 寫好的動態查詢
+		List<RoomVO> list = repository.findRoomsByCriteria(roomId, roomTypeId, roomSwitchStatus);
+
+		// 補上房型名稱（維持你原本 findAll / findById 的好習慣）
+		for (RoomVO room : list) {
+			RoomTypeVO type = roomTypeService.getOneRoomType(room.getRoomTypeId());
+			if (type != null) {
+				room.setRoomTypeName(type.getRoomTypeName());
+			}
+		}
+		return list;
+
+	}
 }

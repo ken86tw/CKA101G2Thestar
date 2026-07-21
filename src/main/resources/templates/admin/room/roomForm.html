@@ -140,6 +140,12 @@ body {
 				th:action="${roomVO.roomId == null} ? @{/room/insert} : @{/room/update}"
 				th:object="${roomVO}" method="post">
 
+				<!-- 💡 新增：保留修改前的搜尋條件，讓更新後能帶回原本的列表畫面 -->
+				<input type="hidden" name="queryRoomId" th:value="${queryRoomId}" />
+				<input type="hidden" name="queryRoomTypeId"
+					th:value="${queryRoomTypeId}" /> <input type="hidden"
+					name="queryRoomSwitchStatus" th:value="${queryRoomSwitchStatus}" />
+
 				<!-- 房間編號 -->
 				<div class="form-group">
 					<label>房間編號</label>
@@ -187,7 +193,9 @@ body {
 
 				<div class="btn-row">
 					<button type="submit" class="btn">儲存設定</button>
-					<a th:href="@{/room/manage}" class="btn">返回列表</a>
+					<a
+						th:href="@{/room/manage(roomId=${queryRoomId}, roomTypeId=${queryRoomTypeId}, roomSwitchStatus=${queryRoomSwitchStatus})}"
+						class="btn">返回列表</a>
 				</div>
 			</form>
 		</main>
