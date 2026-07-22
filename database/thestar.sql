@@ -1163,7 +1163,10 @@ INSERT INTO RESTAURANT_MENU (CATEGORY_ID, ITEM_NAME, ITEM_DESC, PRICE, ITEM_IMAG
 (2, '奶油義大利麵', '選用特製奶油醬汁搭配培根與蘑菇',        320.00, NULL,  1),
 (3, '南瓜濃湯',     '香濃南瓜搭配鮮奶油與麵包丁',            150.00, NULL,  1),
 (4, '提拉米蘇',     '經典義式甜點，濃郁咖啡與馬斯卡彭起司',   220.00, NULL,  1),
-(5, '手工檸檬氣泡水','現榨檸檬汁搭配氣泡水與薄荷葉',          120.00, NULL,  1);
+(5, '手工檸檬氣泡水','現榨檸檬汁搭配氣泡水與薄荷葉',          120.00, NULL,  1),
+(1, '油醋沙拉', '清爽生菜搭配特製油醋醬', 190.00, NULL, 2),
+(2, '番茄肉醬義大利麵', '經典番茄醬汁搭配豬牛混合肉醬', 300.00, NULL, 2);
+
  
 -- 餐廳訂位紀錄 (已連動新拆分時段，且修正留評預約之狀態為 FINISHED)
 INSERT INTO RESTAURANT_RESERVATION (MEMBER_ID, DATE, SESSION_ID, TABLE_TYPE_ID, RESERVATION_STATUS, REVIEW_STATUS, RESERVATION_REQUEST) VALUES

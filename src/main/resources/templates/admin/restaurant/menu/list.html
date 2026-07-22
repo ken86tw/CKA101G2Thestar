@@ -32,12 +32,10 @@
 					<tbody>
 						<tr th:each="menu : ${menuList}">
 							<td th:text="${menu.itemId}">1</td>
-							<td>
-								<!-- 判斷只要該筆資料的 itemImage 欄位不為 null 就顯示圖片 --> <img
-								th:if="${menu.itemImage != null}"
-								th:src="@{/admin/restaurant/menu/DBGifReader(itemId=${menu.itemId})}"
-								width="55" height="40" class="img-thumbnail" alt="餐點圖片">
-							</td>
+							<td><img
+								th:src="${menu.itemImage != null} ? @{/admin/restaurant/menu/DBGifReader(itemId=${menu.itemId})} : 'https://images.pexels.com/photos/33033815/pexels-photo-33033815.jpeg'"
+								width="55" height="40" class="img-thumbnail"
+								style="object-fit: cover;" alt="餐點圖片"></td>
 							<td th:text="${menu.menuCategoryVO.categoryName}"><span
 								class="badge bg-secondary">分類</span></td>
 							<td th:text="${menu.itemName}" class="fw-bold text-dark">經典牛排</td>

@@ -153,7 +153,7 @@ public class AvailableTableService {
         LocalDate curDate = startDate;
         while (!curDate.isAfter(endDate)) {
             for (BusinessHoursVO bhVO : allSessions) {
-                if (bhVO.getIsAvailable() == null || !bhVO.getIsAvailable()) continue;
+                
 
                 boolean isWithinRange = true;
                 if (curDate.equals(startDate) && compareSession(bhVO.getSessionId(), startSessionId, allSessions) < 0) isWithinRange = false;

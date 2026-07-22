@@ -1,91 +1,101 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>修改餐點項目</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<meta charset="UTF-8">
+<title>修改餐點項目</title>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body class="container mt-4" style="max-width: 600px;">
-    <h2>編修餐點資訊</h2>
-    
-    <!-- 1. 加上 enctype="multipart/form-data" -->
-    <form th:action="@{/admin/restaurant/menu/save}" th:object="${restaurantMenuVO}" method="post" enctype="multipart/form-data">
-        <input type="hidden" th:field="*{itemId}">
-        
-        <div class="mb-3">
-            <label class="form-label">修改菜單分類:</label>
-            <select th:field="*{menuCategoryVO.categoryId}" 
-                    th:classappend="${#fields.hasErrors('menuCategoryVO.categoryId')} ? 'is-invalid' : ''" 
-                    class="form-select" required>
-                <option th:each="cat : ${categoryList}" th:value="${cat.categoryId}" th:text="${cat.categoryName}"></option>
-            </select>
-            <div class="invalid-feedback" th:if="${#fields.hasErrors('menuCategoryVO.categoryId')}" th:errors="*{menuCategoryVO.categoryId}"></div>
-        </div>
-        
-        <div class="mb-3">
-            <label class="form-label">餐點名稱:</label>
-            <input type="text" th:field="*{itemName}" 
-                   th:classappend="${#fields.hasErrors('itemName')} ? 'is-invalid' : ''" 
-                   class="form-control" required>
-            <div class="invalid-feedback" th:if="${#fields.hasErrors('itemName')}" th:errors="*{itemName}"></div>
-        </div>
-        
-        <div class="mb-3">
-            <label class="form-label">餐點描述:</label>
-            <textarea th:field="*{itemDesc}" 
-                      th:classappend="${#fields.hasErrors('itemDesc')} ? 'is-invalid' : ''" 
-                      class="form-control" rows="3"></textarea>
-            <div class="invalid-feedback" th:if="${#fields.hasErrors('itemDesc')}" th:errors="*{itemDesc}"></div>
-        </div>
-        
-        <div class="mb-3">
-            <label class="form-label">單價:</label>
-            <input type="number" step="0.01" th:field="*{price}" 
-                   th:classappend="${#fields.hasErrors('price')} ? 'is-invalid' : ''" 
-                   class="form-control" required>
-            <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
-        </div>
-        
-        <!-- 2. 改為上傳元件，並動態呈現舊圖片 / 預覽新圖片 -->
-        <div class="mb-3">
-            <label class="form-label">更換餐點圖片:</label>
-            <input type="file" name="itemImageFile" id="itemImageFile" class="form-control" accept="image/*" onchange="previewImage(this)">
-            
-            <div class="mt-3 text-center">
-                <!-- 舊圖預覽：改用 itemId 是否存在來做判斷基準，避免驗證失敗退回時 itemImage 欄位因 null 導致破圖 -->
-                <img id="imagePreview" 
-                     th:src="*{itemId != null} ? @{/admin/restaurant/menu/DBGifReader(itemId=*{itemId})} : '#'" 
-                     alt="圖片預覽" 
-                     th:class="*{itemId != null} ? 'img-thumbnail' : 'img-thumbnail d-none'" 
-                     style="max-height: 200px;">
-            </div>
-        </div>
-        
-        <div class="mb-3">
-            <label class="form-label">排序:</label>
-            <input type="number" th:field="*{sortOrder}" 
-                   th:classappend="${#fields.hasErrors('sortOrder')} ? 'is-invalid' : ''" 
-                   class="form-control" required>
-            <!-- 這裡會動態顯示 Controller 裡塞入的阻擋訊息（例如：排序重複） -->
-            <div class="invalid-feedback" th:if="${#fields.hasErrors('sortOrder')}" th:errors="*{sortOrder}"></div>
-        </div>
-        
-        <button type="submit" class="btn btn-warning">變更儲存</button>
-        <a href="/admin/restaurant/menu/list" class="btn btn-secondary">返回列表</a>
-    </form>
+	<h2>編修餐點資訊</h2>
 
-    <script>
-        function previewImage(input) {
-            const preview = document.getElementById('imagePreview');
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.classList.remove('d-none');
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-    </script>
+	<!-- 1. 加上 enctype="multipart/form-data" -->
+	<form th:action="@{/admin/restaurant/menu/save}"
+		th:object="${restaurantMenuVO}" method="post"
+		enctype="multipart/form-data">
+		<input type="hidden" th:field="*{itemId}">
+
+		<div class="mb-3">
+			<label class="form-label">修改菜單分類:</label> <select
+				th:field="*{menuCategoryVO.categoryId}"
+				th:classappend="${#fields.hasErrors('menuCategoryVO.categoryId')} ? 'is-invalid' : ''"
+				class="form-select" required>
+				<option th:each="cat : ${categoryList}" th:value="${cat.categoryId}"
+					th:text="${cat.categoryName}"></option>
+			</select>
+			<div class="invalid-feedback"
+				th:if="${#fields.hasErrors('menuCategoryVO.categoryId')}"
+				th:errors="*{menuCategoryVO.categoryId}"></div>
+		</div>
+
+		<div class="mb-3">
+			<label class="form-label">餐點名稱:</label> <input type="text"
+				th:field="*{itemName}"
+				th:classappend="${#fields.hasErrors('itemName')} ? 'is-invalid' : ''"
+				class="form-control" required>
+			<div class="invalid-feedback"
+				th:if="${#fields.hasErrors('itemName')}" th:errors="*{itemName}"></div>
+		</div>
+
+		<div class="mb-3">
+			<label class="form-label">餐點描述:</label>
+			<textarea th:field="*{itemDesc}"
+				th:classappend="${#fields.hasErrors('itemDesc')} ? 'is-invalid' : ''"
+				class="form-control" rows="3"></textarea>
+			<div class="invalid-feedback"
+				th:if="${#fields.hasErrors('itemDesc')}" th:errors="*{itemDesc}"></div>
+		</div>
+
+		<div class="mb-3">
+			<label class="form-label">單價:</label> <input type="number"
+				step="0.01" th:field="*{price}"
+				th:classappend="${#fields.hasErrors('price')} ? 'is-invalid' : ''"
+				class="form-control" required>
+			<div class="invalid-feedback" th:if="${#fields.hasErrors('price')}"
+				th:errors="*{price}"></div>
+		</div>
+
+		<!-- 2. 改為上傳元件，並動態呈現舊圖片 / 預覽新圖片 -->
+		<div class="mb-3">
+			<label class="form-label">更換餐點圖片:</label> <input type="file"
+				name="itemImageFile" id="itemImageFile" class="form-control"
+				accept="image/*" onchange="previewImage(this)">
+
+			<div class="mt-3 text-center">
+				<!-- 修正 1：將 menu 改為 restaurantMenuVO，並加上 id="imagePreview" 供 JS 抓取 -->
+				<img id="imagePreview"
+					th:src="${restaurantMenuVO.itemImage != null} ? @{/admin/restaurant/menu/DBGifReader(itemId=${restaurantMenuVO.itemId})} : 'https://images.pexels.com/photos/33033815/pexels-photo-33033815.jpeg'"
+					width="120" height="90" class="img-thumbnail"
+					style="object-fit: cover;" alt="餐點圖片">
+			</div>
+		</div>
+
+		<div class="mb-3">
+			<label class="form-label">排序:</label> <input type="number"
+				th:field="*{sortOrder}"
+				th:classappend="${#fields.hasErrors('sortOrder')} ? 'is-invalid' : ''"
+				class="form-control" required>
+			<!-- 這裡會動態顯示 Controller 裡塞入的阻擋訊息（例如：排序重複） -->
+			<div class="invalid-feedback"
+				th:if="${#fields.hasErrors('sortOrder')}" th:errors="*{sortOrder}"></div>
+		</div>
+
+		<button type="submit" class="btn btn-warning">變更儲存</button>
+		<a href="/admin/restaurant/menu/list" class="btn btn-secondary">返回列表</a>
+	</form>
+
+	<script>
+		function previewImage(input) {
+			const preview = document.getElementById('imagePreview');
+			if (input.files && input.files[0]) {
+				const reader = new FileReader();
+				reader.onload = function(e) {
+					preview.src = e.target.result;
+					preview.classList.remove('d-none');
+				}
+				reader.readAsDataURL(input.files[0]);
+			}
+		}
+	</script>
 </body>
 </html>

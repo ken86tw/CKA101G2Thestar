@@ -42,11 +42,19 @@
                     <tbody>
                         <tr th:each="av : ${tableList}">
                             <td th:text="${#strings.substring(av.businessHoursVO.startTime, 0, 5)} + ' ~ ' + ${#strings.substring(av.businessHoursVO.endTime, 0, 5)}"></td>
-                            <form th:action="@{/admin/restaurant/table/updateSingle}" method="post">
+                            <form th:action="@{/admin/restaurant/table/updateSingle}" method="post" onsubmit="return validateNonNegative(this);">
                                 <input type="hidden" name="date" th:value="${checkDate}">
                                 <input type="hidden" name="sessionId" th:value="${av.id.sessionId}">
-                                <td><input type="number" name="large" th:value="${av.largeTableCount}" class="form-control form-control-sm" style="width: 80px;"></td>
-                                <td><input type="number" name="small" th:value="${av.smallTableCount}" class="form-control form-control-sm" style="width: 80px;"></td>
+                                <td>
+                                    <input type="number" name="large" th:value="${av.largeTableCount}" min="0"
+                                        oninput="if(this.value !== '' && this.value < 0) this.value = 0;"
+                                        class="form-control form-control-sm" style="width: 80px;">
+                                </td>
+                                <td>
+                                    <input type="number" name="small" th:value="${av.smallTableCount}" min="0"
+                                        oninput="if(this.value !== '' && this.value < 0) this.value = 0;"
+                                        class="form-control form-control-sm" style="width: 80px;">
+                                </td>
                                 <td><button type="submit" class="btn btn-sm btn-primary"><i class="fa-solid fa-save me-1"></i>儲存</button></td>
                             </form>
                         </tr>
@@ -89,5 +97,25 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // 表單送出前，二次防呆檢查：確保大桌 / 小桌數量皆不小於 0
+        function validateNonNegative(form) {
+            const large = form.querySelector('input[name="large"]');
+            const small = form.querySelector('input[name="small"]');
+
+            if (large.value === '' || parseInt(large.value, 10) < 0) {
+                alert('大桌剩餘數量不可小於 0');
+                large.focus();
+                return false;
+            }
+            if (small.value === '' || parseInt(small.value, 10) < 0) {
+                alert('小桌剩餘數量不可小於 0');
+                small.focus();
+                return false;
+            }
+            return true;
+        }
+    </script>
 </body>
 </html>
