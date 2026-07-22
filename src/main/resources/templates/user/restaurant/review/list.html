@@ -1,53 +1,170 @@
 <!DOCTYPE html>
 <html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <!-- 1. 替換為共用 Head -->
-    <th:block th:replace="~{user/restaurant/userNavBar :: front-head('The Star 餐廳 - 顧客評論')}"></th:block>
+    <!-- 1. 共用 Head -->
+    <th:block th:replace="~{user/restaurant/userNavBar :: front-head('The Star 餐廳 - 饕客真實見證')}"></th:block>
     
-    <!-- 保留「顧客評論」分頁自己特有的樣式 -->
+    <!-- 引入 Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- 頁面特有樣式 -->
     <style>
-        body { background-color: #f8f9fa; }
-        .review-box { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .star-rating { color: #ffc107; font-size: 1.2rem; font-weight: bold; }
+        body { 
+            background-color: #f5f0e6; 
+            font-family: 'Noto Sans TC', sans-serif; 
+            color: #4a4a4a; 
+        }
+
+        h1, h2, h3, h4, h5, .serif-font {
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        /* 頂部氣氛圖 Banner 區塊 */
+        .review-header-banner {
+            position: relative;
+            /* 已更換為更有質感的餐廳環境氣氛圖連結 */
+            background-image: url('https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?q=80&w=1600');
+            background-size: cover;
+            background-position: center;
+            height: 350px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .review-header-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.45); /* 半透明暗色遮罩讓文字更清晰 */
+        }
+
+        .review-header-banner > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 關鍵防護：透明墊片，用來撐開高度，防止內容被圖片「卡住」覆蓋 */
+        .banner-spacer {
+            height: 60px; 
+        }
+
+        /* 平均星等區塊 */
+        .average-rating-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px 50px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+            border: 1px solid #eaeaea;
+        }
+
+        /* 評論卡片 */
+        .review-box { 
+            background: #fff; 
+            border-radius: 12px; 
+            padding: 30px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05); 
+            margin-bottom: 30px; 
+            border: 1px solid #eaeaea;
+            transition: transform 0.2s;
+        }
+        .review-box:hover {
+            transform: translateY(-3px);
+        }
+
+        /* 星等樣式 */
+        .star-rating { 
+            color: #c9a96e; 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            font-family: 'Noto Serif TC', serif;
+        }
+        
+        /* 會員ID 徽章樣式 */
+        .badge.bg-secondary {
+            background-color: #b0b0b0 !important;
+            border-radius: 20px;
+            font-weight: normal;
+        }
+
+        /* 評論內容與時間樣式 */
+        .review-content {
+            line-height: 1.8;
+            color: #666;
+            margin-top: 15px;
+        }
+        .review-meta {
+            font-size: 0.8rem;
+            color: #999;
+        }
     </style>
 </head>
 <body>
 
-    <!-- 2. 替換為共用 Navbar，傳入 'review' -->
+    <!-- 2. 共用 Navbar -->
     <div th:replace="~{user/common/frontNavbar :: navbar('restaurant-review', false, 'site-navbar-dark restaurant-navbar', false)}"></div>
 
-<div class="container my-5">
-    <div class="text-center mb-5">
-        <h1 class="fw-bold">饕客好評真實見證</h1>
-        <p class="text-muted">當前總平均星等：<span class="text-warning fw-bold" th:text="${#numbers.formatDecimal(averageStars, 1, 1)} + ' ★'">0.0 ★</span></p>
-    
-    </div>
+<!-- 頂部 Banner 區塊 -->
+<header class="review-header-banner">
+    <h1 class="fw-bold display-3 serif-font">饕客好評</h1>
+    <p class="fs-4">真實見證</p>
+</header>
 
+<!-- 透明墊片：確保 Banner 下方有足夠空間，絕不卡東西 -->
+<div class="banner-spacer"></div>
+
+<!-- 內容主容器 -->
+<div class="container pb-5">
     <div class="row justify-content-center">
         <div class="col-md-9">
             
-            <div th:if="${#lists.isEmpty(reviewList)}" class="text-center text-muted my-5">
-                <h4>目前尚無顧客評論，期待您的光臨與回饋！</h4>
+            <!-- 平均星等卡片區塊 (移至容器內正常流動，視覺美觀且安全) -->
+            <div class="text-center mb-5">
+                <div class="average-rating-card d-inline-block w-100">
+                    <h2 class="h3 mb-3 serif-font">當前總平均星等</h2>
+                    <p class="mb-0">
+                        <span class="star-rating" th:text="${#numbers.formatDecimal(averageStars, 1, 1)}">0.0</span>
+                        <span class="star-rating" style="font-size: 1.2rem;"> ★</span>
+                    </p>
+                    <p class="text-muted mt-2 mb-0" style="font-size: 0.9rem;">來自 <span th:text="${#lists.size(reviewList)}">0</span> 筆真實評論</p>
+                </div>
             </div>
 
+            <!-- 無評論時的顯示 -->
+            <div th:if="${#lists.isEmpty(reviewList)}" class="text-center text-muted my-5 p-5" style="background: #fff; border-radius: 12px; border: 1px solid #eaeaea;">
+                <i class="fas fa-comments fa-3x mb-3"></i>
+                <h4 class="serif-font">目前尚無顧客評論</h4>
+                <p>期待您的光臨與寶貴回饋！</p>
+            </div>
+
+            <!-- 評論卡片迴圈 -->
             <div class="review-box" th:each="review : ${reviewList}">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5 class="mb-0 fw-bold">
-                        顧客匿名評論 
+                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap">
+                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                        <span th:text="${review.memberVO?.memberName ?: '尊貴顧客'}">顧客匿名</span> 
                         <span class="badge bg-secondary ms-2" style="font-size:0.75rem;" th:text="'會員ID: ' + ${review.memberVO?.memberId}">會員ID</span>
                     </h5>
                     <span class="star-rating" th:text="${review.reviewStars} + ' / 5.0 分'">5.0 分</span>
                 </div>
-                <p class="text-muted mb-2" style="font-size: 0.85rem;" th:text="'相關預約紀錄編號: #' + ${review.RestaurantReservationVO?.reservationId}">預約編號</p>
-                <p class="mb-0" th:text="${review.reviewContent}">評論內文...</p>
+                
+                <div class="review-meta mb-3">
+                    <i class="fas fa-ticket-alt me-1"></i>
+                    <span th:text="'相關預約紀錄編號: #' + ${review.RestaurantReservationVO?.reservationId}">預約編號</span>
+                </div>
+
+                <p class="mb-0 review-content" th:text="${review.reviewContent}">評論內文...</p>
             </div>
 
         </div>
     </div>
 </div>
 
-
-
+<!-- JS -->
 <script src="/js/header-auth.js"></script>
 </body>
 </html>
