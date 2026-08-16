@@ -1,51 +1,71 @@
 <!DOCTYPE html>
 <html lang="zh-TW" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <!-- 1. 替換為你新路徑的共用 Head -->
-    <th:block th:replace="~{user/restaurant/userNavBar :: front-head('The Star 餐廳 - 美味菜單')}"></th:block>
-    
-    <!-- 保留「美味菜單」分頁自己特有的樣式 -->
-    <style>
-        body { background-color: #fdfbf7; }
-        .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s; }
-        .card:hover { transform: translateY(-5px); }
-        .menu-price { color: #d9534f; font-weight: bold; font-size: 1.2rem; }
-    </style>
+<!-- 1. 替換為你新路徑的共用 Head -->
+<th:block
+	th:replace="~{user/restaurant/userNavBar :: front-head('The Star 餐廳 - 美味菜單')}"></th:block>
+
+<!-- 保留「美味菜單」分頁自己特有的樣式 -->
+<style>
+body {
+	background-color: #fdfbf7;
+}
+
+.card {
+	border: none;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+	transition: transform 0.2s;
+}
+
+.card:hover {
+	transform: translateY(-5px);
+}
+
+.menu-price {
+	color: #d9534f;
+	font-weight: bold;
+	font-size: 1.2rem;
+}
+</style>
 </head>
 <body>
 
-    <!-- 2. 替換為你新路徑的共用 Navbar -->
-    <div th:replace="~{user/common/frontNavbar :: navbar('restaurant-menu', false, 'site-navbar-dark restaurant-navbar', false)}"></div>
+	<!-- 2. 替換為你新路徑的共用 Navbar -->
+	<div
+		th:replace="~{user/common/frontNavbar :: navbar('restaurant-menu', false, 'site-navbar-dark restaurant-navbar', false)}"></div>
 
-<div class="container my-5">
-    <h1 class="text-center mb-5 fw-bold">⭐ 璀璨精選菜單 ⭐</h1>
-    
-    <h3 class="border-start border-warning border-4 ps-2 mb-4">所有精選餐點</h3>
-    
-    <div th:if="${#lists.isEmpty(menuList)}" class="text-center text-muted my-5">
-        <h4>菜單正在準備中，敬請期待！</h4>
-    </div>
+	<div class="container my-5">
+		<h1 class="text-center mb-5 fw-bold">⭐ 璀璨精選菜單 ⭐</h1>
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-4" th:each="menu : ${menuList}">
-            <div class="card h-100">
-                <img th:src="${menu.imageUrl != null && menu.imageUrl != ''} ? @{|/images/${menu.imageUrl}|} : 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'" 
-                     class="card-img-top" alt="餐點圖片">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold" th:text="${menu.itemName}">餐點名稱</h5>
-                    
-                    <p class="card-text text-muted" th:text="${menu.itemDesc}">餐點描述文字...</p>
-                    
-                    <div class="menu-price" th:text="'$ ' + ${menu.price}">$ 0</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+		<h3 class="border-start border-warning border-4 ps-2 mb-4">所有精選餐點</h3>
 
-    <!-- 3. 替換為你新路徑的共用 Footer -->
-    <footer th:replace="~{user/restaurant/userNavBar :: front-footer}"></footer>
+		<div th:if="${#lists.isEmpty(menuList)}"
+			class="text-center text-muted my-5">
+			<h4>菜單正在準備中，敬請期待！</h4>
+		</div>
 
-<script src="/js/header-auth.js"></script>
+		<div class="row g-4 mb-5">
+			<div class="col-md-4" th:each="menu : ${menuList}">
+				<div class="card h-100">
+					<img
+						th:src="${menu.itemImage != null} ? @{/admin/restaurant/menu/DBGifReader(itemId=${menu.itemId})} : 'https://images.unsplash.com/photo-1544025162-d76694265947?w=500'"
+						class="card-img-top" alt="餐點圖片"
+						style="height: 220px; object-fit: cover;">
+					<div class="card-body">
+						<h5 class="card-title fw-bold" th:text="${menu.itemName}">餐點名稱</h5>
+
+						<p class="card-text text-muted" th:text="${menu.itemDesc}">餐點描述文字...</p>
+
+						<div class="menu-price" th:text="'$ ' + ${menu.price}">$ 0</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 3. 替換為你新路徑的共用 Footer -->
+	<footer th:replace="~{user/restaurant/userNavBar :: front-footer}"></footer>
+
+	<script src="/js/header-auth.js"></script>
 </body>
 </html>

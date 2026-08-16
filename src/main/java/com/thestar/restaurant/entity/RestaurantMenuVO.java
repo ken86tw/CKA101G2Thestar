@@ -26,7 +26,7 @@ public class RestaurantMenuVO implements Serializable {
     private String itemName;
     private String itemDesc;
     private BigDecimal price;
-    private String imageUrl;
+    private byte[] itemImage;
     private Integer sortOrder;
 
     @Id
@@ -78,13 +78,12 @@ public class RestaurantMenuVO implements Serializable {
         this.price = price;
     }
 
-    @Column(name = "IMAGE_URL")
-    @Size(max = 255, message = "圖片路徑：長度不能超過 {max} 字元")
-    public String getImageUrl() {
-        return imageUrl;
+    @Column(name = "ITEM_IMAGE")
+    public byte[] getItemImage() {
+        return itemImage;
     }
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setItemImage(byte[] itemImage) {
+        this.itemImage = itemImage;
     }
 
     @Column(name = "SORT_ORDER")

@@ -7,36 +7,69 @@
 </head>
 <body class="container mt-4" style="max-width: 600px;">
     <h2>編修餐點資訊</h2>
-    <form th:action="@{/admin/restaurant/menu/save}" th:object="${restaurantMenuVO}" method="post">
+    
+    <!-- 1. 加上 enctype="multipart/form-data" -->
+    <form th:action="@{/admin/restaurant/menu/save}" th:object="${restaurantMenuVO}" method="post" enctype="multipart/form-data">
         <input type="hidden" th:field="*{itemId}">
+        
         <div class="mb-3">
             <label class="form-label">修改菜單分類:</label>
             <select th:field="*{menuCategoryVO.categoryId}" class="form-select" required>
                 <option th:each="cat : ${categoryList}" th:value="${cat.categoryId}" th:text="${cat.categoryName}"></option>
             </select>
         </div>
+        
         <div class="mb-3">
             <label class="form-label">餐點名稱:</label>
             <input type="text" th:field="*{itemName}" class="form-control" required>
         </div>
+        
         <div class="mb-3">
             <label class="form-label">餐點描述:</label>
             <textarea th:field="*{itemDesc}" class="form-control" rows="3"></textarea>
         </div>
+        
         <div class="mb-3">
             <label class="form-label">單價:</label>
             <input type="number" step="0.01" th:field="*{price}" class="form-control" required>
         </div>
+        
+        <!-- 2. 改為上傳元件，並動態呈現舊圖片 / 預覽新圖片 -->
         <div class="mb-3">
-            <label class="form-label">圖片網址:</label>
-            <input type="text" th:field="*{imageUrl}" class="form-control">
+            <label class="form-label">更換餐點圖片:</label>
+            <input type="file" name="itemImageFile" id="itemImageFile" class="form-control" accept="image/*" onchange="previewImage(this)">
+            
+            <div class="mt-3 text-center">
+                <!-- 舊圖預覽：若資料庫原本有圖就用 DBGifReader 讀出 -->
+                <img id="imagePreview" 
+                     th:src="*{itemImage != null} ? @{/admin/restaurant/menu/DBGifReader(itemId=*{itemId})} : '#'" 
+                     alt="圖片預覽" 
+                     th:class="*{itemImage != null} ? 'img-thumbnail' : 'img-thumbnail d-none'" 
+                     style="max-height: 200px;">
+            </div>
         </div>
+        
         <div class="mb-3">
             <label class="form-label">排序:</label>
             <input type="number" th:field="*{sortOrder}" class="form-control" required>
         </div>
-        <button type="submit" class="btn btn-warning">更變儲存</button>
+        
+        <button type="submit" class="btn btn-warning">變更儲存</button>
         <a href="/admin/restaurant/menu/list" class="btn btn-secondary">返回列表</a>
     </form>
+
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 </body>
 </html>
