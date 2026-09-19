@@ -13,6 +13,7 @@ import com.thestar.restaurant.entity.AvailableTableVO;
 import com.thestar.restaurant.entity.BusinessHoursVO;
 import com.thestar.restaurant.repository.AvailableTableRepository;
 import com.thestar.restaurant.repository.BusinessHoursRepository;
+import com.thestar.restaurant.repository.RestaurantReservationRepository;
 import com.thestar.restaurant.repository.RestaurantTableRepository;
 
 @Service
@@ -26,6 +27,10 @@ public class AvailableTableService {
     
     @Autowired
     private RestaurantTableRepository restaurantTableRepository;
+    
+    @Autowired
+    private RestaurantReservationRepository restaurantReservationRepository;
+    
 
     public void addAvailableTable(AvailableTableVO availableTableVO) {
         repository.save(availableTableVO);
@@ -124,6 +129,58 @@ public class AvailableTableService {
         return repository.findAvailableSessionsByDateAndGuests(date, guests);
     }
     
+    
+    private int compareSession(Integer s1, Integer s2, List<BusinessHoursVO> sortedList) {
+        int idx1 = -1;
+        int idx2 = -1;
+        
+        // 在已經依照時間排好序的清單中，找出這兩個時段的索引位置
+        for (int i = 0; i < sortedList.size(); i++) {
+            if (sortedList.get(i).getSessionId().equals(s1)) idx1 = i;
+            if (sortedList.get(i).getSessionId().equals(s2)) idx2 = i;
+        }
+        
+        // 回傳比對結果：負數代表 s1 在 s2 之前，0 代表相同，正數代表 s1 在 s2 之後
+        return Integer.compare(idx1, idx2);
+    }
+    @Transactional
+    public void closeAvailableTablesRange(LocalDate startDate, Integer startSessionId, LocalDate endDate, Integer endSessionId) {
+        if (startDate.isAfter(endDate)) throw new IllegalArgumentException("開始日期不能大於結束日期");
+
+        List<BusinessHoursVO> allSessions = businessHoursRepository.findAll();
+        allSessions.sort((a, b) -> a.getStartTime().compareTo(b.getStartTime()));
+
+        LocalDate curDate = startDate;
+        while (!curDate.isAfter(endDate)) {
+            for (BusinessHoursVO bhVO : allSessions) {
+                if (bhVO.getIsAvailable() == null || !bhVO.getIsAvailable()) continue;
+
+                boolean isWithinRange = true;
+                if (curDate.equals(startDate) && compareSession(bhVO.getSessionId(), startSessionId, allSessions) < 0) isWithinRange = false;
+                if (curDate.equals(endDate) && compareSession(bhVO.getSessionId(), endSessionId, allSessions) > 0) isWithinRange = false;
+
+                if (isWithinRange) {
+                    // 檢查是否有有效訂位
+                	long count = restaurantReservationRepository.countActiveReservations(java.sql.Date.valueOf(curDate), bhVO.getSessionId());
+
+                	if (count > 0) {
+                	    // 💡 拋出明確的錯誤訊息，會被 Controller 捕捉並顯示在網頁的 errorMessage 中
+                	    throw new IllegalStateException("無法關閉訂位！在 " + curDate + " 的該時段內，尚有 " + count + " 筆訂位狀態為 BOOKED 或進行中的訂單，請先處理這些訂單。");
+                	}
+                    AvailableTableId id = new AvailableTableId(curDate, bhVO.getSessionId());
+                    AvailableTableVO vo = repository.findById(id).orElse(new AvailableTableVO());
+                    if (vo.getId() == null) {
+                        vo.setId(id);
+                        vo.setBusinessHoursVO(bhVO);
+                    }
+                    vo.setLargeTableCount(0);
+                    vo.setSmallTableCount(0);
+                    repository.save(vo);
+                }
+            }
+            curDate = curDate.plusDays(1);
+        }
+    }
     /**
      * 3. 初始化未來 30 天的桌況資料表
      * 💡 換成 LocalDate 後，日期加減變得超級簡單，不再需要麻煩的 Calendar 與 System.currentTimeMillis()！

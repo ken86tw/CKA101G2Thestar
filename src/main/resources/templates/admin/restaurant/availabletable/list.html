@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{admin/restaurant/common_sidebar :: common-head('桌況即時管理')}"></head>
+<body>
+    <div th:replace="~{admin/restaurant/common_sidebar :: sidebar('availability')}"></div>
+    <div class="main-content">
+        <div th:replace="~{admin/restaurant/common_sidebar :: topbar('每日桌況餘量與管理')}"></div>
+        
+        <div class="page-body">
+            <!-- 訊息提示 -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-circle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- 1. 查詢篩選區 -->
+            <div class="card p-4 mb-4">
+                <form th:action="@{/admin/restaurant/table/availability}" method="get" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">選擇查詢日期</label>
+                        <input type="date" name="date" class="form-control" th:value="${checkDate}" onchange="this.form.submit()">
+                    </div>
+                </form>
+            </div>
+
+            <!-- 2. 即時桌況與手動修改區 -->
+            <div class="card p-4 mb-4">
+                <h5 class="mb-3 fw-bold text-primary" th:text="${checkDate} + ' 桌況統計列表'"></h5>
+                <table class="table table-hover table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>時段</th>
+                            <th>大桌剩餘</th>
+                            <th>小桌剩餘</th>
+                            <th width="150">單筆修改</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="av : ${tableList}">
+                            <td th:text="${#strings.substring(av.businessHoursVO.startTime, 0, 5)} + ' ~ ' + ${#strings.substring(av.businessHoursVO.endTime, 0, 5)}"></td>
+                            <form th:action="@{/admin/restaurant/table/updateSingle}" method="post">
+                                <input type="hidden" name="date" th:value="${checkDate}">
+                                <input type="hidden" name="sessionId" th:value="${av.id.sessionId}">
+                                <td><input type="number" name="large" th:value="${av.largeTableCount}" class="form-control form-control-sm" style="width: 80px;"></td>
+                                <td><input type="number" name="small" th:value="${av.smallTableCount}" class="form-control form-control-sm" style="width: 80px;"></td>
+                                <td><button type="submit" class="btn btn-sm btn-primary"><i class="fa-solid fa-save me-1"></i>儲存</button></td>
+                            </form>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 3. 區間批次關閉設定區 -->
+            <div class="card p-4 border-danger">
+                <h5 class="text-danger fw-bold mb-3"><i class="fa-solid fa-calendar-xmark me-2"></i>批次關閉區間訂位</h5>
+                <form th:action="@{/admin/restaurant/table/closeSessionRange}" method="post">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-xl-5">
+                            <label class="form-label fw-bold small">從 (日期 + 時段)</label>
+                            <div class="input-group">
+                                <input type="date" name="startDate" class="form-control" required>
+                                <select name="startSessionId" class="form-select" required>
+                                    <option value="">請選擇...</option>
+                                    <option th:each="bh : ${businessHoursList}" th:value="${bh.sessionId}" th:text="${#strings.substring(bh.startTime, 0, 5)} + ' ~ ' + ${#strings.substring(bh.endTime, 0, 5)}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xl-5">
+                            <label class="form-label fw-bold small">至 (日期 + 時段)</label>
+                            <div class="input-group">
+                                <input type="date" name="endDate" class="form-control" required>
+                                <select name="endSessionId" class="form-select" required>
+                                    <option value="">請選擇...</option>
+                                    <option th:each="bh : ${businessHoursList}" th:value="${bh.sessionId}" th:text="${#strings.substring(bh.startTime, 0, 5)} + ' ~ ' + ${#strings.substring(bh.endTime, 0, 5)}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xl-2">
+                            <button type="submit" class="btn btn-danger w-100" onclick="return confirm('確定要將此區間所有時段歸 0 嗎？有進行中的訂位將會阻擋操作。');">
+                                執行關閉
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
